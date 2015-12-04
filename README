@@ -1,0 +1,48 @@
+
+INSTALLING {
+    
+    $ git clone git@github.com:tadzik/rakudobrew.git ~/.rakudobrew
+
+    $ rakudobrew init
+        This produces output, telling you how to auto-initialize on login.  
+        Presumably the instructions given will init rakudo without producing 
+        the pesky output.
+
+        However, the instructions given are for bash, and I don't know enough 
+        fish to be able to translate the bash command to fish.
+
+        So for now, I'm going to accept that rakudobrew does not get 
+        initialized automatically on login, and just init it once per session 
+        myself until I find a better solution.
+
+    $ rakudobrew build moar
+        Builds and installs the MoarVM.  It doesn't matter where you're 
+        sitting on the filesystem when you do this.  Takes a few minutes.
+
+    $ rakudobrew build-panda
+        Builds and installs panda.  YES, THE HYPHEN NEEDS TO BE THERE.  Yes, 
+        it's inconsistent.  Panda seems to be the rakudo moral equivalent of 
+        cpan.  Takes a few minutes, less than building moar.
+
+    $ panda install Task::Star
+        "Meta-package for modules included in Rakudo Star"
+
+        This produced an error on installing Grammar::Debugger.  Task::Star is 
+        a list of modules to install, and I'm concerned that the entire list 
+        stopped getting installed when the Grammar::Debugger error was 
+        encountered.
+
+        If you find that you need other modules that should have been included 
+        in Task::Star but didn't get installed because of the 
+        Grammar::Debugger explosion, you can install them individually as 
+        needed:
+            $ panda install JSON::Tiny
+            $ panda install HTTP::Easy
+            etc
+
+    Anyway, Task::Star error aside, "perl6" should now be in your path.
+        $ which perl6
+        /home/jon/.rakudobrew/bin/perl6
+        
+        
+}
