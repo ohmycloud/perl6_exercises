@@ -1,6 +1,17 @@
 
-INSTALLING {
-    
+Docs
+    http://doc.perl6.org/
+
+
+INSTALLING {#{{{
+    http://rakudo.org/how-to-get-rakudo/
+
+    I didn't want to go with the Ubuntu package, figuring it'd probably be 
+    out-of-date.  I do like perlbrew, and one of the options for perl6 is 
+    "rakudobrew", so figured I'd go with that instead of doing a full manual 
+    build.
+
+
     $ git clone git@github.com:tadzik/rakudobrew.git ~/.rakudobrew
 
     $ rakudobrew init
@@ -32,6 +43,10 @@ INSTALLING {
         stopped getting installed when the Grammar::Debugger error was 
         encountered.
 
+        Task::Star comes from here:
+            https://github.com/tadzik/Task-Star
+        You can see the list of modules it's supposed to install in META.info.
+
         If you find that you need other modules that should have been included 
         in Task::Star but didn't get installed because of the 
         Grammar::Debugger explosion, you can install them individually as 
@@ -40,9 +55,120 @@ INSTALLING {
             $ panda install HTTP::Easy
             etc
 
-    Anyway, Task::Star error aside, "perl6" should now be in your path.
+    Anyway, Task::Star errors aside, "perl6" should now be in your path.
         $ which perl6
         /home/jon/.rakudobrew/bin/perl6
         
-        
+    Test!
+        $ perl6 hello.p6
+        Hello, World!
+
+        Yay!
+}#}}}
+
+
+IDENTIFIERS {#{{{
+    Names can include letters and numbers, but must start with a letter.
+
+    They can also now include dashes and single-quotes, but only one at a 
+    time.  And the first character after a dash or single-quote must again be 
+    a letter.
+
+    So these are valid identifiers:
+        long-name
+        don't
+        long-a5s-name
+
+    But these aren't:
+        long--name
+        long-75s-name
+}#}}}
+MODULES {#{{{
+    https://modules.perl6.org/
+
+    Install with
+        $ panda install <MODULENAME>
+
+
+    v5 (Run Perl5 inside Perl6 script) {#{{{
+        Allows you to run Perl5 code inside Perl6.
+
+            ...perl6 code...
+
+            use v5;
+            if( $^O eq 'MSWin32' ) {
+                say "What are you thinking?!?";
+            }
+
+            use 6.0.0;
+            ...more perl6 code...
+
+        v5 is a "slang", which likely means it's going to be a subset of 
+        perl5.
+
+        See also Inline::Perl5, which embeds a perl5 interpreter, likely 
+        allowing you to run real perl5 code.
+
+    }#}}}
+}#}}}
+TRUTH {#{{{
+    Looks like truth is mostly like perl5.
+
+    HOWEVER, the string "0" is TRUE in perl6.
+
+    perl6 also has an actual Boolean type.
+        if True  {
+            say "Hello";
+        }
+}#}}}
+TUTORIALS {#{{{
+    http://doc.perl6.org/language.html
+
+    This page is a list of links to different perl6 tutorials and docs sites.  
+    Looks pretty useful.
+
+}#}}}
+VARIABLES {
+    http://doc.perl6.org/language/variables
+
+    There's too much new info to learn to just re-type it all here, so see 
+    that link.
+
+    But I'll include a few high points here.
+
+
+    INSPECTING
+        my $var = "foobar";
+        say $var.WHAT;          # (Str)
+        say $var.perl;          # "foobar"  <- the quotes actually get printed.
+        say $var;               # foobar
+
+    SIGILS
+        These are familiar and comfortable.
+
+    TWIGILS
+        These are completely new to perl6, and can modify the scope of a 
+        variable.  Absolutely read and re-read this section:
+            http://doc.perl6.org/language/variables#Twigils
+    
 }
+WHITESPACE {#{{{
+
+    Whitespace rules are similar to perl5, but not identical.
+
+    This one is going to burn me for quite a while.  You now NEED a space 
+    after a keyword, like if or while.  So this is no longer valid:
+        if( True ) {
+            say "It's true."
+        }
+     
+     That'll blow up because there's no space between the 'f' and the opening 
+     paren.
+
+     To make up for it, the parens themselves are not necessary anymore (Hey, 
+     you got your Python in my Perl!), so something like this is fine:
+        if True { say "It's true!" }
+
+}#}}}
+
+
