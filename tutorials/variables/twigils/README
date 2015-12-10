@@ -1,0 +1,25 @@
+
+http://doc.perl6.org/language/variables#Twigils
+
+- dynamic.p6
+    *   dynamic
+
+- specvar.p6
+    ?   are compile-time variables ($?FILE, $?LINE)
+    *   are dynamic, but some are available in your program.  I assume these
+            dynamic variables are run-time, not compile-time.
+
+- class.p6
+    !   attribute
+    .   method (not really a variable)
+
+- params.p6
+    ^   positional parameter
+    :   named parameter
+
+
+
+<   index into match object (not really a variable)
+=   POD variables (don't care for now)
+~   sublanguage (basically unimplemented at this point)
+

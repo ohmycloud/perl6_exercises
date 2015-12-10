@@ -4,5 +4,15 @@ if True {
     say $greet.WHAT;
     say $greet.perl;
     say $greet;
+
+    for ^4 {
+        say "$^b follows $^a";
+    }
+
+    sayit('foo');
+}
+
+sub sayit {
+    say "$^a $^b";
 }
 

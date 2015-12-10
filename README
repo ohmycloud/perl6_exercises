@@ -3,6 +3,20 @@ Docs
     http://doc.perl6.org/
 
 
+I have a symlink from perl6 to "six", so this will work:
+    $ six hello.p6
+
+    ...My fingers just don't want to reach for the 6 after typing "perl".  And 
+    when they do start to reach for it, they invariably hit the 5 instead of 
+    the 6 the first three times.  So fuck it, just call it "six".  
+
+    Shit.  This doesn't work, since rakudobrew's "perl6" is actually just a 
+    shell script that's assuming the name of the actual executable ("perl6") 
+    should be the same as the name of the shell script being invoked.  Deal 
+    with this at some point.
+
+
+
 INSTALLING {#{{{
     http://rakudo.org/how-to-get-rakudo/
 
@@ -18,13 +32,6 @@ INSTALLING {#{{{
         This produces output, telling you how to auto-initialize on login.  
         Presumably the instructions given will init rakudo without producing 
         the pesky output.
-
-        However, the instructions given are for bash, and I don't know enough 
-        fish to be able to translate the bash command to fish.
-
-        So for now, I'm going to accept that rakudobrew does not get 
-        initialized automatically on login, and just init it once per session 
-        myself until I find a better solution.
 
     $ rakudobrew build moar
         Builds and installs the MoarVM.  It doesn't matter where you're 
@@ -128,7 +135,17 @@ TUTORIALS {#{{{
     Looks pretty useful.
 
 }#}}}
-VARIABLES {
+UNIMPLEMENTED *** {#{{{
+    I'm starting to play with perl6 before the Xmas 2015 official production 
+    release.
+        This is rakudo version 2015.11-357-g587f700 built on MoarVM version 2015.11-34-gc3eea17 implementing Perl v6.b.
+
+    I'm finding things that aren't doing what the docs tell me they should; 
+    I'm going to just assume those things will be fixed in v1.0.
+
+    Ack for "NYI" for things that fit this bill.
+}#}}}
+VARIABLES {#{{{
     http://doc.perl6.org/language/variables
 
     There's too much new info to learn to just re-type it all here, so see 
@@ -151,7 +168,7 @@ VARIABLES {
         variable.  Absolutely read and re-read this section:
             http://doc.perl6.org/language/variables#Twigils
     
-}
+}#}}}
 WHITESPACE {#{{{
 
     Whitespace rules are similar to perl5, but not identical.
