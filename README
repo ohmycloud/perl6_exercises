@@ -145,30 +145,6 @@ UNIMPLEMENTED *** {#{{{
 
     Ack for "NYI" for things that fit this bill.
 }#}}}
-VARIABLES {#{{{
-    http://doc.perl6.org/language/variables
-
-    There's too much new info to learn to just re-type it all here, so see 
-    that link.
-
-    But I'll include a few high points here.
-
-
-    INSPECTING
-        my $var = "foobar";
-        say $var.WHAT;          # (Str)
-        say $var.perl;          # "foobar"  <- the quotes actually get printed.
-        say $var;               # foobar
-
-    SIGILS
-        These are familiar and comfortable.
-
-    TWIGILS
-        These are completely new to perl6, and can modify the scope of a 
-        variable.  Absolutely read and re-read this section:
-            http://doc.perl6.org/language/variables#Twigils
-    
-}#}}}
 WHITESPACE {#{{{
 
     Whitespace rules are similar to perl5, but not identical.

@@ -2,3 +2,22 @@
 left off at
     http://doc.perl6.org/language/variables#Type_Constraints_and_Initialization
 
+NOTES {#{{{
+    http://doc.perl6.org/language/variables
+
+    INSPECTING
+        my $var = "foobar";
+        say $var.WHAT;          # (Str)
+        say $var.perl;          # "foobar"  <- the quotes actually get printed.
+        say $var;               # foobar
+
+    SIGILS
+        These are mostly familiar and comfortable.
+
+    TWIGILS
+        These are completely new to perl6, and can modify the scope of a 
+        variable.  Absolutely read and re-read this section:
+            http://doc.perl6.org/language/variables#Twigils
+    
+}#}}}
+
