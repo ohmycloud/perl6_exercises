@@ -16,7 +16,6 @@ I have a symlink from perl6 to "six", so this will work:
     with this at some point.
 
 
-
 INSTALLING {#{{{
     http://rakudo.org/how-to-get-rakudo/
 
@@ -27,11 +26,14 @@ INSTALLING {#{{{
 
 
     $ git clone git@github.com:tadzik/rakudobrew.git ~/.rakudobrew
+        - add ~/.rakudobrew/bin/ to your PATH
 
-    $ rakudobrew init
-        This produces output, telling you how to auto-initialize on login.  
-        Presumably the instructions given will init rakudo without producing 
-        the pesky output.
+    - If you pulled my latest fish config file from github and started a new 
+      shell, you can skip this next step; it's in that file.
+        $ rakudobrew init
+            This produces output, telling you how to auto-initialize on login.  
+            Presumably the instructions given will init rakudo without 
+            producing the pesky output.
 
     $ rakudobrew build moar
         Builds and installs the MoarVM.  It doesn't matter where you're 
@@ -72,7 +74,6 @@ INSTALLING {#{{{
 
         Yay!
 }#}}}
-
 
 IDENTIFIERS {#{{{
     Names can include letters and numbers, but must start with a letter.
@@ -163,5 +164,4 @@ WHITESPACE {#{{{
         if True { say "It's true!" }
 
 }#}}}
-
 
