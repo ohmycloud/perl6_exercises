@@ -1,3 +1,4 @@
+#!/home/jon/.rakudobrew/bin/perl6
 
 class Task {
     has      &!callback;
@@ -36,5 +37,5 @@ my $eat =
         )
     );
 
-$eat.perform();
+#$eat.perform();
 

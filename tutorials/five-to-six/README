@@ -1,0 +1,261 @@
+
+http://doc.perl6.org/language/5to6-nutshell
+
+CPAN {#{{{
+    https://modules.perl6.org/
+        Install modules from here with:
+            $ panda install <modulename>
+}#}}}
+EMBEDDING PERL5 CODE {#{{{
+    v5
+        This is a "slang" that lets you include perl5 code in your perl6 code.
+        Won't build - gets stuck on "Generating Build Order".
+
+    Inline::Perl5
+        Actually embeds a perl5 interpreter in your perl6 program to let you 
+        really include full perl5 code in your perl6 program.
+
+        Looks like pretty good docs at its github home:
+            https://github.com/niner/Inline-Perl5/
+
+        However, this doesn't build either.
+}#}}}
+IDENTIFIERS {#{{{
+    Names can include letters and numbers, but must start with a letter.
+
+    They can also now include dashes and single-quotes, but only one at a 
+    time.  And the first character after a dash or single-quote must again be 
+    a letter.
+
+    So these are valid identifiers:
+        long-name
+        don't
+        long-a5s-name
+
+    But these aren't:
+        long--name
+        long-75s-name
+}#}}}
+TRUTH {#{{{
+    Looks like truth is mostly like perl5.
+
+    HOWEVER, the string "0" is TRUE in perl6.
+
+    perl6 also has an actual Boolean type.
+        if True  {
+            say "Hello";
+        }
+}#}}}
+WHITESPACE {#{{{
+
+    Whitespace rules are similar to perl5, but not identical.
+
+    This one is going to burn me for quite a while.  You now NEED a space 
+    after a keyword, like if or while.  So this is no longer valid:
+        if( True ) {
+            say "It's true."
+        }
+     
+     That'll blow up because there's no space between the 'f' and the opening 
+     paren.
+
+     To make up for it, the parens themselves are not necessary anymore (Hey, 
+     you got your Python in my Perl!), so something like this is fine:
+        if True { say "It's true!" }
+
+}#}}}
+ARRAYS AND HASHES {#{{{
+
+    qw()
+        Standard array assignment looks familiar:
+            my @letters = ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i');
+
+        But angle brackets can be used to replicate qw():
+            my @letters = <a b c d e f g h i>;
+        
+
+    Declaring arrays is a little easier, and we always refer to array 
+    variables with the @ sigil; no switching to $ when referring to an 
+    individual element:
+        my @letters = <a b c d e>;
+        say @letters[1];                    # b
+
+    Value Slicing
+        say join ',', @letters[0,2..4];     # a,c,d,e
+
+    Key/Value Slicing
+        say join ',', @letters[0,1,2]:kv;   # 0,a,1,b,3,d
+
+        The docs say I should be able to do this as well:
+            say join ',', @letters[0,2..4]:kv;
+        However, that only prints "0,a" and stops -- the ":kv" can't handle 
+        the range (yet, I assume).  NYI
+
+
+    Same deal with hash access -- always use %:
+        my %names = (
+            jon     => 'barton',
+            john    => 'koch',
+            kermit  => 'jackson';
+        );
+        say %names{'jon'};
+
+    Value Slicing
+        say join ',', %names{'jon', 'kermit'};      # barton,jackson
+        say join ',', %names<jon kermit>;           # Same deal, just easier to look at
+
+    Key/Value Slicing
+        say join ',', %names{'jon', 'kermit'}:kv;   # jon,barton,kermit,jackson
+        say join ',', %names<jon kermit>:kv;        # Again, same deal.  Prettier.
+
+    
+}#}}}
+REFERENCES {#{{{
+
+    Creating anonymous refs is the same in both 5 and 6:
+        my $aref = [1, 2, 9];
+        my $href = { a => 97, Q => 81 };
+        my $cref = { say "foo" };
+
+    Taking a reference to an existing variable has changed:
+        my @aaa = <a a a>;
+        my $aref = item(@aaa);
+
+        my %hash = ( a => 97, Q => 81 );
+        my $href = item(%hash);
+
+        sub foo { say "this is foo" }
+        my $coderef = &foo;         # no backwhack needed.
+
+
+    DEREFERENCING
+        my @letters = <a b c d e f g h i>;
+        my $lref = item(@letters);
+
+        Docs say that I need to do this to de-reference:
+            say $lref.[0];      # a
+
+        That works, but I'm also able to do it without the dot:
+            say $lref[0];       # a
+
+            I don't know if that's an oversight in the beta rakudo or if it's 
+            going to work that way in the future.  NYI
+
+        
+        De-Reffing hashes has the same caveats.  Docs say to use the dot, but 
+        it's working without it too:
+            say $href.{'a'};    # per the docs; works
+            say $href{'a'};     # not per the docs; still works.
+
+
+        Again, same deal with coderefs:
+            $cref.();           # per the docs; works
+            $cref();            # not per the docs; still works
+
+
+        
+        De-ref the entire structure.  These all do the same thing:
+            my @new_array_1 = @($lref);
+            my @new_array_2 = $lref.list;   # ".hash" for hashes
+            my @new_array_3 = $lref[];      # Docs call this the "Zen" slice.
+            my @new_hash_1  = $href{};      # "Zen" hash slice.
+
+
+}#}}}
+OPERTATORS {#{{{
+    
+    Many operators are unchanged.  I'm only listing those that have changed.
+
+    <=>, cmp
+        Instead of returning -1, 0, 1, these return Order::Less, Order::Same, 
+        or Order::More.  These print out as "Less", "Same", and "More".
+
+        <=> forces numeric context
+
+        "cmp" is now named "leg".  It forces string context.
+            There's no explanation on wtf "leg" means.  Lessthan Egual?  I 
+            dunno; that's definitely a "gee" and not a "queue" there.
+
+        "cmp" does still exist.  It performs either <=> or "leg", depending on 
+        the types of its arguments.
+
+    ~~ Smartmatch
+        It returns!
+        But now it's quite different from it's moronic perl5 brother.  Full 
+        explanation here:
+            https://design.perl6.org/S03.html#Smart_matching
+
+    Bitwise Ops
+        Single-character bitwise ops have been removed.  They were 
+        context-sensitive; these are not the same thing in perl5:
+            31 | 33;        # 63
+            "31" | "33";    # 33
+        That shit's confusing.
+
+        Bitwise ops are now two-character, the first character indicates the 
+        context:
+            Infix Bitwise Ops:  ($a OP $b)
+                +& +| +^    And Or Xor: Numeric
+                ~& ~| ~^    And Or Xor: String
+                ?& ?| ?^    And Or Xor: Boolean
+
+            Postfix Bitwise Ops: (OP $a):
+                +^  Not: Numeric
+                ~^  Not: String
+                ?^  Not: Boolean (same as !, which does still work)
+
+    Numeric Shift
+        Instead of << or >> we now use the numeric indicator, '+', followed by 
+        the direction of the shift:
+            say 42 << 3;    # perl5
+            say 42 +< 3;    # perl6
+    
+    => Fat Comma
+        http://doc.perl6.org/language/5to6-nutshell#%3D%3E_Fat_comma
+
+        It's going to be used in many of the same situations as perl5, but 
+        instead of just being a comma that quotes the left side, in perl6 this 
+        is now the "Pair operator".
+
+        The given example doesn't look very complete; I'll need to learn about 
+        this as I go.
+
+    () ? : Ternary
+        Works the same way, but now uses modified characters:
+            my $rslt = ( $truth ) ?? "It's True!" !! "It's False!";
+
+    . Concat
+        Now it's a tilde.  Blarg.
+        $str = "foo" ~ "bar";
+
+    x Repeat Op
+        Almost the same op as in perl5, but less fragile.
+
+        say 'foo' x 3;      # repeat a string   (think "short")
+        @arr = 'foo' xx 3;  # repeat a list     (think "long")
+
+        However, the space _is_ required.  This is no worky-worky:
+            say "bar" x3;   # GONNNG!
+
+    .. Range
+        Docs say that range in perl6 has "many new wrinkles".  That being 
+        said, any perl5 code that used .. as a range operator should also work 
+        in perl6.
+
+        Apparently, .. and ... were "flipflop" operators in perl5 (when used 
+        in scalar context).  In perl6, these are 'ff' and 'fff', but as I have 
+        no idea what a flipflop operator is, I don't care.
+
+    String Interpolation
+        The sigil now goes inside the curlies, not outside.
+        
+        ### The task here is to print out:
+        ###     I have two chairs.
+
+        $var = "chair";
+        say "I have two ${var}s.";      # perl5
+        say "I have two {$var}s.";      # perl6
+
+}#}}}
+
+

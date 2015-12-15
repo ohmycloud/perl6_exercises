@@ -1,3 +1,47 @@
 
+
+Left off at
+    http://doc.perl6.org/language/classtut#State
+
+(I realized I'd been following the docs out of order.)
+
+
+
+
 http://doc.perl6.org/language/classtut
+
+ATTRIBUTES {
+    
+    $!attrib
+    $.attrib
+        I'm not positive, but I think that the deal with these is this:
+
+        $!attrib is a variable of the class (an attribute).  It can be 
+        accessed only from within the class.  It can't be read or written from 
+        the outside.
+
+
+        $.attrib is a method.  It creates $!attrib, so you can access $!attrib 
+        from within the class as a normal variable, both read and write.
+
+        But you can now also access the value of $!attrib from outside the 
+        class using $obj.attrib -- since $.attrib is a method, what you're 
+        doing is calling that accessor method, not accessing the $!attrib 
+        variable directly.
+
+        So, when you declare:
+            has $.foo = 'bar';
+        you end up with $!foo set to 'bar', and an accessor method named foo() 
+        that will return 'bar'.
+
+        That foo() method _is_ an accessor only; you cannot change the value 
+        of $!foo unless you initially declared it as rw:
+            has $.foo is rw = 'bar';
+        Now, from outside the class, you can both read and write the value of 
+        $!foo:
+            my $obj = MyClass.new();
+            $obj.foo = 'blarg';
+            say $obj.foo;   # blarg
+
+}
 

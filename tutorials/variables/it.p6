@@ -19,7 +19,7 @@ say '';
 ### However, to use $_ as the default arg to a builtin, we have to let Perl 
 ### know that "say" is acting as a method by adding the .  on the front:
 
-#for <d e f> { say; }   # no worky-worky without the .
+#for <d e f> { say; }   # no worky-worky
 for <d e f> { .say; }   # and there was much rejoicing
 say '';
 
