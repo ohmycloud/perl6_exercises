@@ -1,7 +1,7 @@
 
 
 Left off at
-    http://doc.perl6.org/language/5to6-perlfunc
+    functions/README
 
 
 
@@ -83,4 +83,9 @@ UNIMPLEMENTED *** {
 
     Ack for "NYI" for things that fit this bill.
 }
+CHEC.K {
+    
+    I'm adding CHEC.K marks (without the period) for things that I want to 
+    come back and look at again, but which don't satisfy NYI.
 
+}

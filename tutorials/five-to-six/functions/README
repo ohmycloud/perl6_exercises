@@ -1,0 +1,511 @@
+
+
+This page lists p5 functions and their p6 equivalents.
+    http://doc.perl6.org/language/5to6-perlfunc
+
+
+Most functions exist and work as they did in p5.  But note that most functions 
+now exist as both function and method, so you could do either of:
+    close $filehandle;
+    $filehandle.close;
+
+I'm getting a little tired of typing "function or method", so I'm starting to 
+use the term "funcmeth".  This is my own term and probably won't appear 
+anywhere else.
+
+
+I'm listing out things that have changed, and that I actually use.  eg 
+"continue" has changed, but I don't think I've ever used it, so won't bother 
+including it here.
+
+
+File tests {#{{{
+    
+    File tests can be performed on either the file path or a filehandle.
+
+    PATH
+        Just append ".IO" to the end of the filepath, and then use the 
+        smartmatch operator:
+        
+            if '/home/jon/test.txt'.IO ~~ :e { say "exists" }
+            if '/home/jon/test.txt'.IO ~~ :r { say "readable" }
+
+    HANDLE
+        The handle is less complicated, just call the appropriate method on 
+        it:
+
+        my $fh = open $fname, :r;
+        if $fh.r { say "Filehandle is readable" }
+
+    These tests can be used in either of the cases above:
+        :e Exists
+        :d Directory
+        :f File
+        :l Symbolic link
+        :r Readable
+        :w Writable
+        :x Executable
+        :s Size
+        :z Zero size
+
+    However, these three can only be used as filehandle methods:
+        .modified
+        .accessed
+        .changed
+
+    Further docs here:
+        http://doc.perl6.org/type/IO::FileTestable#File_Test_operators
+}#}}}
+alarm {#{{{
+    "alarm is no more".  The docs aren't sure where the replacement will come 
+    from, but one will likely appear.
+}#}}}
+break {#{{{
+    Not in p6.  See proceed and succeed for breaking out of given blocks.
+
+    http://doc.perl6.org/language/control#proceed_and_succeed
+}#}}}
+caller {#{{{
+    Docs contain some waffling.  But see callframe():
+
+        sub foobar {
+            say callframe().annotations;    # file => ./test.p6, line => 22
+        }
+        foobar();
+
+    Note that the line number (22) is the line where "sub foobar {" occurs.  
+    It is NOT the line number of the call, foobar().
+
+    This exists to balance: }
+    
+}#}}}
+chomp, chop *** {#{{{
+    Does not work in-place anymore.  Returns the chomped line.
+        my $line = "foobar\n";
+        my $new = chomp $line;
+
+    Can also be used as a method, but still returns the changed line:
+        my $line = "foobar\n";
+        my $new = $line.chomp;
+        
+
+    I haven't used chop in years, but it works the same way.
+
+}#}}}
+crypt {#{{{
+    Gone in p6.
+}#}}}
+delete {#{{{
+    Still here, sort of.
+
+    But no longer exists as a function.  Now it's an adjective.
+        %hash = ( jon => 'barton' );
+        %hash{'jon'}:delete;
+}#}}}
+die {#{{{
+    Still exists, but may now be more powerful and flexible.
+
+    Exceptions:
+        http://doc.perl6.org/language/exceptions
+}#}}}
+each {#{{{
+    There is no exact equivalent, but we can do this:
+        %hash = ( jon => 'barton' );
+        for %hash.kv -> $k, $v { # do stuff with $k and $v }
+
+    Note that "keys" remains and works as expected.  Function or method.
+}#}}}
+exists {#{{{
+    Like 'delete', this no longer exists as a function, but as an adverb:
+        %hash = ( jon => 'barton' );
+        if %hash{'jon'}:exists { say "it's there." }
+}#}}}
+__FILE__, __LINE__ {#{{{
+    Replaced by $?FILE, $?LINE
+        say "I'm in $?FILE, on line $?LINE.";
+
+    $?FILE is the full canon path.
+}#}}}
+flock {#{{{
+    "Currently unimplemented".
+}#}}}
+fork {#{{{
+    No longer available as a builtin function, but available through 
+    NativeCall.
+        use NativeCall;
+        sub fork returns int32 is native { * };
+        say "-" ~ fork() ~ "-";
+
+    That spits out two numbers.  The first one I assume to be the PID of the 
+    parent.  The second one is always "0".  I assume that means it's the first 
+    child of this particular parent?
+
+    If you need to fork, you're going to have to look up NativeCall.  The docs 
+    here aren't explicit enough on what's happening.
+}#}}}
+gmtime {#{{{
+    Comes from the DateTime object.
+        my $gmtime = DateTime.now.utc;
+
+    You don't need to "use DateTime" first for the above to be available.  
+    It's just there.
+
+    See "localtime" below for more.
+}#}}}
+grep, map {#{{{
+    Still here, mostly as before.
+
+    HOWEVER, you now need a comma before the list:
+        my @rslt = grep { ...code... }, @orig_list;
+                                     ^^^
+
+    Same deal with map.
+}#}}}
+hex {#{{{
+    Now the adverb "16":
+        say :16('a');   # 10
+
+    Arg must be a string
+        say :16(100);    # no worky-worky.
+}#}}}
+import {#{{{
+    Never actually a builtin in p5.  You _can_ selectively import in p6, see
+        http://doc.perl6.org/language/-%20http://doc.perl6.org/language/5to6#Importing_specific_functions_from-%20_a_module
+}#}}}
+int {#{{{
+    You can use either "Int" or "truncate".  Int must be used as a method, 
+    truncate can be used as either a function or a method.
+        my $num = 3.9;
+        say $num.truncate;
+        say $num.Int;
+        say truncate $num;
+        say 3.9.truncate;   # even this works
+
+        say Int $num;       # Nope.  Int works as method only.
+}#}}}
+keys {#{{{
+    Remains and works as expected.  Function or method.
+}#}}}
+lcfirst {#{{{
+    lc exists as a function and method, but lcfirst does not exist at all.
+}#}}}
+length {#{{{
+    Replaced by "chars", which works as func or meth.
+        say "foobar".chars;
+}#}}}
+__LINE__ {#{{{
+    Replaced by $?FILE, $?LINE
+        say "I'm in $?FILE, on line $?LINE.";
+
+    $?FILE is the full canon path.
+}#}}}
+local {#{{{
+    replaced by "temp"
+}#}}}
+localtime {#{{{
+    Mostly replaced by the DateTime object.
+        my $now = DateTime.now;
+        say $now.second;
+        say $now.month;
+        etc
+
+    RANGES ARE NOT NOT NOT ZERO-BASED.  January will be month 1.
+}#}}}
+map, grep {#{{{
+    Still here, mostly as before.
+
+    HOWEVER, you now need a comma before the list:
+        my @rslt = grep { ...code... }, @orig_list;
+                                     ^^^
+
+    Same deal with map.
+}#}}}
+no {#{{{
+    Can be used for pragmas, like strict, but not for modules.
+        no strict;
+        $var = "foo";       # not declared with "my" so would fail strict.
+        $var.say;
+        use strict;
+
+        no Moose;   # GONNNNG
+}#}}}
+oct {#{{{
+    Now the adverb "8":
+        say :8("100");  # 64
+
+    Arg must be a string
+        say :8(100);    # no worky-worky.
+
+
+}#}}}
+open {#{{{
+    Exists, but new syntax
+        my $fh = open "/path/to/file", :r;
+
+    Modes:
+        :r
+        :rw
+        :w
+        :a
+
+    Full docs:
+        http://doc.perl6.org/routine/open
+}#}}}
+opendir {#{{{
+    No longer a builtin.  Use IO::Path:
+        my $dir = IO::Path.new("/path/to/dir")
+        my $dir = "/path/to/dir".IO;
+
+    http://doc.perl6.org/type/IO::Path
+}#}}}
+pack {#{{{
+    Available, but the template list is more restricted.
+        http://doc.perl6.org/routine/unpack
+}#}}}
+package {#{{{
+    Exists, but must be used as a block (which I've gotten into the habit of 
+    doing anyway).
+
+    That being said, the docs say that "it's unlikely you'll use package 
+    directly in p6".
+}#}}}
+__PACKAGE__ {#{{{
+    Replaced by $?PACKAGE.
+        say $?PACKAGE.perl;             # GLOBAL
+        package Jontest {
+            say $?PACKAGE.perl;         # Jontest
+        }
+}#}}}
+print {#{{{
+    Mostly as expected.
+
+    Defaults to STDOUT.
+
+    HOWEVER, if you want to print to a filehandle, and call print as a 
+    function rather than a method, you need to append a colon to the 
+    filehandle name:
+        print $filehandle: "Foobar!";
+
+    But since it works as a method, this might be easier:
+        $filehandle.print("Foobar!");
+}#}}}
+printf {#{{{
+    See sprintf below.
+}#}}}
+push {#{{{
+    Still exists, function or method.
+
+    HOWEVER, array flattening is different in p6!
+        my @a = <a b c>;
+        my @b = <d e f>;
+        @b.push(@a);
+        say @b;             # [d e f [a b c]]
+}#}}}
+quoting {#{{{
+    Mostly the same:
+        my $one = q/foobar/;
+        my $two = qq/this contains $one/;
+
+        my @ar = qw/foo bar baz/;
+
+    However, that array qw// notation is more commonly rendered without the 
+    need for the qw, as:
+        my @ar = <foo bar baz>;
+}#}}}
+rand (pick) {#{{{
+    Works as a function, but no longer accepts an argument.  Returns a float 
+    between 0 and 1:
+        my $float = rand;
+
+    But can be called as a method of an integer to return a float between zero 
+    and the integer:
+        say 100.rand;
+
+    What you normally want, though, is an integer, not a float.  For that, you 
+    can use pick.
+        say (^100).pick;
+
+    That gives you a random number from 0 to 99, so remember to add 1 to it 
+    (usually).
+
+    These links explain that pick syntax:
+        http://doc.perl6.org/language/operators#prefix_^
+        http://doc.perl6.org/routine/pick
+
+
+    srand does exist.  That's all the docs say about it.
+}#}}}
+readdir {#{{{
+    No longer a builtin.  Use IO::Path.
+        http://doc.perl6.org/type/IO::Path
+}#}}}
+ref {#{{{
+    Gone in p6.
+
+    To get the type name, use:
+        $var.WHAT.perl;
+
+        my $aref = [1, 2, 9];
+        say $aref.WHAT.perl;    # Array
+}#}}}
+regex {#{{{
+    These obviously still exist, but syntax is different.
+
+    Operators are ~~ and !~~.
+
+    For more:
+        http://doc.perl6.org/language/regexes
+}#}}}
+reverse (flip) {#{{{
+    Exists, but only reverses the elements of a list, not a string.
+
+    To reverse a string, use the .flip method.
+        say "abc".flip;     # cba
+
+    Or, to be more object-y:
+        "abc".flip.say;     # cba
+}#}}}
+say {#{{{
+    Works, function or method.
+
+    Defaults to STDOUT.
+
+    Like print, you need to append a : to the end of the filehandle if you 
+    want to say to that:
+        say $filehandle: "foobar";
+}#}}}
+scalar {#{{{
+    Not just gone, but "very" gone.
+    
+    No other explanation given.
+}#}}}
+sleep {#{{{
+    Works as in p5.  Docs say that it works as a method right now, but that's 
+    going to be removed, so don't get in the habit of doing this:
+
+        "5".sleep;      # GONNNNG no stop doing that even if it works now.
+}#}}}
+sort {#{{{
+    Works in p6, but different.
+
+    $a and $b are no longer special.  
+
+    Works as a function or a method, but might as well get used to using this 
+    stuff as methods:
+        say <c b a>.sort;               # (a b c)
+        say <c b a>.sort.join;          # abc
+
+    Oddly enough, this works to sort numerically:
+        say <1 11 2 22 3 33>.sort;      # (1 2 3 11 22 33)
+
+    You can pass a coderef to sort as in p5.  Note the use of $^a and $^b here 
+    even though I just said they're not "special":
+        say <1 22 10 39 7>.sort({ $^b <=> $^a });   # (39 22 10 7 1)
+
+    Remember that the ^ twigil is for  positional parameters.  So I could just 
+    as well have said:
+        say <1 22 10 39 7>.sort({ $^q <=> $^c });   # (39 22 10 7 1)
+
+
+    Full docs:
+        http://doc.perl6.org/routine/sort
+}#}}}
+split (comb) {#{{{
+
+    my $str = 'abc';
+
+    You can no longer do this:
+        my @arr = split //, $str;
+
+    You can split by an empty string:
+        my @arr = split '', $str;
+
+    HOWEVER, that will return this array of FIVE elements:
+        ( '', 'a', 'b', 'c', '' );
+    
+
+    To include the delimiters:
+        my $str = 'a,b,c';
+        my @arr = split ',', $str, :all;
+
+        NYI
+        THIS IS WHAT THE DOCS SAY TO DO, but it's not working.  The split 
+        happens, but I'm getting back just a 3-element array with no 
+        delimiters.
+
+    WHAT YOU'RE PROBABLY LOOKING FOR
+        To split a string out into letters, use comb:
+            my @arr = 'abc'.comb;
+            say @arr.perl;              # ["a", "b", "c"]
+
+}#}}}
+sprintf {#{{{
+    Works.  Templates are more restricted.  Here's the list:
+        http://doc.perl6.org/language/5to6-perlfunc#sprintf
+}#}}}
+sub {#{{{
+    "Unsurprisingly, we still have subroutines!"
+    heh.
+
+    Args still appear in @_ ONLY IF THE SUB WAS DECLARED WITH NO SIGNATURE.
+
+    http://doc.perl6.org/language/functions
+}#}}}
+__SUB__ {#{{{
+    Replaced by $?ROUTINE
+}#}}}
+system {#{{{
+    Docs don't specifically say it's gone, but they point to 'run' or 'shell'.
+
+    run
+        Run an external command without involving the shell.
+        http://doc.perl6.org/routine/run
+
+    shell
+        Run an external command through the system shell.
+        http://doc.perl6.org/routine/shell
+
+}#}}}
+time {#{{{
+    Docs say that this isn't clearly documented yet, but it does appear to 
+    return epoch seconds int as in p5.
+}#}}}
+ucfirst {#{{{
+    like lcfirst, this is gone.
+
+    However, the 'tc' (titlecase) funcmeth probably does what you want.
+
+    However, this:
+        "now is the time for all good men".tc.say;
+
+    Returns this:
+        Now is the time for all good men
+
+    That's ucfirst, not titlecase.  The full docs for the tc function seem to 
+    indicate that this is, indeed, its final behavior.
+        http://doc.perl6.org/routine/tc
+
+    Renaming the perfectly-good "ucfirst" to "tc" and then not having it 
+    perform titlecase, but instead having it uppercase the first letter, is 
+    fucking braindead.
+}#}}}
+undef {#{{{
+    There is no undef in p6.
+}#}}}
+unpack {#{{{
+    Available, but the template list is more restricted.
+        http://doc.perl6.org/routine/unpack
+}#}}}
+wantarray {#{{{
+    gone in p6
+}#}}}
+warn {#{{{
+    This throws an exception.  It does not terminate execution like die does, 
+    so its behavior is MorL the same as p5.
+
+    To just print a message to STDERR without it being an exception, use 
+    'note'.
+
+    http://doc.perl6.org/language/exceptions
+}#}}}
+

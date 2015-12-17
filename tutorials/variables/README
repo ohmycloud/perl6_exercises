@@ -2,6 +2,10 @@
 left off at
     http://doc.perl6.org/language/variables#Type_Constraints_and_Initialization
 
+
+see ../five-to-six/README for more notes on how variables work.
+
+
 NOTES {#{{{
     http://doc.perl6.org/language/variables
 

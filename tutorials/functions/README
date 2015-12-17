@@ -1,0 +1,284 @@
+
+
+
+Left off at
+    http://doc.perl6.org/language/functions#Multi-dispatch
+
+
+
+
+
+http://doc.perl6.org/language/functions
+
+Verbiage:
+    "Routines" include "methods" and "subroutines"
+
+
+CHECK
+Some of the stuff at this URL is over my head, definitely return and re-read.
+
+
+Scoping {#{{{
+
+    Subs are lexically scoped.  This behaves as you'd expect:
+        sub foo { say "outer"; }
+        foo();
+        {
+            sub foo { say "inner"; }
+            foo();
+        }
+        foo();
+
+}#}}}
+Blocks {#{{{
+    Blocks are a class in p6.
+        http://doc.perl6.org/type/Block
+
+    Regular block:
+        for 1..4 -> $a {
+            say $a;
+        }
+
+    Remember that you can do this:
+        for 1..4 -> $a, $b {
+            say $a ~ $b;
+        }
+    Output:
+        12
+        34
+    If you changed the range there to 1..5, your block would throw an 
+    exception, as the third time through, $b would be undefined.
+
+}#}}}
+Signatures {#{{{
+    A sub signature is also its own class:
+        http://doc.perl6.org/type/Signature
+
+
+}#}}}
+Methods {#{{{
+    The first parameter in a method declaration can be the invocant, in which 
+    case it gets followed by a colon.  Otherwise, parameters are separated by 
+    commas.  Basically, that first parameter is $self.
+
+    class Person {
+        method whatami( $me: ) {
+            say "I'm a member of $me.^name()"
+        }
+    }
+
+}#}}}
+Type constraints {#{{{
+    sub foo( Int $age, Str $name ) {
+        say "$name is $age years old";
+    }
+}#}}}
+Slurpy (Variadic) Parameters {#{{{
+    A list (array or hash) parameter can be made slurpy by appending a splat.  
+    This obviously had to be the final parameter.
+
+    sub greet ($greeting, *@names) {
+        for @names -> $a {
+            say "$greeting, $a!"';
+        }
+    }
+
+    So we're passing an array of names, then jamming another scalar on at the 
+    end.  That extra scalar (Alison) gets slurped up:
+        my @arr = <jon john kermit>;
+        greet("Hello", @arr, "Alison");
+    
+}#}}}
+Positional Parameters {#{{{
+
+    Normally, parameters are positional.
+        sub greet ($greeting, $name) {
+            say "$greeting, $name!"
+        }
+        greet( "Howdy", "Jon" );
+
+
+    Positional parameters are required by default.  We can make them optional 
+    in two ways. 
+
+    First, we can provide a default value:
+        sub the_answer( Int $ans = 42 ) {
+            say "The answer is $ans.";
+        }
+        the_answer(11);     # The answer is 11.
+        the_answer();       # The answer is 42.
+
+    Second, we can make the parameter optional with no default by appending a 
+    question mark:
+        sub the_answer( Int $ans? ) {
+            if $ans {
+                say "The answer is $ans.";
+            }
+            else {
+                say "I dunno the answer.";
+            }
+        }
+        the_answer(11);     # The answer is 11.
+        the_answer();       # I dunno the answer.
+
+}#}}}
+Named Parameters {#{{{
+    We get named parameters by preceding them with a colon:
+        sub greet( :$greeting, :$name ) {
+            say "$greeting, $name!"
+        }
+
+    Then we send parameters with the same names as the names of the variables.
+        greet( name => 'Steve', greeting => 'Hola' );
+
+
+    You can use a different variable name for the named parameter.  This 
+    allows you to be explicit from the caller's POV but still save typing 
+    inside the sub.
+    Note that when we do this, the arg name is preceded by the colon, but no 
+    longer contains the $ sigil, as it's not our variable name.
+        sub greet( :greeting($g), :name($n) ) {
+            say "$g, $n!"
+        }
+
+
+    Named parameters are optional by default.  That means the sub call won't 
+    blow up if you omit a named parameter, but the code inside the sub still 
+    might well blow up.
+
+    Our greet() sub assumes $g and $n are being passed.  This call won't blow 
+    up, but the "say" inside the sub will throw a warning (but only a warning; 
+    it's not fatal):
+        greet( name => 'Steve' );
+        # Use of uninitialized value $greeting of type Any in string context
+
+
+    We can change that by adding a bang after the named param in the 
+    signature:
+        sub greet( :greeting($g)!, :name($n)! ) {
+            say "$g, $n!"
+        }
+
+    So with those named args required, this code now throws a fatal exception:
+        greet( name => 'Steve' );
+
+        Required named parameter 'greeting' not passed
+          in sub greet_named at ./subs.p6:36
+          in block <unit> at ./subs.p6:46
+
+}#}}}
+Combining named and positional parameters {#{{{
+    
+    Here, we're using the named parameters :$greeting and :$name as before, 
+    but we're also adding $age as a positional parameter.
+
+    Positional parameters must come before named parameters in the signature:
+        sub greet_combo( $age, :$greeting, :$name ) {
+            say "$greeting, $name!  You are $age years old."
+        }
+
+    But when we call the sub, we can put the positional parameter anywhere.  
+    All of these do the same thing:
+        greet( name => 'Steve', greeting => 'Hola', 21 );
+        greet( name => 'Steve', 21, greeting => 'Hola' );
+        greet( 21, name => 'Steve', greeting => 'Hola' );
+    
+}#}}}
+Parameter traits and modifiers {#{{{
+    
+    Parameters are RO by default, and bound to their argument.  If you try to 
+    modify such a variable inside a routine, you get:
+        Cannot assign to a readonly variable or a value
+
+
+    This allows the parameter to be written to, but doesn't clobber the 
+    original:
+        sub hello ($name is copy) {
+            $name = $name.uc;
+            say $name;
+        }
+        my $name = 'jon';
+        hello($name);       # JON
+        say $name;          # jon
+
+
+    This allows the parameter to be written to, and DOES clobber the original:
+        sub hello ($name is rw) {
+            $name = $name.uc;
+            say $name;
+        }
+        my $name = 'jon';
+        hello($name);       # JON
+        say $name;          # JON
+
+
+    With slurpy parameters, "is rw" is listed as being "reserved for future 
+    use by language designers".  Which translates roughly to "don't do dat".
+
+
+    There's also a "raw" trait that gets applied to parameters whose names are 
+    preceded by a backslash.  These params do not get any other sigil.
+        sub set_var(\variable) {
+            variable = "foobar";
+        }
+        set_var( my $foo );     # this works.
+        say $foo;
+
+        set_var( 'blargle' );   # this does not.
+
+}#}}}
+Methods called on parameters {#{{{
+    Inside a sub, you can call various methods on the parameters to inspect 
+    them.
+
+    NYI
+
+    I'm unclear if this is a case of nyi or if I'm just not getting it.
+
+    The docs tell me there are a bunch of these ("method rw", "method copy", 
+    etc), and that these "Return True for 'is rw' parameters" (or is copy or 
+    what have you).
+
+    However, when I add code like this to any of the subs:
+        if $name.rw {
+            say "name is read/write";
+        }
+
+    I'm being told that "the method 'rw' not found"
+
+}#}}}
+
+
+Destructuring parameters {#{{{
+    
+    This seems a little odd.  
+
+    Given this array:
+        @arr = <jon red blue yellow orange>;
+
+    We can make this sub:
+        sub likes_colors (@arr ($name, *@colors) ) {
+            for @colors -> $c {
+                say "$name likes $c.";
+            }
+        }
+
+    Or, we could skip naming @arr altogether.  This behaves identically to the 
+    previous sub:
+        sub likes_colors_2 ( [$name, *@colors] ) {
+            for @colors -> $c {
+                say "$name likes $c.";
+            }
+        }
+        
+
+    We can also destructure hashes in the same way, but that's over my head 
+    right now.
+}#}}}
+Capture parameters {#{{{
+    You can prefix a parameter with a vertical bar (pipe) to make it a 
+    Capture.
+
+    This is over my head, skipping for now.
+}#}}}
+

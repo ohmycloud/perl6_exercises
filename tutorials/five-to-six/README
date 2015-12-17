@@ -112,6 +112,13 @@ ARRAYS AND HASHES {#{{{
 }#}}}
 REFERENCES {#{{{
 
+    I just found this statement in
+        http://doc.perl6.org/language/5to6-perlop#The_Arrow_Operator
+
+        "As you typically will not be using references in Perl 6 ..."
+
+        So references do exist, but it looks like they won't be as big a deal as in p5.
+
     Creating anonymous refs is the same in both 5 and 6:
         my $aref = [1, 2, 9];
         my $href = { a => 97, Q => 81 };
