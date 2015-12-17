@@ -48,8 +48,3 @@ say $answer;    # 300
 $answer = Nil;
 say $answer;    # Neato - 42 again!
 
-
-
-
-
-

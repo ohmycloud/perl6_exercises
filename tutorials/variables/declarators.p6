@@ -15,6 +15,12 @@ class Jontest {
 }
 
 
+### constant
+###
+### Now a formal declarator.
+constant $PI = 3.14;
+
+
 ### anon
 ###
 ### Prevents a symbol from being installed in the symbol table.  This allows 
