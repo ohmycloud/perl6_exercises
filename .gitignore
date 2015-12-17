@@ -2,6 +2,9 @@
 *.swp
 *.swo
 
+# MoarVM precomp dirs
+.precomp/
+
 /blib/
 /.build/
 _build/
