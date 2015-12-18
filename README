@@ -1,12 +1,24 @@
 
+Docs home
+    http://doc.perl6.org/
+
+
+
+
+
+I'm working through
+    http://doc.perl6.org/language.html
+
+I have skipped ahead a few times, and already covered the Functions and 
+Variables sections, but both of those sections did include stuff that I didn't 
+get yet, so I should follow along in order from here on.
 
 Left off at
-    functions/README
+    About the Docs
 
 
 
-Docs
-    http://doc.perl6.org/
+
 
 INSTALLING {#{{{
     http://rakudo.org/how-to-get-rakudo/

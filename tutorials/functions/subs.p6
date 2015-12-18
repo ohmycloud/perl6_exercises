@@ -95,9 +95,9 @@ sub hello_clobber ($name is rw) {
     say $name;
 
 }
-my $name = 'jon';
-hello_clobber($name);
-say $name;
+my $fname = 'jon';
+hello_clobber($fname);
+say $fname;
 ''.say;
 
 
@@ -106,18 +106,138 @@ sub set_var(\variable) {
 }
 set_var( my $foo );
 say $foo;
+''.say;
+
+
+
+multi hello() {
+    say "Why hello there.";
+}
+multi hello(Str $name) {
+    say "Hello, $name, nice to meet you.";
+}
+multi hello(Int $num) {
+    say "y helo thar " x $num;
+}
+hello();
+hello('Jon');
+hello(3);
+''.say;
 
 
 
 
+proto congratulate(Str $reason, Str $name, |) {*}
+multi congratulate($reason, $name) {
+   say "Hooray for your $reason, $name";
+}
+multi congratulate($reason, $name, Int $rank) {
+   say "Hooray for your $reason, $name -- you got rank $rank!";
+}
+
+congratulate('birthday', 'jon');
+congratulate('birthday', 'jon', 2);
+''.say;
+
+
+proto notify(Str $user, |) {
+    my \hour = DateTime.now.hour;
+    ### Print out hour here and then modify the conditional if you want to see 
+    ### the else block hit.
+    #say hour;
+    if hour > 8 and hour < 16 {
+        return {*};
+    }
+    else {
+        # we can't notify someone when they might be sleeping
+        return False;
+    }
+}
+multi notify($user, Str $msg) {
+    say "I'm going to send message '$msg' to user '$user'.";
+}
+multi notify($user, Int $code) {
+    say "I'm going to send error code $code to user '$user'.";
+}
+notify('jon', 'error happened');
+notify('jon', 3001);
+''.say;
 
 
 
+class Peeple {
+    has Int $.age;
+}
+my $p1 = Peeple.new( age => 10 );
+my $p2 = Peeple.new( age => 20 );
+multi infix:<+>(Peeple $a, Peeple $b) { $a.age + $b.age }
+say $p1 + $p2;
+''.say;
+
+
+multi trait_mod:<is>(Routine $r, :$doubles!) {
+    $r.wrap({
+        2 * callsame;
+    });
+}
+sub square($x) is doubles { $x * $x }
+say square 3;   # 18
+''.say;
 
 
 
+multi a(Any $x) { say "Any $x" }
+multi a(Int $x) { say "Int $x"; callwith($x + 1); say "Back in Int $x." }
+a(1);
+''.say;
+
+multi b(Any $x) { say "Any $x" }
+multi b(Int $x) { say "Int $x"; callsame; say "Back in Int $x." }
+b(1);
+''.say;
+
+multi c(Any $x) { say "Any $x"; return $x + 3; }
+multi c(Int $x) {
+    say "Int $x";
+    my $rv = callsame;
+    say "Back in Int $x, got $rv."
+}
+c(1);
+''.say;
+
+multi d(Any $x) { say "Any $x" }
+multi d(Int $x) { say "Int $x"; nextsame; say "Back in Int $x." }
+d(1);
+''.say;
 
 
+
+class MyParent {
+    method new(|c) {
+        say "Parent class has the arguments " ~ c.perl;
+    }
+}
+class MyKid is MyParent {
+    method new(|c) {
+        note "Creating a new kid with the arguments " ~ c.perl;
+        nextsame;   # calls MyParent.new()
+    }
+}
+my $kid1 = MyKid.new();
+''.say;
+my $kid2 = MyKid.new('foobar');
+''.say;
+my $kid3 = MyKid.new("blarg", <a b c>, {jon => 'barton'}, 733, color => 'red');
+''.say;
+
+
+
+sub double(Int(Cool) $x) {
+    2 * $x;
+}
+say double 21;
+say double '21';    # wouldn't have worked if our sig required an Int.
+say double "foobar";
 
 
 

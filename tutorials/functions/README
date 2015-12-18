@@ -1,22 +1,22 @@
 
 
-
-Left off at
-    http://doc.perl6.org/language/functions#Multi-dispatch
-
-
-
-
-
 http://doc.perl6.org/language/functions
 
-Verbiage:
-    "Routines" include "methods" and "subroutines"
 
+Verbiage {#{{{
+    Code Objects
+        This term covers methods, subroutines, multi-dispatch routines, blocks 
+        with code.
 
-CHECK
-Some of the stuff at this URL is over my head, definitely return and re-read.
+    Routines
+        sub, method, regex, submethod.  Basically, code objects except for 
+        blocks.
 
+    arity
+        The minimum number of positional arguments that must be passed to a 
+        routine.
+    
+}#}}}
 
 Scoping {#{{{
 
@@ -184,6 +184,18 @@ Combining named and positional parameters {#{{{
         greet( 21, name => 'Steve', greeting => 'Hola' );
     
 }#}}}
+Capture parameters {#{{{
+    You can prefix a parameter with a vertical bar (pipe) to make it a 
+    Capture, which uses up all remaining positional and named arguments.
+
+    CHECK
+    This seems to be like a slurp.  In fact, I'm unclear how this is different 
+    from a slurp.  Perhaps the slurp doesn't use up all named args or some 
+    such.
+
+    See the MyKid and MyParent classes in ./subs.p6 for an example of this 
+    capture being used.
+}#}}}
 Parameter traits and modifiers {#{{{
     
     Parameters are RO by default, and bound to their argument.  If you try to 
@@ -247,8 +259,437 @@ Methods called on parameters {#{{{
     I'm being told that "the method 'rw' not found"
 
 }#}}}
+Type Coercisons {#{{{
+
+    This isn't specifically covered in the tut, but it's used in another 
+    context, so it should be mentioned.
+
+    Start with this example:
+        sub say_string(Str $string) {
+            say "--$string--";
+        }
+        say_string( 'hello' );
+
+    Fantastic.  It's pretty clear that this will blow up:
+        say_string( 1 );
+
+    Since 1 is an Int and not a string.  We'd need to pass the string version 
+    for this to work:
+        say_string( "1" );
 
 
+    But really, what if we wanted to say "fuck it" and let them send an int.  
+    We'll just convert it and print it, since that's surely what the user 
+    wants here.  
+
+    We can do that just by changing the signature:
+        sub say_string_better(Str() $string) {
+            say "--$string--";
+        }
+
+    Note the use of "Str()" -  the parens mean we're casting the value in 
+    $string into a Str type.  Since we're doing that, we can now do this just 
+    fine:
+        say_string_better( 1 );
+    
+}#}}}
+Multi-Dispatch (overloading) {#{{{
+    Yay this now exists in p6.  Just declare a routine with the keyword 
+    "multi" instead of "sub".
+
+    This means you can freely start all your subs declared as just "sub", and 
+    then cw it to "multi" if you realize you need to overload it.  Easy peasy.
+
+    You can distinguish between multi routines by either the arity (the number 
+    of arguments passed) or by the types of arguments.
+
+        multi hello() {
+            say "Why hello there.";
+        }
+        multi hello(Str $name) {
+            say "Hello, $name, nice to meet you.";
+        }
+        multi hello(Int $num) {
+            say "y helo thar" x $num;
+        }
+
+
+    When declaring a multi routine, it defaults to being a multi sub.  So the 
+    word "sub" does not appear in the declarations above.  A more explicit 
+    declaration would be:
+        multi sub hello() {
+          ### ^^^
+            say "Why hello there.";
+        }
+
+    That's important, because if you want to overload a method in a class, you 
+    do need to specify the word "method":
+        Class Person {
+            multi method hello() { say "hi" }
+            multi method hello(Str $name) { say "hi, $name" }
+        }
+
+
+    Remember that "Any" is a valid type, so something like this is reasonable:
+            multi method hello(Any $foo) { say "I got" ~ $foo.perl }
+            multi method hello(Str $foo) { say "I got '$foo'." }
+
+        ...so any non-string argument gets passed to the first hello(), and 
+        that arg gets dumped out so you can see what you're dealing with.
+
+    
+    See the next section, Proto.
+
+}#}}}
+Proto {#{{{
+    
+    When using multi dispatch routines, you can first formally declare a 
+    prototype of common arguments.
+
+    This gets slightly hairy.  It can seem somewhat similar to Python's 
+    decorators.
+
+
+    Before getting hairy, the first example given is pretty basic:
+        proto congratulate(Str $reason, Str $name, |) {*}
+
+        multi congratulate($reason, $name) {
+            say "Hooray for your $reason, $name";
+        }
+
+        multi congratulate($reason, $name, Int $rank) {
+            say "Hooray for your $reason, $name -- you got rank $rank!";
+        }
+
+    The pipe in the proto declaration is an un-named Capture parameter.  This 
+    means that we can now declare multi routines of this name ('congratulate') 
+    that have zero or more additional args (past the forced $reason and 
+    $name).
+
+    The {*} in the proto declaration dispatches to the multi candidates.  More 
+    on this when we start getting hairy.
+
+
+    Great.  What's that get us?  So far, not a ton.  We still have to declare 
+    $reason and $name in the signatures of the two subsequent multi routines.
+
+    One benefit is that the .signature method now gives us more interesting 
+    information.
+
+        If we were to comment out the proto declaration, and then display the 
+        signature, we'd get:
+            say &congratulate.signature;    # (;; Mu | is raw)
+
+        But when we put the proto declaration back again, and do the same 
+        thing:
+            say &congratulate.signature;    # (Str $reason, Str $name, | is raw)
+
+        So that's more informative.
+
+
+
+    Hairy time.  The proto can actually contain some verification code before 
+    dispatching out to the candidates..
+    
+    Let's say we want to alert an admin under certain conditions.  We want to 
+    be able to alert with either an error message or an error code (Int).  
+
+    But we don't want to alert him outside of working hours, because we live 
+    in magical rainbow land where employees don't get bothered when they're 
+    not at work.
+
+    proto notify(Str $user, Str $msg) {
+        my \hour = DateTime.now.hour;
+        if hour > 8 and hour < 22 {
+            return {*};
+        } else {
+            # we can't notify someone when they might be sleeping
+            return False;
+        }
+    }
+
+        The conditional from the tut is broken; it used 'or' instead of 'and'.  
+        Every hour is greater than 8 or less than 22.
+
+
+
+    Note that {*} causes the multi candidates to be called with the args that 
+    the proto was originally called with.  Parameter defaults and type 
+    coercions from the proto do not apply to the candidates.
+
+        The Str() coercion from the proto does not get passed along to the 
+        multi routine:
+            proto bad_coerce( Str() $string ) {*}
+            multi bad_coerce( Str $string ) { $string.say; }
+            bad_coerce( 1 );    # GONNNNG
+
+        Same deal - the default value value of 'foobar' does not get passed 
+        from the prototype to the multi routine:
+            proto bad_default( $string = "foobar" ) {*}
+            multi bad_default( $string ) { $string.say; }
+            bad_default();
+
+        This does not blow up.  The proto is trying to change the string's 
+        value to "blargle", and that works too, but only in the proto.  When 
+        we dispatch to the multi method, the original arg value, "foobar", is 
+        what gets passed along, and ultimately printed out.
+            proto bad_change( Str $string is copy ) { $string = "blargle"; return {*} }
+            multi bad_change( $string ) { $string.say; }
+            bad_change( "foobar" );
+
+}#}}}
+First-Class Functions {#{{{
+    Functions are first-class objects in p6.
+
+    Here's a basic sub declaration:
+        sub square (Numeric $x) { $x * $x }
+
+    We can assign this sub directly to a variable instead of to the symbol 
+    table by not naming it:
+        my $square_func = sub (Numeric $x) { $x * $x }
+
+    If we go back to assuming it'd been declared normally, we can then access 
+    it via the & sigil:
+        sub square (Numeric $x) { $x * $x }
+        ...
+        my $square_func = &square;
+
+    Either way we get the code into a scalar, we can then call it as:
+        say $square_func(4);    # 16
+}#}}}
+Defining/Overloading Operators {#{{{
+    http://doc.perl6.org/language/functions#Defining_Operators
+
+    You can now define your own operators, or (perhaps more usefully) overload 
+    existing operators.
+
+    Operators are just oddly-named subroutines.  You have to define what 
+    category your operator is, from the list:
+        CATEGORY        EXAMPLE
+        infix           *   4 * 3
+        prefix          ++  ++$num
+        postfix         ++  $num++
+        circumfix       <>  <a b c>
+        postcircumfix   []  @array[]
+
+    Most of the time you're probably going to be overloading existing 
+    operators, so you'll use the "multi" declarator.  You _can_ use "sub" if 
+    you're inventing some new operator, I just don't see that happening all 
+    that often.
+
+    Anyway, the syntax for defining your own operator is:
+        multi CAT:<OP> (SIGNATURE) { CODE }
+
+
+    All of which is easier to understand in an example.
+
+
+    Create a simple Person class and a couple objects with different ages:
+        class Person {
+            has Int $.age;
+        }
+        my $p1 = Person.new( age => 10 );
+        my $p2 = Person.new( age => 20 );
+
+    Now overload the addition operator to know how to deal with adding 
+    Persons:
+        multi infix:<+>(Person $a, Person $b) { $a.age + $b.age }
+
+    Now we can add those two persons:
+        say $p1 + $p2;      # 30 - yay!
+
+
+    See the link up top of this section for more details on dealing with 
+    categories other than the 'infix' category from this example.
+
+
+
+    If you are defining a brand-new operator, you can set its precedence when 
+    you declare it.  So if we're defining a new !! operator to do $stuff:
+        multi infix:<!!>($a, $b) is tighter(&infix:<+>) { ...code.. }
+
+    So now, our new !! operator will appear on the precedence table just 
+    before the already-existing + operator.
+        So, looking at the precedence table
+            http://doc.perl6.org/language/operators#Operator_Precedence
+        our new !! would create a new row, between "Multiplicative" and 
+        "Additive", since !! "is tighter" than +, which is Additive.
+
+
+    Along with setting precedence, you can also set your operator's 
+    associativity.  See the URL top this section for details if needed.
+
+}#}}}
+Traits (X _is_ Y) {#{{{
+
+    The "is" here indicates the trait:
+        my $var is copy;
+        my $var is rw;
+        class MyChild is SomeParent {}
+    
+    But "is" is not mandatory for traits:
+        class ThisClass does AnotherRole {}     # "does"
+        has $.some_method handles <close>;      # "handles"
+
+    Traits, like operators, can be user-defined as subs
+        multi sub trait_mod:<VERB>( SIGNATURE ) { ...code... }
+
+
+    CHECK - I don't understand why $doubles has the colon on the front or the 
+    ! on the end yet.
+
+    An actual example:
+        multi trait_mod:<is>(Routine $r, :$doubles!) {
+            $r.wrap({
+                2 * callsame;
+            });
+        }
+        sub square($x) is doubles { $x * $x }
+        say square 3;   # 18
+}#}}}
+Re-Dispatching {#{{{
+
+    Re-Dispatching uses the keywords:
+        callwith
+        callsame
+        nextwith
+        nextsame
+
+        "call" - calls the next routine in the chain and returns.
+        "next" - calls the next routine in the chain and DOES NOT return.
+
+        "with" - pass along specific arguments to the next routine in the chain
+        "same" - send along our current args to the next routine in the chain
+
+
+    
+    Defining multi routines creates a chain.  There are other ways of creating 
+    chains, but let's start with that.
+
+    The callchain starts with the most specific call.  Below, we have one 
+    multi defined as accepting Int and another accepting Any.  We're passing 
+    an Int, so the Int-accepting multi is the "most specific", and appears 
+    first in the chain.
+
+    Variations on "call", which returns:
+
+        #####################
+            multi a(Any $x) { say "Any $x" }
+            multi a(Int $x) { say "Int $x"; callwith($x + 1); say "Back in Int $x." }
+            a(1);
+        #####################
+        Outputs:
+            Int 1
+            Any 2
+            Back in Int 1
+
+        #####################
+            multi b(Any $x) { say "Any $x" }
+            multi b(Int $x) { say "Int $x"; callsame; say "Back in Int $x." }
+            b(1);
+        #####################
+        Outputs:
+            Int 1
+            Any 1
+            Back in Int 1
+
+        Since call(with|same) returns, we can receive a retval if appropriate:
+        #####################
+            multi c(Any $x) { say "Any $x"; return $x + 3; }
+            multi c(Int $x) {
+                say "Int $x";
+                my $rv = callsame;
+                say "Back in Int $x, got $rv."
+            }
+            c(1);
+        #####################
+        Outputs:
+            Int 1
+            Any 1
+            Back in Int 1, got 4.
+
+    
+    "next" is more or less the same deal, except it doesn't return:
+        #####################
+            multi d(Any $x) { say "Any $x" }
+            multi d(Int $x) { say "Int $x"; nextsame; say "Back in Int $x." }
+            d(1);
+        #####################
+        Outputs:
+            Int 1
+            Any 1
+        ...and that's it.  The "Back in Int 1" does not display, because 
+        nextsame did not return.
+
+        Not bothering with a "nextwith" example, I think you get it at this 
+        point.
+
+
+
+    Other types of chained routines:
+        - wrapped routines
+            - currently over my head, CHECK
+        - re-dispatching to a parent class
+
+
+    So here's a class that inherits from a parent:
+        class MyParent {
+            method new(|c) {
+                say "Parent class has the arguments " ~ c.perl;
+            }
+        }
+        class MyKid is MyParent {
+            method new(|c) {
+                note "Creating a new kid with the arguments " ~ c.perl;
+
+                nextsame;   # calls MyParent.new()
+
+                ### wouldn't be called since nextsame doesn't return.
+                note "blargle";
+            }
+        }
+
+
+
+}#}}}
+Coercion Types (Type Casting) {#{{{
+    From the docs:
+        Coercion types can help you to have a specific type inside a routine, 
+        but accept wider input. When the routine is called, the argument is 
+        automatically converted to the narrower type.
+
+    The p6 "Cool" type is a value that can be treated as a string or a number 
+    interchangeably.  Like 33 or 1.2.
+
+    So we're going to accept any variable of type Cool and coerce it to an 
+    int:
+        sub double(Int(Cool) $x) {
+            2 * $x;
+        }
+        say double 21;
+        say double '21';    # wouldn't have worked if our sig required an Int.
+
+        say double Any;     # Type check failed in binding $x; expected Cool but got Any
+
+
+        Now, "foobar" is of type Cool, so it's not disallowed by the 
+        signature:
+            say double "foobar";
+        However, the attempt to cast "foobar" to an Int fails with:
+            Cannot convert string to number: ....JDB more message...
+        This doesn't help make out point about coercions, it's just what 
+        happens.
+    
+    You can coerce your own types:
+        sub do_stuff( MyClass() $bar ) { }
+    As long as $bar is of some type that's coerce-able into MyClass.  The 
+    example in the tut is really contrived.  But if you need to do this, you 
+    can.
+}#}}}
+
+
+### This stuff is over my head ATM and needs to be revisited.
+### CHECK
 Destructuring parameters {#{{{
     
     This seems a little odd.  
@@ -275,10 +716,10 @@ Destructuring parameters {#{{{
     We can also destructure hashes in the same way, but that's over my head 
     right now.
 }#}}}
-Capture parameters {#{{{
-    You can prefix a parameter with a vertical bar (pipe) to make it a 
-    Capture.
+Slurpy Conventions {#{{{
 
-    This is over my head, skipping for now.
+    This immediately started talking about stuff that I haven't covered 
+    anywhere yet.
+    
 }#}}}
 

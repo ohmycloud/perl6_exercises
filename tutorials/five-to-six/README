@@ -169,6 +169,25 @@ REFERENCES {#{{{
 
 
 }#}}}
+RAW VARIABLES (DECLARED WITH BACKSLASH backslash) {#{{{
+    
+    I just came across this in a routine in the tutorial:
+        my \hour = DateTime.now.hour;
+        if hour > 8 or hour < 22 { ... }
+
+    I'd previously only come across that backslash when talking about 
+    parameter traits (in tutorials/functions/README).
+
+    That "hour" "variable" is "raw".  That's a lot of quotes.
+
+    I don't really understand this yet.  But "hour" is read-only.  It's 
+    essentially a constant at this point.  This blows up:
+        my \foo = "bar";
+        say foo;            # we're fine, this works so far.
+        foo = "baz"         # Boom.  No worky-worky.
+        \foo = "baz"        # Also Boom.  Also no worky-worky.
+
+}#}}}
 OPERTATORS {#{{{
     
     Many operators are unchanged.  I'm only listing those that have changed.

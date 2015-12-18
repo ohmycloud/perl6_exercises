@@ -1,9 +1,14 @@
 #!/home/jon/.rakudobrew/bin/perl6
 
+
 ### 
 ### All built-in types:
 ###     http://doc.perl6.org/type.html
+###
+### READ THAT URL!  There are a crapload of types; you need to be at least 
+### familiar with all of them.
 ### 
+
 
 
 my Int $x = 42;
