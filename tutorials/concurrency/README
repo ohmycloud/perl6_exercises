@@ -1,0 +1,56 @@
+
+http://doc.perl6.org/language/concurrency
+
+
+CHECK
+I definitely need to spend some more time in here playing with this stuff 
+until it penetrates.
+
+
+Avoid Thread and Scheduler {#{{{
+    p6 has high-level APIs (which will be covered below).  The Thread and 
+    Scheduler APIs are lower-level.
+
+    Some p6 features may implicitly operate asynchronously.  So you're 
+    encouraged to avoid those low-level APIs to keep from getting in the way 
+    of these implicitly asynchronous features.
+
+    http://doc.perl6.org/type/Thread
+    http://doc.perl6.org/type/Scheduler
+}#}}}
+Promise {#{{{
+    Sometimes called a "future" in other languages.
+
+    See ./promise.p6
+
+    trying a promise
+        This code appears in the sample script several times to see what 
+        happened to a broken promise:
+                try $p.result;
+                say $p.cause;
+        The cause() method is used in those cases with no checking, because 
+        it's an example script.  But that cause() method will itself throw an 
+        exception if the promise did not break.  So I expect we'd need to look 
+        at $p.cause inside a CATCH block.  However, we haven't gotten to 
+        exception handling yet, so I don't know how to do that yet.
+
+        So just keep in mind that you can't call $p.cause wherever you want.
+}#}}}
+Supplies {#{{{
+    https://i.ytimg.com/vi/5AplRigbvtI/hqdefault.jpg
+
+    A Supply is an "asynchronous data streaming mechanism".  Sounds like a 
+    form of event programming.
+
+    ./supplies.p6
+
+}#}}}
+Channels {#{{{
+
+    A thread-safe queue that can have multiple readers and writers.
+
+    A channel is a fifo.  After a message has been read once, it's gone.  To 
+    allow multiple readers to read a single message, use a Supply instead.
+    
+}#}}}
+
