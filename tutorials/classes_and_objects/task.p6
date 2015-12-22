@@ -37,5 +37,5 @@ my $eat =
         )
     );
 
-#$eat.perform();
+$eat.perform();
 

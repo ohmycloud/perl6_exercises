@@ -7,3 +7,5 @@ if True {
     say $greet;
 }
 
+my @arr = <one two three>;
+say @arr.join(',');

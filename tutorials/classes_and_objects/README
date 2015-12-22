@@ -1,0 +1,241 @@
+
+
+Left off at
+    Inheritance
+
+
+"Attributes give objects state, and methods give objects behavior"
+    Makes perfect sense, I've just never heard it stated that way before.
+
+
+
+http://doc.perl6.org/language/classtut
+
+SIMPLE OBJECT CREATION {#{{{
+    
+    To set attributes at creation time, the default constructor (more on that 
+    below) requires that you send named arguments:
+
+            class Jontest {
+                has $.var;
+            }
+            my $j = Jontest.new( var => 3 );
+
+
+    If you try to use positional arguments:
+            my $j = Jontest.new( 3 );
+        ...the class doesn't know what to do with that '3', and you end up 
+        with this error:
+            Default constructor for 'Jontest' only takes named arguments
+            
+}#}}}
+
+ATTRIBUTES {#{{{
+    
+    $!attrib
+    $.attrib
+
+    You don't use both of these, it's one or the other.
+
+    $!attrib is a private variable, accessible only from within the class.
+
+    $.attrib creates a private variable $!attrib for you, and also creates a 
+    class method attrib(), which is an accessor (only, not a mutator) that 
+    returns the value of $!attrib.
+
+    This is more or less the accessor that's created in this case:
+        method attrib() { return $!attrib; }
+
+    Later on, if you realize that your attrib() accessor needs to be more 
+    complex, then you're free to actually define a "attrib" method yourself. 
+
+    You _can_ define a default value even if you're using the method form:
+        has $.attrib = "foobar";
+
+}#}}}
+STATIC VARIABLES {#{{{
+    
+    There's no 'static' keyword in p6.  However, you can use regular scoped 
+    variables in your class:
+        class Foo {
+            my $first_access_of_this_variable;
+
+            method singleton_var {
+                $first_access_of_this_variable = DateTime.now() unless $first_access_of_this_variable;
+                return $first_access_of_this_variable;
+            }
+        }
+
+    There's no twigil on $first_access_of_this_variable_time there.  It's not 
+    an attribute of the class, just a regular lexically-scoped variable.
+
+}#}}}
+METHODS {#{{{
+
+    method foo() { say "this is foo."; }
+    
+    Declaring a routine as a method rather than as a sub gives you two things:
+        - The routine gets added "officially" as a method of the class.  So 
+          any instance of this class can call foo as a method using the .
+            $object.foo();      # this is foo.
+
+        - The invocant gets placed into the special variable "self".  
+            - This "self" variable has no sigil, it's just the bare string.
+            - This self variable doesn't get anywhere near as much play in p6 
+              as it did in p5, since we can directly access methods and 
+              attributes inside our class using just
+                $.meth
+                $.attrib
+              without ever having to type "self".
+
+              However, if your class has private methods, you do need to use 
+              self to get at those:
+                    my $retval = self!private_meth();
+                
+              
+
+}#}}}
+PRIVATE METHODS {#{{{
+    
+    A private method cannot be called from the outside.
+
+    You declare a private method by prefixing its name with a bang:
+        method !thomas-magnum() { return "This is a private method". }
+
+    You access that private method, only from within your class, using the 
+    self special variable:
+        method some_public_meth() {
+            return self!thomas-magnum();
+        }
+}#}}}
+CONSTRUCTORS {#{{{
+    
+    When you declare a class, you automatically get a method called new() 
+    which acts as the constructor.
+        class Jontest {
+            has $var = 3;
+        }
+        my $j = Jontest.new;
+        say $j.var;     # 3
+
+
+    However, aside from the fact that you get that new() constructor free, 
+    there's nothing else magical about it.  You can redefine new(), or define 
+    any other constructors as you like.  This longer code is identical to the 
+    shorter code above:
+        class Jontest {
+            has $var = 3;
+
+            method new() {
+                return self.bless();
+            }
+        }
+        my $j = Jontest.new;
+        say $j.var;     # 3
+
+
+    That new() method we defined does have a "self" variable.  But before we 
+    call bless on it, that variable is just the invocant, "Jontest".  It's not 
+    a string, but it's not an object either.  self does not become an object 
+    until after the bless!
+        class Jontest {
+            has $.some_var = 3;
+
+            method new() {
+                say self.some_var;
+                ### GONNG!  "Invocant requires an instance of type Jontest, 
+                ### but a type object was passed.  Did you forget a .new?"
+
+                my $new_object = self.bless;
+                say $new_object.some_var;
+                ### A-ha.  Now that we've bless'd self and captured its 
+                ### retval, we can use that retval as our actual object.
+
+                return $new_object.
+            }
+        }
+
+    The point here is that our constructor has full access to all of the bits, 
+    BEFORE the object is actually constructed.  
+
+
+    So we know that you have to send named arguments to a default constructor 
+    (see the SIMPLE OBJECT CREATION section above).  But you could make up 
+    your own constructor to allow for positional args:
+            class Jontest {
+                has $.some_var = 3;
+                method new($var) {
+                    return self.bless( blarg => $var );
+                }
+
+        ...or you could use the : named parameter twigil, as long as you 
+        modified the name of new()'s incoming parameter:
+            class Jontest {
+                has $.some_var = 3;
+                method new($some_var) {
+                    return self.bless( :$some_var );
+                }
+
+
+
+}#}}}
+BUILD {#{{{
+    
+    BUILD is a submethod.  It gets called after the constructor.
+
+    A submethod is a method that does not get inherited to subclasses.  More 
+    on this in a later tutorial (Object Orientation).
+
+    BUILD is actually called by your constructor's call to bless().
+
+    Like the constructor, a default BUILD appears whenever you create a class, 
+    but you can override that BUILD as you wish.
+    
+
+
+    This means that BUILD has access to your class's private variables.  The 
+    object is still considered "partially constructed" while you're inside 
+    BUILD.  This means that you cannot do this:
+            class Jontest {
+                has $.blarg = "foobar";
+
+                submethod BUILD {
+                    ### This would blow up with
+                    ###     Virtual call $.blarg may not be used on partially 
+                    ###     constructed objects
+                    say $.blarg;            # GONNNG!
+
+
+                    ### So BUILD hasn't got access to the blarg() method yet.  
+                    ### However, it does have partial access to the $!blarg 
+                    ### private variable, but only "partial access".
+
+                    ### This spits out "Any", even though our $.blarg was set 
+                    ### to the default value of "foobar".  We're only 
+                    ### partially constructed at this point, so that 'blarg' 
+                    ### attribute has not yet taken its value.
+                    say $!blarg.perl;
+
+
+                    ### But this is interesting -- although we can't access 
+                    ### the default value of $!blarg yet, we CAN set $!blarg's 
+                    ### value:
+                    $!blarg = "other value";
+
+                }
+            }
+
+
+    So BUILD is responsible for initializing all attributes.
+
+}#}}}
+INHERITANCE {
+
+    - Go through the scripts in this order:
+        - inherit.p6
+        - mult_inherit.p6
+
+
+
+}
+

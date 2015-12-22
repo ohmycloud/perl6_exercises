@@ -10,8 +10,11 @@ http://doc.perl6.org/language/variables#Twigils
             dynamic variables are run-time, not compile-time.
 
 - class.p6
-    !   attribute
+    !   attribute (private to the class)
     .   method (not really a variable)
+        $.foo creates $!foo, a private attribute, as well as $.foo(), an 
+        accessor method that returns the value of $!foo.  $.foo() is an 
+        accessor only at this point, not a mutator.
 
 - params.p6
     ^   positional parameter

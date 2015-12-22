@@ -1,16 +1,6 @@
 #!/home/jon/.rakudobrew/bin/perl6
 
 
-### 
-### All built-in types:
-###     http://doc.perl6.org/type.html
-###
-### READ THAT URL!  There are a crapload of types; you need to be at least 
-### familiar with all of them.
-### 
-
-
-
 my Int $x = 42;
 say $x;
 
@@ -24,17 +14,6 @@ my Int $y;
 $y = 4;
 say $y;
 say '';
-
-
-### A variable with no type constraint on declaration is of type "Mu", which 
-### is a Japanese and Korean word meaning "not have, without".  Perl6 is also 
-### backronyming it (and I'm verbing nouns) as "Most Undefined".
-###     http://doc.perl6.org/type/Mu
-my $mu;
-
-### So this variable is typed as "Mu".  Since it was not assigned a value, it 
-### starts out assigned as an object of the Any class.
-###     http://doc.perl6.org/type/Any
 
 
 ### Arrays and hashes get initialized as object of the Array and Hash classes 
