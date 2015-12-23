@@ -6,6 +6,8 @@ CHECK
 I definitely need to spend some more time in here playing with this stuff 
 until it penetrates.
 
+Definitely look for CH.ECK marks in ./, as well as NY.I marks.
+
 
 Avoid Thread and Scheduler {#{{{
     p6 has high-level APIs (which will be covered below).  The Thread and 
@@ -53,4 +55,14 @@ Channels {#{{{
     allow multiple readers to read a single message, use a Supply instead.
     
 }#}}}
+Proc::Async {#{{{
+    I thought this sounded like a replacement for fork, but no.
+
+    It's essentially a replacement for system().
+}#}}}
+Low-level APIs {
+    The start of the Concurrency section warned me against using these.  So I 
+    probably won't bother making a test script, but do want to at least read 
+    the section once so it's been pasteurized.
+}
 
