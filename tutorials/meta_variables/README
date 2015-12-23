@@ -1,0 +1,22 @@
+
+This is not a section of the tutorial.  
+
+I assume this stuff will be covered by some part of the tutorial at some 
+point, but the rest of the tut keeps using this stuff before it's been 
+covered.
+
+
+my $num = 4;
+my $str = 'foobar';
+
+say $num.^name;     # Int
+say $str.^name;     # Str
+
+say $num.WHAT;     # (Int)
+say $str.WHAT;     # (Str)
+
+say $num.perl;     # 4
+say $str.perl;     # "foobar"       (the quotes do get displayed)
+
+say $num.gist;     # 4
+say $str.gist;     # foobar         (the quotes do NOT get displayed)

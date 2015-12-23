@@ -1,0 +1,251 @@
+
+http://doc.perl6.org/language/containers
+
+What is a container?
+            my $x = 42;
+
+    That assignment creates a lexpad entry for $x.  That entry is a pointer to 
+    a Scalar object.  This Scalar object is the container, which holds the 
+    value 42.  That container also likely contains other metadata as well.
+
+lexical pad (lexpad) {#{{{
+    
+    There's one lexpad per lexical scope.  These lexpads contain pointers to 
+    the variables declared within that scope.
+
+}#}}}
+Scalar containers {#{{{
+    my $x = 42;
+    say $x;
+
+    Scalar objects are used frequently in p6, but you will rarely see them 
+    used as objects.
+
+    In the code above, the variable $x gets "decontainerized", meaning the 
+    operation acts on the contents of the container in $x, rather than the 
+    container itself.
+
+    assignment operator:
+        "Hey, container known as $x, please store the int value 42 for me.".
+
+    container known as $x:
+        "Sure thing buddy.  You don't need to know the implementation details, 
+        but I'll go ahead and do that for you."
+
+
+    A scalar value is immutable, but a scalar container is not.
+            42 = 31;        # Derp.
+            $var = 31;      # Fine -- $var is a container.
+            $var = 42;      # Still fine.  We're still assigning to the container.
+
+}#}}}
+Subroutine Signatures (including rw routines) {#{{{
+
+    So I already know that I can do this:
+            sub f( $arg is rw ) {
+                $arg = 23;
+            }
+            my $var = 10;
+            f($var);
+            say $var;       # 23
+
+    No problem, makes sense.  But we can also do this:
+            my $var = 10;
+
+            sub f() is rw {
+                $var;
+            }
+
+            f() = 42;
+            say $var;       # 42
+
+    This is bizarre and a little frightening.
+
+    It's explained a little better in the context of a class, where we 
+    declare an attribute with a read-write accessor:
+            class Foo {
+                has $.attr is rw;
+            }
+
+        OK, I've seen that before.  It means we can do this:
+            my $f = Foo.new;
+            $f.attr = "blarg";
+            say $f.attr;            # blarg
+
+        
+        That rw accessor is equivalent to this:
+            class Foo {
+                has $!attr;
+                method attr() is rw {
+                    $!attr;
+                }
+            }
+
+        Mentioning the $!attr in that method returns it, but it's not a 
+        regular return.  If we wanted to be explicit, this would not work:
+            class Foo {
+                has $!attr;
+                method attr() is rw {
+                    return $!attr;
+                }
+            }
+            my $f = Foo.new;
+            $f.attr = "blarg";  # GONNNG!  Cannot assign to a readonly variable or a value
+
+
+        So, if we really wanted to be explicit, we'd have to use "return-rw" 
+        instead of just "return":
+            class Foo {
+                has $!attr;
+                method attr() is rw {
+                    return-rw $!attr;
+                }
+            }
+            my $f = Foo.new;
+            $f.attr = "blarg";  # And there was much rejoicing.
+
+}#}}}
+Binding {#{{{
+    
+    Adding a colon to the assignment binds a variable:
+            my $x := 42;
+
+    Once bound, the variable (its lexpad entry) points directly to Int 42, not 
+    to a container.  This means that you can no longer assign to $x.
+
+
+    You can also bind variables to other variables:
+            my $a = 1;
+            my $b = 2;
+
+            $a := $b;
+            say $a;         # 2
+
+        Now, since $a has been bound to a variable, rather than an immutable 
+        constant like 42, you _can_ assign to $a, but doing so also changes 
+        the value of $b:
+            $a = 3;
+            say $a;         # 3
+            say $b;         # 3
+
+
+    Sigil-less variables (which I don't really get yet) are bound by default:
+            my $a = 1;
+            my \b = $a;
+            b++;
+            say $a;         # 2
+
+
+    As are "is raw" variables:
+            sub foo ($a is raw) { $a++ }
+
+            my $c = 1;
+            foo($c);
+            say $c;     # 2
+
+
+    See the "Listy Things" section for info on binding to an Array.
+
+}#}}}
+Listy Things {#{{{
+    
+    A list, like a scalar container, is immutable.  The terms "list" and 
+    "array" are similar in p6 as they were in p5.
+
+
+    This is a list:
+            say (1, 2, 3).^name;        # List
+
+    We cannot assign to an element of that list, since it's immutable.
+            ### This is fine; we _can_ access a list via subscript:
+            say (1, 2, 3)[1];
+
+            ### This is not fine.  The list, being immutable, cannot be added 
+            ### to:
+            (1, 2, 3).push(4);  # Cannot call 'push' on an immutable list
+
+            ### Also, we can't modify any of the elements of this list, 
+            ### because those elements are immutable scalar VALUES:
+            (1, 2, 3)[1] = 4;   # Cannot modify an immutable int
+
+
+    However, if our list contains a scalar container, that scalar container 
+    _is_ mutable:
+            my $var = 2;
+            say (1, $var, 3)[1];        # 2
+
+            ### Here, we're not changing the list.  We're only changing the 
+            ### value of the scalar container $var at position [1].
+            ###
+            ### We still can't modify the raw list.
+            (1, $var, 3)[1] = "two";
+            say (1, $var, 3)[1];        # two
+
+
+
+    An Array is to a list as a Scalar container is to a scalar value; the 
+    Array can be modified.  This is because the Array forces all of its 
+    elements to be containers:
+            my @arr = (1, 2, 3);
+            @arr[1] = "two";
+            say @arr;                   # [1 "two" 3]
+
+
+
+    ### 
+    ### New stuff here
+    ###
+
+    We can assign a non-list value to an array, and the assignment will be 
+    coercive:
+            my @arr = 4;
+            say @arr;               # [4]
+            say @arr[0];            # 4
+
+    When we assign an int to a scalar variable, that variable knows that its 
+    value's type:
+            my $a = 42;
+            my $b = "foobar";
+
+            say $a.^name;   # Int
+            say $b.^name;   # Str
+
+        Note that "^name" does NOT say "Scalar".  It tells us the type of the 
+        value, not of the container.
+
+
+    But an array's name does not tell us the types of the values, but of the 
+    container itself:
+            say @arr.^name;     # Array
+
+        That makes sense, since an array can contain elements of different 
+        types.
+
+
+
+    You can bind a non-Array value into an array:
+            my @arr := (1, 2, 3);
+            say @arr[1];                # 2
+            @arr[1] = "two";            # GONNNG - Cannot modify an immutable Int
+
+        Once bound, the @arr variable stops being an Array and becomes a list:
+            say @arr.WHAT;              # (List)
+
+        Whereas, if we were dealing with a regular array:
+            my @reg_arr = <1 2 3>;
+            say @reg_arr.WHAT           # (Array)
+
+
+    You could also bind to a specific element in an array:
+            my @arr = <1 2 3>;
+            @arr[1] := "two";
+            say @arr;
+            @arr[0] = "one";            # Fine, the first element is not bound.
+            @arr[1] = 2;                # GONNNG - Cannot modify an immutable Str
+
+        Although this is possible, don't do this.  It's going to lead to pain 
+        and confusion.  That warning is given in the tut as well as the little 
+        voice in my head.
+
+}#}}}
+
