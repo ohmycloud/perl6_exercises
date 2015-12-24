@@ -311,6 +311,37 @@ quoting {#{{{
     However, that array qw// notation is more commonly rendered without the 
     need for the qw, as:
         my @ar = <foo bar baz>;
+
+
+    qw() works for building arrays as before.  It does not interpolate:
+        my $v = "foo";
+        my @a = qw($v bar baz);
+                ### @a now contains the STRINGS '$v', 'bar', and 'baz'.  
+
+    qqw() works like qw(), but qqw() _does_ interpolate:
+        my $v = "foo";
+        my @a = qqw($v bar baz);
+                ### @a now contains 'foo', 'bar', and 'baz'.  
+
+
+    NOTE that I have been unable to get qqw() to interpolate arrays.
+        my @a = <1 2 3>;
+        my @b = qqw(@a foo bar);
+        say @b;                     # [@a foo bar]
+
+
+    NYI - I dunno if this prohibition against using arrays inside qqw() is 
+    canon.
+
+
+    To put an array in an array, it looks like I need to use regular array 
+    assignment syntax:
+        my @a = <1 2 3>;
+        my @b = (@a, 'foo', 'bar');
+        say @b;                     # [[1 2 3] foo bar]
+
+
+
 }#}}}
 rand (pick) {#{{{
     Works as a function, but no longer accepts an argument.  Returns a float 

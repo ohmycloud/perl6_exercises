@@ -156,6 +156,28 @@ Listy Things {#{{{
     This is a list:
             say (1, 2, 3).^name;        # List
 
+    This is also a list, because of the $, rather than @, sigil:
+            my $list = (1, 2, 3);
+            say $list.^name;            # List
+            for $list {
+                ### One iteration
+                say $_;                 # (1 2 3)
+            }
+
+        However, you can force that list to act like an array by tacking an @ 
+        sigil on the front (but don't drop the $ sigil):
+
+            ### Still reports as a "List"
+            say @$list.^name;
+
+            ### But using it in an iterator produces three iterations
+            for @$list {
+                say $_;
+                    # 1
+                    # 2
+                    # 3
+            }
+
     We cannot assign to an element of that list, since it's immutable.
             ### This is fine; we _can_ access a list via subscript:
             say (1, 2, 3)[1];
@@ -202,25 +224,21 @@ Listy Things {#{{{
             say @arr;               # [4]
             say @arr[0];            # 4
 
-    When we assign an int to a scalar variable, that variable knows that its 
+    When we assign an int to a scalar variable, that variable knows its 
     value's type:
             my $a = 42;
             my $b = "foobar";
 
             say $a.^name;   # Int
             say $b.^name;   # Str
-
         Note that "^name" does NOT say "Scalar".  It tells us the type of the 
         value, not of the container.
 
 
-    But an array's name does not tell us the types of the values, but of the 
+    But an array's ^name does not tell us the types of the values, but of the 
     container itself:
             say @arr.^name;     # Array
-
         That makes sense, since an array can contain elements of different 
-        types.
-
 
 
     You can bind a non-Array value into an array:
@@ -246,6 +264,72 @@ Listy Things {#{{{
         Although this is possible, don't do this.  It's going to lead to pain 
         and confusion.  That warning is given in the tut as well as the little 
         voice in my head.
+
+}#}}}
+Flattening {#{{{
+    
+    Like in p5, @ and % indicate multiple values, and $ indicates a single 
+    value.
+
+    But p6 is quite different in how it treats lists and flattening.
+
+    ### An array, as expected.
+    my @a = <1 2 3>;
+    for @a { # 3 iterations }
+
+
+    ### Here, $a is a list...
+    my $a = <1 2 3>;
+    for $a { # 1 iteration }
+
+    ### ...and you can access its elements via subscript
+    say $a[1];      # 2
+
+
+    ### Arrays no longer flatten out in list context.
+    my @a = <1 2 3>;
+    my @b = (@a, "foo", "bar");
+    say @b.perl;            # [[1 2 3] foo bar]
+
+    ### Assigning an array as an array element works directly too:
+    my @c = (<a b c>, "foo", "bar");
+
+
+    ### But you can force a subarray to flatten out by using 'flat':
+    my @a = <a b c>;
+    my @b = (@a, "foo", "bar");         # [[a b c] foo bar]
+    my @c = (flat @a, "foo", "bar");    # [a b c foo bar]
+
+    ### Also, using a slurpy parameter in a routine will flatten as well:
+    sub myflat(*@foo) { @foo; }
+    my @d = <1 2 3>;
+    say myflat( @d, 'foo', 'bar' );     # [1 2 3 foo bar]
+    
+    ### However, if you're passing an array that already itself contains an 
+    ### array as an element, _that_ does not get flattened by a slurpy param:
+    sub myflat(*@foo) { @foo; }
+    my @e = (<a b c>, "foo", "bar");
+    say myflat( @e );                   # [(a b c) foo bar]
+
+
+    ### Also, methods don't generally care if their invocant is a scalar.
+    ###
+    ### No, I don't like the word "generally" up there either, but it's 
+    ### verbatim from the tutorial.
+    ###
+    ### Anyway:
+    my $list = (1, 2, 3);
+    for $list { say $_ };       # List to an iterator, so one iteration.
+    $list.map( *.say );         # List to a method, so three iterations.
+
+}#}}}
+Custom Containers {#{{{
+    
+    http://doc.perl6.org/language/containers#Custom_containers
+
+    CHECK
+    So you can create your own types (not classes here, but containers), but 
+    the code shown is arcane enough that I should come back to it later.
 
 }#}}}
 
