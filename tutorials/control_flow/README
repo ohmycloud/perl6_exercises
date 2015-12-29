@@ -1,0 +1,560 @@
+
+Blocks {#{{{
+    
+    These work pretty much like in p5, but see this code:
+        say "one";
+        { say "two"; say "three" }
+        { say "four"; } or die;
+        say "five";
+
+    On the "four" line, the block is not the entire statement as it is on the 
+    previous (two, three) line.  
+
+    So on that four line, the block gets evaluated to a Block object.  That 
+    object gets evaluated to true, so the die does not run.  
+
+    But since the block is not the entire statement, it never actually runs, 
+    it just gets evaluated.  So the output of the above is:
+        
+        one
+        two
+        three
+        five            Note no "four".
+
+
+    If we really wanted to both run-and-eval a block, we could use do:
+        do { say "four"; 0; } or die "I just died";
+
+    That will print out "four", and then die with "I just died".  The "do" 
+    causes the block to not just evaluate, but to also run, and the retval of 
+    the entire "do {}" expression is the 0, so we get the death.
+
+}#}}}
+if, elsif, else {#{{{
+    As in p5.
+}#}}}
+with, orwith, without {#{{{
+
+    These are analogous to if/elsif and "if not", except they test for 
+    definedness rather than truth.
+
+    This outputs "three":
+        with Nil      { say "one" }
+        orwith Nil    { say "two" }
+        orwith True   { say "three" }
+
+    There's no "withelse", it's just "else".
+    This prints "three" as well:
+        with Nil        { say "one" }
+        orwith Nil      { say "two" }
+        else            { say "three" }
+
+
+    You can mix "if" with "with":
+        my $d = 0;
+        if $d               { say "Does not print" }
+        orwith $d           { say "Defined, so prints" }
+
+    However, there does NOT exist an "orwithout":
+        my $d = Nil;
+        if $d               { say "Does not print" }
+        orwith $d           { say "Does not print" }
+        orwithout $d        { say "This generates a compile time error." }
+
+    ...so jst use "else" for that:
+        my $d = Nil;
+        if $d               { say "Does not print" }
+        orwith $d           { say "Does not print" }
+        else                { say "Else" }
+
+
+
+    Without is analogous to "unless".  Like unless, it does not accept an 
+    "else" clause.
+        without Nil { say "undefined" }
+        say "foo" without Nil;
+
+}#}}}
+for {#{{{
+    
+    Unlike p5, "for" in p6 is only for iterating over a list.  It can no 
+    longer be used for a C-style for loop.
+
+    These are the same:
+        for @arr        { say $_ }
+        for @arr -> $a  { say $a }
+        for @arr        { say $^name }
+
+
+    The for loop can now take multiple parameters:
+        for %hash.kv -> $k, $v  { say "$k => $v" }
+        for %hash.kv            { say "$^a => $^b" }
+
+
+    Remember that, as soon as you use a ^ positional twigil on a variable 
+    name, a regular lexically-scoped variable of that name, without the 
+    twigil, pops into existence.  But you can continue to use the ^ twigil if 
+    it makes you happy.
+            for %hash.kv {
+                say "$^a => $^b";
+                say "$a => $b";
+                say "$^a => $^b";
+            }
+
+
+    for works on lazy lists.  So to read from a file (this is a quine):
+                my $fh = open $?FILE, :r;
+                for $fh.lines -> $line {
+                    say "--$line--";
+                }
+
+        That'd be safe no matter how big the file we were reading was.
+                    
+
+
+    The iteration variables are automatically lexically-scoped, so you don't 
+    need to use ("may not use") "my" on them:
+        for @arr -> $a     { say $a }       # fine
+        for @arr -> my $a  { say $a }       # Not only unnecessary, but compile-time error.
+
+
+    Those iteration variables are RO:
+            my @arr = <1 2 3>;
+            for @arr -> $a {
+                say $a;                 # prints
+                $a = 11;                # runtime error.  "Cannot assign to readonly variable"
+            }
+
+    If you need the iteration variable to be RW, use <-> instead of ->, but be 
+    aware that this is actually changing the contents of your array:
+            my @arr = <1 2 3>;
+            for @arr <-> $a {
+                say $a;                 # prints
+                $a = 11;                # No problem because of <->
+            }
+            say @arr;                   # [11 11 11]
+
+
+    You can use for to return a list; it essentially becomes "map" (even 
+    though "map" does exist in p6):
+            (for 1,2,3 { $_ * 2}).say;          # (2 4 6)
+            my @a = (for 1,2,3 { $_ * 2});      # [2 4 6]
+            my @a = do for 1,2,3 { $_ * 2};     # [2 4 6]
+
+        Note the difference in the output.  The first line is printing a list, 
+        so it's in parens.  The second line and third lines are printing an 
+        Array, so they're in square brackets.
+
+
+}#}}}
+gather/take {#{{{
+
+    http://doc.perl6.org/language/control#gather%2Ftake
+
+
+    gather/take returns a sequence of values as a list.
+            my @a = gather {
+                take 1;
+                take 2;
+                take 34;
+            }
+            say @a;                 # [1 2 34]
+
+
+
+    The gather block generates its values lazily.  It runs until it hits its 
+    first "take", and then blocks until the next value is consumed:
+            my \a = gather {
+                my $a = DateTime.now;
+                take $a.second.Int;
+
+                my $b = DateTime.now;
+                take $b.second.Int;
+
+                my $c = DateTime.now;
+                take $c.second.Int;
+            }
+            for a -> $v {
+                say $v;
+                sleep 1;
+            }
+
+        I'm still a hair hazy on the backslash sigil.  It creates a raw 
+        variable which is what I don't totally get.
+
+        But if you change the \a above to a regular array @a, all three lines 
+        of output will be identical.  Using the raw variable, we do end up 
+        with 3 different seconds output.
+
+
+    gather/take is scoped dynamically.  The tut includes a little example of 
+    this.  I mostly understand what the example is doing, but it's still 
+    making me a little sick to my stomach.
+
+
+}#}}}
+given/when {#{{{
+    
+    switch/case, and it's really usable now.
+            my $var = "foo";
+            given $var {
+                when 'bar'      { say "bar" }
+                when 'foo'      { say "foo" }
+                default         { say "something else" }
+            }
+
+    However, even though given and when are often used together, they're not 
+    inextricable:
+            given 1+3 { .say; }     # outputs "4"
+
+
+    A block containing a "when" or "default" will exit as soon as one of those 
+    sub-blocks hits:
+            my $var = "foo";
+            given $var {
+                say '1';                            # prints
+                when 'bar'      { say "bar" }       # does not hit
+                say '2';                            # prints
+                when 'foo'      { say "foo" }       # hits, prints, and exits block
+                say '3';                            # does not print
+            }
+
+            my $var = "foo";
+            given $var {
+                say '1';                            # prints
+                when 'bar'      { say "bar" }       # does not hit
+                say '2';                            # prints
+                default         { say "foo" }       # hits, prints, and exits block
+                say '3';                            # does not print
+            }
+
+        However, that "hits and exits" only applies to sub-blocks, NOT to 
+        statement modifiers:
+            my $var = "foo";
+            given $var {
+                say '1';                            # prints
+                say "foo" when 'foo';               # statement modifier - hits and prints, DOES NOT exit.
+                say '2';                            # prints
+                when 'foo'      { say "foo" }       # sub block - hits, prints, and exits block
+                say '3';                            # does not print
+            }
+
+
+    The when statement does a smartmatch against the topic ($_):
+            my $var = "foo";
+            given $var {
+                when Int        { say 'Int' }
+                when Rat        { say 'Rat' }
+                when Str        { say 'Str' }       # prints and exits
+
+                ### This next block would have hit (a Str is also an Any), but 
+                ### since we already hit and exited, the thread never
+                ### gets here.
+                when Any        { say 'Any' }
+            }
+
+    However, you can nest your when blocks (I like this):
+            my $var = 42;
+
+            given $var {
+                when Int {                          # we enter this block
+                    say 'Int';                      # this prints
+                    when 41         { say '41' }
+                    when 42         { say '42' }    # then this hits and prints
+                    when 43         { say '43' }
+                }                                   # at this point we exit the given block.
+                when Any        { say 'Str' }
+            }
+
+        So that prints out
+            Int
+            42
+
+        but it exits before it gets to testing if $var is an Any (which it 
+        is).
+
+}#}}}
+proceed and succeed {#{{{
+    
+    "You know what really succeeds?"
+    "A budgie with no teeth!"
+        RIP Benny Hill.
+
+
+    These two keywords apply to given/when (at least usually).
+
+
+    ### PROCEED ###
+
+    Remember that the standard when block exits when it hits:
+            my $var = "foo"
+            given $var {
+                when Str        { say "Str" }
+                when Any        { say "Any" }
+            }
+
+        $var _is_ an Any, but that when block never hits, since $var is also a 
+        Str, and that block hit first and exited.
+
+        To hit both blocks, we can use 'proceed':
+            my $var = "foo"
+            given $var {
+                when Str        { say "Str"; proceed; }
+                when Any        { say "Any"; proceed; }
+            }
+
+        That outputs both "Str" and "Any".
+
+
+    So if you want multiple tests but don't want to nest them.  
+
+            ### Just uncomment one of these two assignments.
+            my $var = 42;       # triggers "Int"
+            my $var = "42";     # triggers "Str"
+
+            given $var {
+                when Int        { say "Int"; proceed; }
+                when Str        { say "Str"; proceed; }
+                when 42         { say "The answer"; proceed; }
+                default         { say "This always prints."; proceed }
+                say "this prints too.";
+            }
+
+        So "Int" or "Str" prints out depending on whether you quoted your 42 
+        or not.  But either way, the rest of the lines do all get output.
+
+
+
+    ### SUCCEED ###
+
+    This is essentially the opposite of proceed.  It forces an immediate 
+    return from the when or default block.
+            my $var = 42;
+            given $var {
+                when Int {
+                    say "It's an int!";
+                    succeed;
+                    say "This does not print.";
+                }
+            }
+
+    succeed can also specify a return value.  Remember to either parenthesize 
+    your entire given block or use "do" to get at that retval:
+            my $var = 42;
+            my $foo = do given $var {
+                when Int {
+                    say "It's an int!";
+                    succeed "blarg";
+                    say "This does not print.";
+                }
+            }
+            say $foo;       # blarg 
+
+}#}}}
+loop, eager {#{{{
+    
+    This is just the C-style for loop.
+
+
+    I'm really mystified as to WTF the designers were thinking on this one:
+    
+        "Hey guys!  'for' does two things in p5.  We want it to only do 1 
+        thing in p6.
+
+        Should we make 'for' be the C-style for loop so people from other 
+        languages are comfortable with it, and make 'foreach' be our list iterator 
+        so p5 people will be comfortable?"
+        
+        "Fuck no.  Let's make 'for' our loop iterator, and invent the 'loop' 
+        keyword for the C-style loop to piss EVERYBODY off, and then just throw 
+        'foreach' in the bin."
+
+        "Sounds splendid."
+
+
+    Anyway.
+
+
+    The standard usage:
+            loop (my $i = 1; $i <= 5; $i++) {
+                $i.say;
+            }
+
+    You can omit the parens entirely if you want an infinite loop:
+            my $i = 0;
+            loop {
+                $i++.say;
+                last if $i > 5;
+            }
+
+
+
+    NYI - THIS NEXT BIT DOES NOT WORK.
+        The entire loop structure can return a list if you parenthesize the 
+        whole mess.
+            my @arr = (loop (my $i = 1; $i <= 3; $i++) {
+                $i * 2;
+            });
+            say @arr;       # [2 4 6]
+
+        You could use do:
+            my @arr = do (loop (my $i = 1; $i <= 3; $i++) {
+                $i * 2;
+            });
+            say @arr;       # [2 4 6]
+
+        However, in the case of 'loop', you still have to parenthesize the 
+        whole thing even if you add the 'do' on the front.
+
+        The tut says the above should work, and shows me what the output 
+        should be (I've shown it in the comments above).  However, what I'm 
+        actually getting as output is:
+            [sub infix:«<» (Mu $?, Mu $?) { #`(Sub+{<anon|69999488>}|67716680) ... }]
+
+
+    ANOTHER CAVEAT (maybe NYI)
+        The loop variable ($i in the examples so far) is NOT lexically scoped 
+        to the block.
+    
+        While this runs with no errors or complaints:
+            loop ( my $i = 0; $i++ < 3; ) {
+                say $i
+            }
+
+        This runs, but generates a warning (Potential difficulties: 
+        Redeclaration of symbol $i):
+            loop ( my $i = 0; $i++ < 3; ) {
+                say $i
+            }
+
+            loop ( my $i = 0; $i++ < 3; ) {
+                say $i
+            }
+
+        I tend to expect this is not the intended behavior, since the tut 
+        doesn't say anything about it.
+
+        However, you can avoid that warning by using $_ instead of a specific 
+        loop variable like $i:
+
+            loop ( $_ = 0; $_ < 3; $_++ ) {
+                .say;
+            }
+
+            loop ( $_ = 0; $_ < 3; $_++ ) {
+                .say;
+            }
+
+            # Runs, no warnings.
+
+
+    ### eager ###
+    If you want to use a loop's return value, the tut encourages you to use 
+    "eager".  But the tut doesn't sound all that sure of itself, and the 
+    example given doesn't actually use that retval at all.
+
+    The example is just:
+            sub heads-in-a-row {
+                (eager loop (; 2.rand < 1;) { "heads".say })
+            }
+
+        That flips a coin and prints "heads" once for each time heads comes up 
+        on the coin, until that coin hits tails once.  
+
+        I fail to see what "eager" is doing in there, and given the rest of 
+        the caveats mentioned here about 'loop', I'm inclined to ignore it for 
+        now.
+
+}#}}}
+while, until {#{{{
+    
+    While is just what you expect.
+
+    Until is the opposite:
+            my $x = 1;
+            until $x > 3 {
+                $x++;
+            }
+
+
+    Both can be used as statement modifiers:
+            my $x = 1;
+            $x++ until $x > 3;
+            say $x;                 # 4
+            $x-- while $x > 1;
+            say $x;                 # 1
+
+
+}#}}}
+repeat/while, repeat/until (do/while) {#{{{
+    
+    In p5 we had do/while loops, implemented as a statement modifier (the 
+    'while' condition) applied to the end of a do block, resulting in:
+            my $x = 0;
+            do {
+                say $x++;
+            } while $x < 10;
+
+
+    This is SPECIFICALLY DISALLOWED in p6.  There is no do{} while() in p6.
+
+
+    To make up for it, p6 has repeat/while and repeat/until.  These do the 
+    same job as a do/while (and the hypothetical do/until) just with different 
+    keywords.
+
+            my $x = 0;
+
+            repeat {
+                say $x++;
+            } while $x < 10;
+
+            repeat {
+                say $x--;
+            } until $x == 1;
+
+}#}}}
+LABELS {#{{{
+    
+    These look awfully similar to the labels in p5.
+
+            my $x = 1;
+
+            MYLABEL:
+            while True {
+                $x++.say;
+                last MYLABEL if $x > 5;
+            }
+
+
+    The keywords that work with labels are, same as p5:
+        next
+        last
+        redo
+        goto
+
+
+
+    Now, I've never used 'redo'.  The example in the tut looks promising:
+            {
+                my $ans = prompt("Enter a number: ");
+                redo unless is_a_number($ans);
+            }
+
+        HOWEVER, running that gives me the runtime fatal:
+            redo without loop construct
+
+        So I could add a while loop:
+            while True {
+                my $ans = prompt("Enter a number: ");
+                redo unless is_a_number($ans);
+            }
+            say "foo";
+
+        But all that does is force me into an infinite loop.  Whether the redo 
+        hits or not, our loop continues.
+
+        I still see no need for redo.
+
+}#{{{#}}}#}}}
+

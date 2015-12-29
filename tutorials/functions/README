@@ -123,13 +123,23 @@ Positional Parameters {#{{{
 
 }#}}}
 Named Parameters {#{{{
-    We get named parameters by preceding them with a colon:
+    We get named parameters by preceding them with a colon in the signature:
         sub greet( :$greeting, :$name ) {
             say "$greeting, $name!"
         }
 
-    Then we send parameters with the same names as the names of the variables.
+    To pass in strings, you have to tell the routine which string applies to 
+    which parameter.  Both of these styles works:
         greet( name => 'Steve', greeting => 'Hola' );
+        greet( :name<Jon>, :greeting<Blarg> );
+
+    Passing in variables is more or less the same thing.  But if you use the 
+    second style, remember that <> does not interpolate but <<>> does:
+        my $name = 'Fred';
+        my $greeting = 'Hello';
+        greet( name => $name, greeting => $greeting );
+        greet( :name<<$name>>, :greeting<<$greeting>> );
+
 
 
     You can use a different variable name for the named parameter.  This 

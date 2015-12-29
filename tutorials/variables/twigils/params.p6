@@ -12,7 +12,7 @@ http://doc.perl6.org/language/variables#The_%3A_Twigil
 
 
 ### 
-### ^
+### ^   (Positional)
 ###
 
 ### ^ applies to both blocks and subroutines.  Here it is on a block.
@@ -21,6 +21,30 @@ for ^4 {
 }
 ### 1 follows 0.
 ### 3 follows 2.
+
+
+### Once you've used $^b and $^a once, you've also created $a and $b.  
+### However, you can continue to use the variables with the ^ twigil if that 
+### blows your skirts up.  This block works:
+for ^4 {
+    say "$^b follows $^a.";
+    say "$b follows $a.";       # No ^ twigils
+    say "$^b follows $^a.";
+}
+
+### However, this does not work:
+for ^4 {
+    ### No ^ twigils, and $^a and $^b have not been used yet, so $a and $b are 
+    ### not yet defined.
+#   say "$b follows $a.";
+
+    ### This is too late.
+    say "$^b follows $^a.";
+}
+
+
+
+
 
 =begin explanation
 
