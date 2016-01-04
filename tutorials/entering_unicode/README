@@ -1,0 +1,197 @@
+
+Generally, I just use Vim's standard digraph feature for entering accented 
+characters, but there are some Unicode characters that are specifically useful 
+with p6.
+
+
+Unicode as variable names {#{{{
+    This works just fine:
+        my $é = "foobar";
+        say $é;
+}#}}}
+Guillemets «  » {#{{{
+   
+    «    dec 171, oct 253, hex ab
+    »    dec 187, oct 273, hex bb
+
+    Both of these can be entered with the obvious digraphs.
+   
+
+    They can be used as replacements for double-quotes:
+        my $a = «foobar»;
+        say $a;
+
+    Or as replacements for regular angle-brackets in POD:
+        C« This shows up as fixed-width.  »
+
+    However, the regular double-quote and angle-bracket characters still work 
+    just fine for these tasks, so I don't know why you'd bother.
+
+
+
+    But you can also use these characters to indicate a "hyperoperator".
+
+    This in no way does what you want it to do.
+        my @a = <1 2 3>;
+        @a += 4;
+        say @a;             # [7]
+    Looks like the addition evaluates the array the way p5 would.  The 
+    addition is scalar, so we work through the array as a list and end up with 
+    the last value, the 3, and add our 4 to that, ending up with the 7.
+
+    So if we wanted to add 4 to each element in the array, we'd use a 
+    hyperoperator:
+        my @a = <1 2 3>;
+        @a «+=» 4;
+        say @a;             # [5 6 7]
+
+    Those Guillemets force the += to become a hyperoperator and add the 4 to 
+    each element in the array.
+
+    OK, I guess, but if I ever wanted to do this, I'd likely just use map.
+
+}#}}}
+Set/Bag operators {#{{{
+
+    There are a whole bunch of these "set/bag operators", which perform 
+    various set operations (is X a subset of Y, or is X contained in Y, or is 
+    X a union of Y, etc)
+
+    
+    List of the characters and their unicode points:
+        http://doc.perl6.org/language/unicode_entry#Set%2Fbag_operators
+
+    Actual documentation on what these characters do:
+        http://doc.perl6.org/language/setbagmix#Set%2FBag_Operators
+
+
+    (elem), ∈
+        (elem) and ∈ are synonyms.  "If $var is an element of this set..."
+
+        ^Qu2208 produces ∈
+
+        :digraph tells me that the combo "( <bs> -" should also produce that 
+        character, but it's not working at all, so just use the ^Q sequence if 
+        you need it.
+
+        
+
+        A "set" is a p6 type, but in this case, your "set" can be an array or 
+        a list etc.
+
+            my @arr = <foo bar baz>;
+            my $str = "bar";
+    
+        So both of these conditionals are equivalent:
+            if $str (elem) @arr {   say "this hits" }
+            if $str ∈ @arr {        say "so does this }
+
+
+
+    As with the Guillemets, the unicode character is neato-looking, but 
+    unnecessary in every case.  If I can type "(elem)" instead of having to 
+    remember how to type "∈", I'm going to type "(elem)" every time.  
+
+    If I need to use any of these characters a lot, I suppose I could set up 
+    vim abbreviations for them.
+
+}#}}}
+Superscripts, Subscripts, Math Symbols {#{{{
+
+    Surprisingly, these work:
+        my $sixteen = 4²;       # 178,  0xb2
+        say $sixteen;           # 16
+
+        my $sixtyfour = 4³;     # 179, 0xb3
+        say $sixtyfour;         # 64
+
+    The 2 and 3 superscripts are defined in the latin supplemental unicode 
+    block, so those are the chars you need to use if you do this.
+
+    You can also generate those superscripts as digraphs with
+        2 <bs> 2
+        3 <bs> 3
+
+
+    This, also surprisingly, also works:
+                say π;          # 3.14159....
+
+        The pi character can be created as a digraph with
+                p <bs> *        lowercase pi (as above)
+                P <bs> *        uppercase pi
+
+        I did get this to work once (the lowercase pi above was created this 
+        way), but 9 times out of 10 the digraph just fails to work.
+
+
+
+    The tut links out to this wikipedia page with a bunch of math symbols:
+        https://en.wikipedia.org/wiki/Mathematical_operators_and_symbols_in_Unicode#Mathematical_Operators_block
+
+    Presumably, those should all work too.
+
+}#}}}
+
+
+
+
+
+Creating Unicode Characters in Vim {#{{{
+
+
+There's another method of entering unicode chars in vim where you type the 
+unicode hex value.
+
+Most docs say you have to start this with Ctrl-V, but I have that mapped to 
+Paste, so I'd use Ctrl-Q instead.
+
+So, to put in a Yen symbol (Decimal 165, Hex a5, Oct 245)
+    - Start in Insert mode, then do any of the following:
+        - ^Q165             Dec
+        - ^Qo245            Oct
+        - ^Qxa5             Hex
+
+    The "o" (that's an oh, not a zero) for octal and the "x" for hex can be 
+    upper or lower case.  The a-f hex digits can also be in either case.
+
+
+
+
+
+You can also enter BMP Unicode codepoints using its hex value NNNN with:
+    - ^QuNNNN           where 0000 <= NNNN <= FFFF
+
+or you can use any Unicode codepoint using its hex value NNNNNNNN with:
+    - ^QUNNNNNNNN       where 00000000 <= NNNNNNNN <= 7FFFFFFF
+
+    That's eight Ns.
+
+
+    No, I don't know what "BMP Unicode codepoints" are, or how they differ 
+    from "any Unicode codepoint".
+
+    I'm also unclear if the "u" has to be lowercase for the BMP and uppercase 
+    For the "any Unicode codepoint", but I suspect that they do have to use 
+    the cases as listed above, since that's what the docs indicates.
+
+
+    
+
+Vim also allows using combining characters (instead of the self-contained 
+characters I've been talking about so far).
+
+So, to enter é, you'd enter an "e" and then the combining aigu character.
+
+If you really want to do this, see the "maxcombine" option:
+    http://vimdoc.sourceforge.net/htmldoc/options.html#%27maxcombine%27
+
+...and the "mbyte-combining option:
+    http://vimdoc.sourceforge.net/htmldoc/mbyte.html#mbyte-combining
+
+I really don't understand what the vim docs are telling me about this, and 
+I've never needed it, so go learn it if you need it.
+
+
+} #}}}
+
+

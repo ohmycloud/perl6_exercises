@@ -9,15 +9,12 @@ Docs home
 I'm working through
     http://doc.perl6.org/language.html
 
-I have skipped ahead a few times, and already covered the Functions and 
-Variables sections, but both of those sections did include stuff that I didn't 
-get yet, so I should follow along in order from here on.
+...and I just now realized, because I'm a fucking moron, that the docs are 
+listed alphabetically, not in "you should follow them in this order" order.  
+I'm going throw them as listed anyway just so I can keep track.
 
 Left off at
-    Entering Unicode Characters
-
-
-
+    Grammars (don't skip this.)
 
 
 INSTALLING {#{{{
@@ -83,6 +80,19 @@ TUTORIALS {#{{{
 
     This page is a list of links to different perl6 tutorials and docs sites.  
     Looks pretty useful.
+
+}#}}}
+FAQ, Glossary ***CHECK*** {#{{{
+
+    There's a FAQ section that I'm not going to repeat here, because it's 
+    really not "tutorial-y", but it has lots of little FAQ-y bits of info that 
+    I should go through.
+        http://doc.perl6.org/language/faq
+
+    Same deal with the Glossary section.  Lots of the words there are general 
+    Perl* terms (eg DWIM, Damian Conway, etc), but there are some that are 
+    p6-specific, so at least glance through.
+        http://doc.perl6.org/language/glossary
 
 }#}}}
 UNIMPLEMENTED *** {

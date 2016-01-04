@@ -1,0 +1,219 @@
+
+p6 exceptions are objects inherited from the Exception class.
+    http://doc.perl6.org/type/Exception
+
+
+ad-hoc exceptions {#{{{
+
+    This is an ad-hoc exception:
+        die "crapola, something broke.";
+
+
+    That's almost certainly the way I'll be using it, out of habit, but that 
+    _is_ creating an exception object.
+
+    This next line is identical to the "die" line above:
+        X::AdHoc.new(:payload<crapola, something broke>).throw;
+
+}#}}}
+Typed exceptions {#{{{
+
+    die X::IO::DoesNotExist.new(:path("foo/bar"), :trying("zombie copy"));
+
+    No, you can't just make up any nonsense (X::Blarg::Broken.new(...) doesn't 
+    work).  
+    
+    Existing exceptions are listed on the "types" page under the "X::" 
+    namespace:
+        http://doc.perl6.org/type.html
+
+    However, if you want to create your own exception class:
+            class X::Blargle::Broke is Exception {
+                method message() {
+                    "Your shit didn't work.";
+                }
+            }
+
+            die X::Blargle::Broke.new();
+
+}#}}}
+Catching exceptions {#{{{
+
+    CATCH does need to be fully capped.  "catch" does not work.
+
+
+    For a basic catch, you don't even need a try:
+            die X::IO::DoesNotExist.new(:path("foo/bar"), :trying("zombie copy"));
+            CATCH {
+                when X::IO {
+                    say "We got an IO exception.";
+                }
+            }
+
+            say "after the exception";
+
+        Output of that is just:
+            We got an IO exception.
+
+        So the "say" after the CATCH block does _not_ fire.
+
+
+
+    You could add a default block to the above to catch all exceptions:
+            die X::IO::DoesNotExist.new(:path("foo/bar"), :trying("zombie copy"));
+            CATCH {
+                when X::IO::Copy {
+                    say "We got a copy exception.";
+                }
+                default {
+                    say "We got some exception we weren't expecting."
+                }
+            }
+
+        Since we threw an IO::DoesNotExist but tried to catch an IO::Copy, the 
+        default block will hit.
+
+
+
+    We can get more info out of our exception:
+            die X::IO::DoesNotExist.new(:path("foo/bar"), :trying("zombie copy"));
+            CATCH {
+                when X::IO {
+                    say .WHAT.perl;                 # X::IO::DoesNotExist
+                    say .backtrace[0];              # long string of output I'm not going to copy here.
+                    say .backtrace[0].file;         # gen/moar/m-CORE.setting
+                    say .backtrace[0].line;         # 19466
+                    say .backtrace[0].subname;      # throw
+                }
+            }
+
+        And all of that .backtrace and .WHAT crap can be simplified to:
+                when X::IO {
+                    say .WHAT.perl, do given .backtrace[0] { .file, .line, .subname }
+                }
+
+            Output is:
+                X::IO::DoesNotExist(gen/moar/m-CORE.setting 19466 throw)
+
+
+
+    CATCH blocks appear to apply lexically:
+            die "first error here";
+            CATCH {
+                when X::AdHoc {
+                    say "--" ~ $_.Str ~ "--";
+                    .resume;
+                }
+            }
+            die "another error here."
+
+        Output of that is:
+            --first error here--
+            --another error here.--
+
+
+    So, if you want your CATCH to only apply to a specific die, wrap the whole 
+    mess in braces.
+            {
+                die "first error here";
+                CATCH {
+                    when X::AdHoc {
+                        say "--" ~ $_.Str ~ "--";
+                        .resume;
+                    }
+                }
+            }
+            die "another error here."
+
+        The output now is:
+            --first error here--
+            another error here.
+                in block <unit> at ./test.p6:14
+
+        So only the first die got caught.  The second one, outside of CATCH's 
+        lexical scope, actually died.
+    
+}#}}}
+Resume after catching {#{{{
+
+    REMEMBER that "resume" is not a bare keyword.  It's a method that gets 
+    called on the Exception object.
+
+    So ".resume", or "$_.resume;", not just "resume;"
+
+
+    Anyway...
+    
+        try {
+            die "Foobar!";
+            CATCH {
+                .Str.say;
+                .resume;
+            }
+        }
+        say "This prints because of the .resume method call.";
+
+    The output of that is:
+        Foobar!
+        This prints because of the .resume method call.
+
+
+
+    As before, if you only wanted to catch, say, AdHoc exceptions, just modify 
+    the code to:
+        try {
+            die "Foobar!";
+            CATCH {
+                when X::AdHoc {
+                    .Str.say;
+                    .resume;
+                }
+            }
+        }
+        say "This prints because of the .resume method call.";
+
+}#}}}
+Throwing exceptions {#{{{
+    
+    You can throw an exception using the "throw" method on an exception 
+    object.  These two are identical:
+        die "foobar";
+        X::AdHoc.new(:payload<foobar>).throw;
+
+
+}#}}}
+Try blocks {#{{{
+    
+    This is going to burn me.
+    Put the CATCH inside the try block, not after it.
+
+    try {
+        CATCH {
+            .Str.say;
+            .resume;
+        }
+        die "this is the thing that's going to get caught."
+    }
+    say "this gets output because of the resume.";
+
+
+    This is a simple example, but the idea is that the try block can contain 
+    multiple different exceptions, and you could test for all of them and 
+    behave differently depending on which one gets thrown using:
+        CATCH {
+            when X::Type::A { do A stuff }
+            when X::Type::B { do B stuff }
+            when X::Type::C { do C stuff }
+
+            ...code that might throw exceptions of type A, B, and/or C...
+        }
+
+
+
+    It looks to me like the "try" keyword is unnecessary.  As long as you've 
+    got a lexical block containing the CATCH and your suspect code, that 
+    containing lexical block becomes your try block.
+
+}#}}}
+
+
