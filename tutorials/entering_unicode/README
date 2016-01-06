@@ -115,6 +115,8 @@ Superscripts, Subscripts, Math Symbols {#{{{
 
     This, also surprisingly, also works:
                 say π;          # 3.14159....
+                say ½;          # 0.5
+                say ½ + ½;      # 1
 
         The pi character can be created as a digraph with
                 p <bs> *        lowercase pi (as above)
@@ -133,10 +135,33 @@ Superscripts, Subscripts, Math Symbols {#{{{
 }#}}}
 
 
-
-
-
 Creating Unicode Characters in Vim {#{{{
+
+
+    Digraphs
+
+        First of all, fuck using 
+            e <bs> '
+        to try to create the é character.  
+
+        I don't know what's going on with my Vim; I expect the problem is an 
+        addon.  But sometimes that sort of Backspace digraph creation works, 
+        but most of the time it does not.  I can not find any pattern at all 
+        as to when it works and when it doesn't.
+
+        And making it work always requires turning off AutoClose, which is 
+        what doubles up my braces and parens for me, and I always forget it's 
+        off and end up typing lots of {{ characters before I remember to turn 
+        it back on again.
+
+
+        So, to make a regular digraph in vim, just use Ctrl-K every time:
+                type type type Ctrl-K e' type type type
+            produces:
+                type type type é type type type
+
+
+
 
 
 There's another method of entering unicode chars in vim where you type the 
@@ -193,5 +218,42 @@ I've never needed it, so go learn it if you need it.
 
 
 } #}}}
+Handy Vim Digraphs {#{{{
+
+    Some of these unicode chars do not display properly in Gvim.  ⅘  4/5) is a 
+    particularly good example of that.
+
+    If you go into command mode and pass your cursor right-to-left over that 
+    character, the 5 denominator shows up.  If you pass your cursor 
+    left-to-right over the character, the 5 denominator disappears.
+
+    It (the 5 denominator) is there in either case, and the character works in 
+    either case, this is just a display issue.
+
+
+
+        Unicode Char    Ctrl-K followed by these two chars
+        π               p*
+        Π               P*
+        «               <<
+        »               >>
+        ½               12
+        ⅓               13
+        ⅘               45 (etc)
+
+
+
+    I have not figured out how to make these with digraphs yet, so here's the 
+    Unicode key sequences:
+
+        Unicode Char    Ctrl-Q u followed by:
+        ｢               ff62
+        ｣               ff63
+        ∈               2208
+        ∪               222a
+
+
+    
+}#}}}
 
 

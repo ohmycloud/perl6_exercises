@@ -4,6 +4,13 @@
 ### http://doc.perl6.org/language/5to6-nutshell#Regular_Expressions_%28_Regex_%2F_Regexp_%29
 
 
+### This is not exhaustive.  There's a whole tutorial on regexes, and also the 
+### grammars/ tut contains some info on regexes too, since regexes are a 
+### grammar.
+
+
+
+
 my $str = "Now is the time for all good men";
 
 ### Regexen now use the smartmatch operator.

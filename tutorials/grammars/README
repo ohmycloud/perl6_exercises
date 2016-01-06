@@ -1,0 +1,246 @@
+
+"Grammars are a powerful tool used to destructure text and often to return 
+data structures that have been created by interpreting that text."
+
+p6 has its own grammar (fine), but it's also using a grammar for the 
+JSON::Tiny module (that's the example given by the tut).  The point is that, 
+if you need to parse out text, grammars is the way to go.
+
+Grammars are made up of named regexes.
+
+
+Named Regexes {#{{{
+    
+    These are declared somewhat similar to subs.
+
+
+    This 'number' regex matches ints or floats:
+            my regex number {
+                \d+ [ \. \d+ ]?
+            }
+            say "123" ~~ &number;           # ｢123｣
+            say "3.14159" ~~ &number;       # ｢3.14159｣
+            say "foo 123 bar" ~~ &number;   # ｢123｣
+
+
+        At this point, the tut starts using "say so ..." which I haven't run 
+        into before.  This is what it does:
+                say    "123" ~~ &number;        # ｢123｣
+                say so "123" ~~ &number;        # True
+                    ^^
+
+
+    You can also use a named regex as part of a larger regex.
+            my $str = "123 foo 456";
+            say $str ~~ /<number> \s* \w+ \s* <number>/;
+
+        Output of that is:
+            ｢123 foo 456｣
+            number => ｢123｣
+            number => ｢456｣
+
+
+    ***
+    *** The following is wordy but the tut thinks it's important so read ***
+    ***
+
+    Regex Delcarator
+        This creates regexes that behave as you're used to (except that they 
+        apparently all act as if //x is on): 
+        
+            my regex this-matches {
+                .+ q
+            }
+            my $str = "this is a longish string that contains the letter q inside it.";
+            say so $str ~~ &this-matches;     # True
+
+        What's happening is the ".+" consumes the WHOLE string, and does not 
+        find a "q" following it.  Then, the regex starts to backtrack until it 
+        does find the "q".  This works, and the regex ends up matching.  But 
+        all that backtracking is slow.
+
+
+
+    The tut says that you won't actually use "regex" as your declarator that 
+    often, because of the slow backtracking.  Instead, you'll use either 
+    "token" or "rule".
+
+    BE CAREFUL OF VERBIAGE.  "regex" is a declarator, different from "token" 
+    and "rule".  But "regex" is also widely used as the term in Perl whenever 
+    anybody's talking about this sort of pattern matching.  So I'd bet JK's 
+    life on the idea that, at some point, we're going to run into somebody 
+    saying "regex" when they really mean "token" or "rule".
+
+
+
+    Token and Rule Declarators
+        This is the same code as above, except we're using "token" instead of 
+        "regex":
+
+            my token this-does-not-match {
+                .+ q
+            }
+            my $str = "this is a longish string that contains the letter q inside it.";
+            say so $str ~~ &this-does-not-match;     # False
+        
+        tokens do NOT backtrack, where regexes do.  So above, once the ".+" 
+        matches the whole string and fails to find a "q" following, it stops 
+        there and fails.
+
+
+        The "rule" declarator is very similar to the "token" declarator.  The 
+        difference is how they handle spaces (the "rule" declarator causes 
+        :sigspace to go into effect.)
+
+
+        To see the difference, here is another token declarator dealing with 
+        spaces (:sigspace NOT in effect):
+
+            my token non-space-y        { .nce 'upon' 'a' 'time' }
+            say so 'onceuponatime'      ~~ &non-space-y;              # True
+            say so 'once upon a time'   ~~ &non-space-y;              # False
+
+        So that's saying "match this pattern against our string, ignoring 
+        unquoted whitespace".  
+
+        The string that contains no spaces does exactly match the pattern.
+
+        The string that _does_ contain spaces does _not_ match our token, 
+        because our pattern does not explicitly include spaces.
+
+        If I wanted to use a "token" to match a string containing whitespace, 
+        I'd need my token to be explicit about that whitespace:
+            my token space-y            { .nce ' ' 'upon' ' ' 'a' ' ' 'time' }
+            say so 'onceuponatime'      ~~ &space-y;              # False
+            say so 'once upon a time'   ~~ &space-y;              # True
+
+        Or, a bit more sanely:
+            my token space-y            { .nce' upon a time' }
+            say so 'onceuponatime'      ~~ &space-y;              # False
+            say so 'once upon a time'   ~~ &space-y;              # True
+
+
+
+        Here's the same thing with a rule declarator (:sigspace IS in effect):
+            my rule space-y                 { .nce 'upon' 'a' 'time' }
+            say so 'onceuponatime'          ~~ &space-y;                # False
+            say so 'once upon      a time'  ~~ &space-y;                # True
+
+        So here we have the opposite as with "token".
+
+        Here's one last example, with "rule" again:
+            my rule space-y                 { .nce'upon''a''time' }
+            say so 'onceuponatime'          ~~ &space-y;                # True
+            say so 'once upon      a time'  ~~ &space-y;                # False
+
+    
+
+        So the rules, as best I can figure out here:
+            - token
+                - behaves as if //x is in effect.
+                - bare whitespace in the pattern is ignored.
+
+            - rule
+                - behaves as if //x is NOT in effect.
+                - A bare (unquoted) whitespace character in the pattern is 
+                  treated the same as "\w+"
+
+
+    CONCLUSION
+        I'm leaning towards "token", since I've used //x before and understand 
+        about being explicit with my whitespace.
+
+        The fact that "rule" matches any typed whitespace character to "\w+" 
+        is twiddly and weird and is going to cause confusion and heartache.
+
+            
+}#}}}
+Creating Grammars, Action Objects {#{{{
+    
+    A grammar is used only to parse text, and is declared with the "grammar" 
+    keyword instead of "class".
+
+            grammar TestGrammar {
+                token TOP {
+                    ^ \d+ $
+                }
+            }
+
+            my $match = TestGrammar.parse('40');
+            say $match;                                 # ｢40｣
+            say so $match;                              # True
+
+            my $no_match = TestGrammar.parse('foo');
+            say $no_match;                              # (Any)
+            say so $no_match;                           # False
+
+
+
+
+    To transform our parsed text, we'd need an Action object, which is a 
+    class, in conjunction with our grammar.
+
+    This example uses the same grammar as above.
+            grammar TestGrammar {
+                token TOP {
+                    ^ \d+ $
+                }
+            }
+
+            class TestActions {
+                method TOP($match) {
+                    $match.make(2 + $match);
+                }
+            }
+
+        parse() is accepting an argument named "actions", so we can pass that 
+        argument in using either p6's named argument indicator (:), like this:
+            my $actions = TestActions.new;
+            my $match   = TestGrammar.parse('40', :$actions);
+
+        ...or we can do it the old-fashioned way:
+            my $foo     = TestActions.new;
+            my $match   = TestGrammar.parse('40', actions => $foo);
+
+        ...either way:
+            say $match;             # ｢40｣
+            say so $match;          # True
+            say $match.made;        # 42
+
+
+
+    So when we have an Action object passed in to our call to parse():
+        - When the TOP token in the Grammar matches, it automatically calls 
+          the TOP method from the Action object, passing the match in as the 
+          method argument.
+            - In this case, that TOP method adds 2 to the passed-in argument.
+
+
+    In the example given in the tut, the TOP() method in TestActions does not 
+    use $match as I've used.  Instead, it uses "$/", which indicates that the 
+    argument is a match argument.  So sayeth the tut, but I don't yet 
+    understand $/, so I changed it to "$match" to make it easier to 
+    understand.  See the tut link to re-read on what that $/ is doing and what 
+    it gets you.
+        http://doc.perl6.org/language/grammars#Action_Objects
+
+}#}}}
+Final example on this tut (READ please) {#{{{
+
+    CHECK
+
+    http://doc.perl6.org/language/grammars#Action_Objects
+
+
+    The second block of code given (under "A slightly more involved example 
+    follows:") -- this block of code does work, and does produce what the tut 
+    says it will.
+
+    However, that example is just using too many symbols I don't yet 
+    understand for me to fully grok the example.  I mostly get what's 
+    happening, but am definitely not yet to the point where I could write that 
+    example on my own.
+    
+}#}}}
+
+

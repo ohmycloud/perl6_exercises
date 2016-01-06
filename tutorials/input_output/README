@@ -1,0 +1,147 @@
+
+Open a file {#{{{
+    
+    my $in = open "input.txt", :r;
+
+    my $out = open "output.txt", :w;
+
+    my $append = open "output.txt", :a;
+
+}#}}}
+Slurp a file {#{{{
+
+            my $in = open "input.txt", :r;
+            my $contents = $in.slurp-rest;
+
+    No, I don't know why the method is "slurp-rest" rather than just "slurp" 
+    when it's on a filehandle:
+
+
+    But you can call slurp directly on a filename:
+            say "input.txt".IO.slurp;
+        or...
+            say slurp "input.txt";
+
+    
+}#}}}
+Read a file line-by-line {#{{{
+    
+    On a filehandle:
+        my $in = open "input.txt", :r;
+
+        for $in.lines -> $line {
+            $line.say;
+        }
+
+
+    Or directly on a filename:
+        for "input.txt".IO.lines -> $line {
+            $line.say
+        }
+
+}#}}}
+Write to a file {#{{{
+
+        my $out = open "output.txt", :w;
+        $out.print("foo\n");
+        $out.say("foo");
+        $out.close;
+
+
+    You can't just go through the filename's IO property to write, but you can 
+    use spurt for that.  
+    
+    spurt opens the file for write/clobber by default, so in this, the spurt 
+    overwrites the "foo" from the say() on the filehandle:
+            my $out = open "output.txt", :w;
+            $out.say("foo");
+            $out.close;
+
+            spurt "output.txt", "blarg\n";
+
+            $ cat output.txt
+            blarg
+
+
+    But you can specify that spurt should append:
+            my $out = open "output.txt", :w;
+            $out.say("foo");
+            $out.close;
+
+            spurt "output.txt", "blarg\n", :append;
+
+            $ cat output.txt
+            foo
+            blarg
+
+
+}#}}}
+File tests {#{{{
+    
+        if "nonexistent.txt".IO.e {
+            say "this file exists.";
+        }
+        else {
+            say "this file does not exist.";
+        }
+
+    You can also use the ":e" syntax.  tmtowtdi, I guess.
+
+        if "nonexistent.txt".IO ~~ :e {
+            say "this file exists.";
+        }
+        else {
+            say "this file does not exist.";
+        }
+
+
+
+        if 'somedir'.IO.d {
+            say "It's a directory"
+        }
+
+        if 'somefile'.IO.f {
+            say "It's a file"
+        }
+
+}#}}}
+Directory listing {#{{{
+    
+    "dir" is a command; returns a list of the current directory contents.  
+    This works but is a little too simplistic:
+        say dir;
+
+    This is a bit better:
+        for dir() -> $d {
+            say "--$d--";
+        }
+
+    You can also send it an argument:
+        say dir '/etc';
+
+    ...or, better...
+        for dir('/etc') -> $d {
+            say "--$d--";
+        }
+
+        ### --/etc/fileone--
+        ### --/etc/filetwo--
+        ### --/etc/filethree--
+        ### ...
+
+}#}}}
+Creating/removing directories {#{{{
+    
+        mkdir "dirname";
+        rmdir "dirname";
+
+
+    rmdir silently fails if dirname/ is not empty.  The tut says you can do 
+    this:
+        rmdir "dirname" or die "$!";
+
+    But the error that gives isn't very useful.  The quotes around $! are from 
+    the tut; I don't know why they're there.
+    
+}#}}}
+
