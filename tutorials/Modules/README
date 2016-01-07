@@ -1,0 +1,182 @@
+
+http://doc.perl6.org/language/modules
+
+.pm and .pl are acceptable extensions (and might be more common), but if you 
+want to make the point that you're using p6, you can use ".pm6" and ".p6" 
+extensions.
+
+Terminology {#{{{
+    
+    A "module" is mostly what you think of as a module from p5.  But 
+    "Technically a module is a set of /compunits/ which are usually files but 
+    could come from anywhere as long as there is a /compunit repository..."
+
+    The docs don't explain what a "compunit" is, but link out to S11, which 
+    tells me that means "compilation unit".
+
+    https://design.perl6.org/S11.html
+
+    Think of it as a chunk of code and get on with your life.
+
+}#}}}
+Loading and Basic Importing {#{{{
+    
+    - need
+        loads a compunit at compile time
+
+    - use
+        loads and imports a compunit at compile time.
+
+        use is equivalent to:
+            need MyModule;
+            import MyModule
+
+    - require
+        loads a compunit at compile time and "imports definite symbols" at 
+        runtime.
+
+            sub do_stuff {
+                require MyModule <&some_imported_func>;
+                some_imported_func();
+            }
+
+            do_stuff();
+            ### and now, some_imported_func is no longer defined.
+
+}#}}}
+Exporting, Conditional Importing {#{{{
+    
+    - is export
+        Stuff can be exported by using the "is export" trait.
+
+        "Stuff" is packages, subs, variables, constants, enums.
+            
+                unit module MyModule;
+                our $var is export = 3;
+                sub foo (Str $arg) is export { ...code... }
+                constant $FOO is export = "foobar";
+                enum FooBar is export <one two three>
+
+                class MyClass is export { ...code... }
+
+        However, if you're defining a subpackage (like a class) using the 
+        namespace of the current package, the subpackage does not need to be 
+        explicitly exported:
+                class MyModule::MyClass { ...code... }
+
+
+      Conditional exporting and importing behaves similarly to p5.
+
+      In the module, the "is export" trait can accept a tag as an argument to 
+      indicate what group the thingy belongs to.
+
+      ALL, DEFAULT, and MANDATORY are predefined tags.
+
+                # lib/JonTest.pm
+                unit module JonTest;
+                sub bag        is export             { ... }
+                sub pants      is export(:MANDATORY) { ... }
+                sub sunglasses is export(:day)       { ... }
+                sub torch      is export(:night)     { ... }
+                sub underpants is export(:ALL)       { ... }
+
+                # main.pl
+                use lib 'lib';
+                use JonTest;                #bag, pants
+                use JonTest :DEFAULT;       #the same
+                use JonTest :day;           #pants, sunglasses
+                use JonTest :night;         #pants, torch
+                use JonTest :day, :night;   #pants, sunglasses, torch
+                use JonTest :ALL;           #bag, pants, sunglasses, torch, underpants
+
+
+}#}}}
+Exporting Dynamically {#{{{
+
+    http://doc.perl6.org/language/modules#UNIT%3A%3AEXPORT%3A%3A*
+    
+    I'm not going into detail on this here.  But the short version is that if 
+    you wanted to do this...
+
+            ### MyModule.pm6
+            for <one two three four> -> $num {
+                create_square_root_function( $num )
+            }
+
+            ### main.p6
+            use MyModule;
+            say square_root_one();
+            say square_root_two();
+            ...
+
+        ...you can.
+
+
+    Obviously the syntax I'm showing is bullshit.  See the link top this 
+    section if you need to know how to actually do this.
+
+}#}}}
+EXPORT (explicit export) {#{{{
+
+    You can export arbitrary stuff using an EXPORT sub in your module.
+
+    Specifically note "ShortName" below.
+
+            ### lib/Jontest.pm6
+            class Jontest::Class {
+                method do_stuff { say "this is do_stuff" }
+            }
+            sub EXPORT {
+                {
+                '$var'   => 'one',
+                '@array' => <one two three>,
+                '%hash'  => { one => 'two', three => 'four' },
+                '&doit'   => sub { say "this is doit" },
+                'ShortName' => Jontest::Class
+                }
+            }
+
+
+            ### main.p6
+            use lib 'lib';
+            use JonTest;
+            say $var;
+            say @array;
+            say %hash;
+            doit();
+
+            my $jt = ShortName.new;
+            $jt.do_stuff;
+
+
+    You cannot declare an EXPORT sub inside a package.  units and classes are 
+    packages (I think), but I don't have an exhaustive list of what "packages" 
+    are in p6.
+
+
+    There's some more info about positional conditional exports, but it looks 
+    somewhat nonsensical so I'm skipping it.
+    
+}#}}}
+Modules Directory (CPAN-equivalent) {#{{{
+
+    http://doc.perl6.org/language/modules#Distributing_Modules
+
+    https://modules.perl6.org/
+        This is just a directory site, listing the modules and a short 
+        description, then linking out to where they're actually hosted.  In 
+        all cases that I can see, they're hosted on github.
+
+        To have a module listed here, you're required to use git for version 
+        control.  The instructions given on the tut require you to also use 
+        github, but I assume you could use bitbucket or whatever if you really 
+        wanted to.
+
+
+    The tut gives explicit instructions on how to set up a module.  No point 
+    in repeating it all here, but it all looks perfectly cromulent.
+
+}#}}}
+
+
+

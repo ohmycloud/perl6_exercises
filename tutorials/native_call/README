@@ -1,0 +1,150 @@
+
+http://doc.perl6.org/language/nativecall
+
+p6 allows you to use dynamic libraries (.dll or .so) that "follow the C 
+calling convention".
+
+It looks like this is p6's answer to XS.
+
+Basic Call {#{{{
+    
+    If you have a library named "somelib.so", and a Windows version 
+    "somelib.dll", containin a function called some_argless_function:
+
+            use NativeCall;
+            sub some_argless_function() is native('something') { * }
+            some_argless_function();            
+
+        That'll load the appropriate library (appropriate depending on your 
+        platform.  something.dll for windows, something.so for *nix or, 
+        presumably, OSX).  After loading the library, "some_argless_function" 
+        is expected to live in that library, and calls to that function will 
+        run the library's function.
+
+}#}}}
+Changing Names {#{{{
+    
+    If you have a library named "foolib" which contains a function called 
+    "FOOBAR", but you don't feel like using an all uc() function name, you can 
+    rename the function to "foo":
+
+            module Foo;
+            use NativeCall;
+            our sub foo() is native('foolib') is symbol('FOOBAR') { * }
+
+        So the function FOOBAR from foolib.so will be imported and named just 
+        foo() for the purposes of our script.
+
+}#}}}
+Passing and Returning Values {#{{{
+    
+    The examples above have been for argless, non-returning functions.  But 
+    that'll be the exception, not the rule.
+
+
+    To pass args and accept a retval:
+            sub add(int32, int32) returns int32 is native("calculator") { * }
+        Imports add() from calculator.so.  add() accepts two int32 values and 
+        returns an int32 value.
+
+    For passing in strings, you can indicate how they're encoded.  This passes 
+    a string IN to the native function:
+            sub message_box(Str is encoded('utf8')) is native('gui') { * }
+
+    For accepting string retvals, you basically do the opposite:
+            sub input_box() returns Str is encoded('utf8') is native('gui') { * }
+
+    If you need to pass a null string in as the arg to a native function 
+    that's expecting a string, pass the Str type object.  Likewise, if a 
+    native function is supposed to return a string but is going to return a 
+    null string, you'll get the Str type object back.
+
+
+    Some C functions will specify their string args as "const char *":
+            set_foo( const char * foo ) { ...C code that sets foo... }
+
+        Your p6 declaration looks just like the others we've seen so far:
+            sub set_foo(Str) is native('foo') { * }
+
+        But we need to tell p6 not to free the memory allocated to that string 
+        using "explicitly-manage":
+            my $string = "this will be passed in as an argument.";
+            explicitly-manage($string);
+            set_foo($string);
+
+
+    List of types that can be passed:
+    The tut says that this list will likely grow with time.
+            int8           (char in C)
+            int16          (short in C)
+            int32          (int in C)
+            int64          (64-bit explicit int in C like int64_t in C99)
+            long           (32- or 64-bit, depends what long means locally)
+            longlong       (at least 64bits, what long long means locally)
+            num32          (float in C)
+            num64          (double in C)
+            Str            (C string)
+            CArray[int32]  (int* in C, an array of integers)
+            Pointer[void]  (void* in C, can point to all other types)
+            bool           (bool from C99)
+            size_t         (size_t in C)
+
+}#}}}
+Pointers, Arrays, Structs, CUnions, Callbacks {#{{{
+    
+    You can get pointers back from a library function.  If you need that, see 
+    the link top of this file and check the "Basic use of Pointers" section.
+
+    Same deal with the other items in the list - arrays, structs, etc.  See 
+    the page for more info if you need it.
+
+}#}}}
+Calling into the standard library {#{{{
+    
+    If you're on a *nix, you could do the following to get the current user's 
+    home directory:
+
+            use NativeCall;
+            my class PwStruct is repr('CStruct') {
+                has Str $.pw_name;
+                has Str $.pw_passwd;
+                has uint32 $.pw_uid;
+                has uint32 $.pw_gid;
+                has Str $.pw_gecos;
+                has Str $.pw_dir;
+                has Str $.pw_shell;
+            }
+            sub getuid()           returns uint32   is native(Str) {};
+            sub getpwuid(int $uid) returns PwStruct is native(Str) {};
+            say getpwuid(getuid()).pw_dir;
+
+        NYI
+            As of v6.c, running this produces a warning, but it does then 
+            actually print out my home directory.
+
+
+        It'd be much easier to just do this:
+                say $*HOME.Str;
+
+            ...which also prints out the current user's home directory, and 
+            without the warning produced by the NativeCall code.
+
+}#}}}
+MySQL example (*nix), Windows Example {#{{{
+    
+    There's an example at the bottom of this tut page that shows how to 
+    connect to MySQL using the native library.
+
+    I don't have MySQL installed right now and am not going to bother setting 
+    it all up just to test this example.  But it's there if you need it.
+
+
+
+    There's also a link at the very bottom of the tut page to a script that 
+    makes a native Windows API call.
+
+    Again, I'm not booted into Windows and I'm not going to bother for the 
+    sake of trying the example, but it's there.
+
+}#}}}
+

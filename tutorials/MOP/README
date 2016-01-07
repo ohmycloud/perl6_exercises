@@ -1,0 +1,129 @@
+
+http://doc.perl6.org/language/mop
+
+Meta Object {#{{{
+
+    You can get at an object's meta-object using HOW:
+        my $obj = MyClass.new();
+        say $obj.HOW;
+
+        "HOW" is "Higher Order Workings".
+
+
+    Methods also have a meta-object (a HOW), but note that displaying that HOW 
+    actually runs the method:
+            class MyClass {
+                method my_meth() { say 42 }
+            }
+            say MyClass.HOW;
+            say MyClass.my_meth.HOW;
+
+        That outputs:
+            Perl6::Metamodel::ClassHOW.new          # MyClass.HOW
+            42                                      # ACTUALLY RUNS my_meth
+            Perl6::Metamodel::EnumHOW.new           # my_meth.HOW
+
+}#}}}
+Metamethods {#{{{
+    
+    Metamethods are actually "introspective macros that resemble method 
+    calls".
+
+
+    Metamethods are generally named in all caps, like .HOW and .WHAT.  The tut 
+    uses the word "generally" but doesn't give any examples of metamethods 
+    that are not capped.
+
+    Anyway, you're encouraged not to use any ALLCAP method names on your own 
+    methods, to avoid stomping on current or future metamethods.
+
+    If you absolutely have to use an ALLCAP name for a method you're defining, 
+    you should wrap that method name in quotes while you're calling it.  When 
+    you add quotes around a method call, the parens following are required; 
+    omitting them produces a compile-time error.
+
+    The example from the tut:
+
+            #| Class Description
+            class MyClass {
+                method WHY { "this is WHY" }
+            }
+            my $m = MyClass.new();
+            say $m.WHY;
+            say $m."WHY"();
+
+    However, NYI
+
+        The tut says that "say $m.WHY" should produce "Class Description", and 
+        "say $m."WHY"()" should produce "this is WHY".
+
+        However, at this point, including that "#|" line above the class 
+        declaration produces a compile-time error.
+
+        This error continued after the upgrade to v6.c, even with a copy/paste 
+        of the code from the tut.
+
+}#}}}
+Metamethods List {#{{{
+
+    This is a list of available metamethods and what they output for a simple 
+    class.
+
+            class MyClass {
+                method x { "this is user-defined method 'x'." }
+            }
+
+            my $c = MyClass.new;
+
+            say $c.WHAT;            # (MyClass)
+            say $c.WHO;             # MyClass
+            say $c.WHERE;           # 139830765374168
+            say $c.HOW;             # Perl6::Metamodel::ClassHOW.new
+            say $c.WHY;             # (Any)
+            say $c.DEFINITE;        # True
+            say $c.VAR;             # MyClass.new
+
+            ### Shows two objects of the same class have different WHICH 
+            ### values:
+            my $other = MyClass.new;
+            say $c.WHICH;           # MyClass|75565616
+            say $c.WHICH;           # MyClass|75565616
+            say $other.WHICH;       # MyClass|75565680
+
+    
+    Explanations:
+        WHAT - the type object.  "say 42.WHAT" produces "(Int)".
+        WHICH - The object's Identity value.  "if $obj1 == $obj2" is
+                implemented using this value.
+        WHO - The package supporting the object
+        WHERE - The memory address of the object.
+        HOW - The metaclass object.  "Higher Order Workings".
+        WHY - The attached POD value (which I've already seen does not work
+              yet.)
+        DEFINITE - Whether the object has a valid concrete representation.
+                   True for instances of the class, and False for type 
+                   objects.
+        VAR - The underlying Scalar object, if one exists.  If one does exist,
+              then the object is "itemized".
+
+
+    "Itemized" (from VAR):
+        NYI (as of v6.c)
+
+        Since the tut is inaccurate, I really don't understand what VAR is 
+        supposed to be doing.  Can't tell if the tut is wrong or p6 is wrong.
+
+        This is the example from the tut:
+                .say for (1, 2, 3); # not itemized, so "1\n2\n3\n"
+                .say for [1, 2, 3]; # itemized, so "1 2 3\n"
+                say (1, 2, 3).VAR ~~ Scalar; # False
+                say [1, 2, 3].VAR ~~ Scalar; # True
+                        
+        However, what that code is actually producing:
+                .say for (1, 2, 3); # "1\n2\n3\n"
+                .say for [1, 2, 3]; # "1\n2\n3\n"       <- conflicts with tut
+                say (1, 2, 3).VAR ~~ Scalar; # False
+                say [1, 2, 3].VAR ~~ Scalar; # False    <- conflicts with tut
+                        
+}#}}}
+
