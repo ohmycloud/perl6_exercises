@@ -1,5 +1,92 @@
 
 http://doc.perl6.org/language/objects
 
+Everything that you can store into a variable in p6 is either a native value 
+or an object.
 
+Low-level types (native values) {#{{{
+
+    p6 does have low-level (native) types:
+            my uint64 $var = 3;
+
+    These are not objects, and "do not have the capabilities of objects" (per 
+    the tut).
+
+    However, if you call methods on variables of these low-level types, the 
+    variables get "boxed" into normal objects:
+            my uint64 $var = 3;
+            say $var.WHAT;          # (Int)
+    
+}#}}}
+Mu {#{{{
+
+    http://doc.perl6.org/type/Mu
+    
+    All objects derive from the Mu base class.
+
+}#}}}
+Type Objects {#{{{
+    
+    Types are objects themselves.
+
+    Here, we're declaring $var to be of type Int:
+            my Int $var = 3;
+            say $var;               # 3
+
+        But that "Int" is itself an object:
+            my $var = Int;
+            say $var;               # (Int)
+
+
+    You can get the type of any object from the WHAT method:
+            my Int $var = 3;
+            say $var;               # 3
+            say $var.WHAT;          # (Int)
+
+}#}}}
+Determining the type of an object {#{{{
+    
+    You can use the === identity operator:
+            my $var = 3;
+            if $var.WHAT === Int {
+                say "It's an Int."
+            }
+
+        But you could also use the isa() method to do the same thing:
+            my $var = 3;
+            if $var.isa(Int) {
+                say "It's an Int."
+            }
+
+
+    You can also check if one type contains another subtype:
+            if Int ~~ Real {
+                say "Here"      # This hits.
+            }
+
+        The tut suggests that this comparison indicates that the LHS contains 
+        the RHS.  But "Int" is certainly not a superset that contains the 
+        subset "Real"; the opposite is true.  Either I'm not totally 
+        understanding this or the tut is poorly worded.
+    
+}#}}}
+Classes {#{{{
+    
+    So I've already seen that I can do this:
+            class Person {
+                ...
+            }
+
+        But we can also do this:
+            my class FirstName {
+                ...
+            }
+            
+        So we could have a Person module that's supposed to export a Person 
+        class, but which internally uses the FirstName class.  That FirstName 
+        class is in the lexical scope of the module so it's not visible to the 
+        user who does
+            use Person;
+
+}#}}}
 
