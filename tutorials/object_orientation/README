@@ -4,6 +4,7 @@ http://doc.perl6.org/language/objects
 Everything that you can store into a variable in p6 is either a native value 
 or an object.
 
+
 Low-level types (native values) {#{{{
 
     p6 does have low-level (native) types:
@@ -87,6 +88,560 @@ Classes {#{{{
         class is in the lexical scope of the module so it's not visible to the 
         user who does
             use Person;
+
+}#}}}
+Attributes {#{{{
+    
+    All attributes are private.  p6 has no public or protected attributes.  
+    They're all flat-out private.  
+
+
+    Declare attributes with "has" instead of "my", and use the "!" twigil:
+            class Journey {
+                has $!origin;
+                has $!destination;
+                has @!travellers;
+            }
+
+
+    To create an attribute that has a RO accessor method:
+            class Journey {
+                has $.origin;
+            }
+        Using that "." twigil does two things:
+            - Declares a (private!) attribute named $!origin
+            - Declares an accessor method that's essentially this:
+                method origin { return $!origin }
+
+
+    And if we wanted our attribute to be RW instead of RO:
+            class Journey {
+                has $.origin is rw;
+            }
+
+
+    Even though "$." has created an accessor method, and the "is rw" trait has 
+    changed that to an accessor/mutator, we assign to the attribute using 
+    regular assignment, not as a method call:
+            my $j = Journey.new( origin => 'Virginia' );
+            $j.origin('New Jersey');        ### GONNNG!  no worky-worky.
+            $j.origin = 'New Jersey';       ### And there was much rejoicing.
+
+
+    At this point, the user does not have to pass in any arguments when 
+    creating a Journey object, since all attributes are optional by default.  
+    But we can change that by including a trait on the declaration:
+            class Journey {
+                has $.origin is required;
+            }
+        And there's no problem assigning multiple traits:
+            class Journey {
+                has $.origin is required is rw;
+            }
+
+
+    This is kind of interesting.  p6 is NOT MOOSE!.  Attributes are part of 
+    the language, not an afterthought module.  So you can do this:
+            class Journey {
+                has $.origin;
+
+                ### Set our destination to Orlando, unless that's already our 
+                ### origin, in which case we should go somewhere else.
+                ###
+                ### Both of these work:
+                has $.destination = self.origin eq 'Orlando' ?? 'Kampala' !!  'Orlando';
+                has $.destination = $!origin    eq 'Orlando' ?? 'Kampala' !!  'Orlando';
+            }
+
+}#}}}
+Methods {#{{{
+
+    Methods are MorL just subroutines declared with the "method" keyword:
+            class Journey {
+                has $.origin;
+                has $.destination;
+
+                method describe() {
+                    "From $!origin to $!destination"
+                }
+            }
+
+
+    ***
+    Difference between using "$!" and "$.":
+    ***
+            method describe() {
+                ###
+                ### All of these work the same, so you'd just pick one:
+                ###
+                "From $!origin to $!destination";
+                "From $.origin to $.destination";
+                "From " ~ self.origin ~ " to " ~ self.destination;
+            }
+
+        But using $!origin is a simple attribute lookup.  It's fast and we 
+        know that we're talking about an attribute declared in this class.
+
+        Using $.origin or self.origin forces a method call.  That's not as 
+        cheap as an attribute lookup, and the method could be overridden by a 
+        subclass.
+
+        ***
+        Only use accessor methods from within the class itself if you're 
+        explicitly wanting to allow overriding!
+        ***
+
+}#}}}
+self {#{{{
+    
+    Inside a class, "self" (with NO SIGIL) is the invocant object.
+            method say_origin {
+                ###
+                ### These two lines are identical:
+                ###
+
+                say $.origin;
+
+                say self.origin;
+            }
+
+    You generally don't need to use "self", at least not as much as you do in 
+    p5.
+
+}#}}}
+Private Methods {#{{{
+
+
+    Private methods cannot be called by the user, and they do not get 
+    inherited by subclasses.
+
+    
+    Declare a method with a leading bang to make it private:
+            class SomeClass {
+                method !my_private_method {
+                    say "this is private."
+                }
+            }
+
+            my $s = SomeClass.new();
+
+            ### GONNNG!
+            ###     Method 'my_private_method' not found for invocant of class 
+            ###     'SomeClass'...
+            $s.my_private_method();
+
+
+    Although private methods do not get inherited by subclasses, be sure to 
+    understand this:
+    
+        If you've got a public method that calls a private method, that public 
+        method will get inherited by subclasses, and will continue to work in 
+        the child:
+            class MyParent {
+                method !my_private  { "this is private." }
+                method  my_public {
+                    print "---" ~  self!my_private() ~ "---";
+                }
+            }
+
+        And in use:
+            my $p = MyParent.new();
+            $p.my_public();             # ---this is private---
+
+        Now we can set up a sub class:
+            class MyChild is MyParent { }
+
+        And in use:
+            my $c = MyChild.new();
+            ### this DOES still work!
+            $c.my_public();             # ---this is private---
+
+        However, we could NOT define our child class to do this:
+            class MyChild is MyParent {
+                method child_method {
+                    ### 
+                    ### This results in a compile-time error
+                    ###
+                    say self!my_private;
+                }
+            }
+
+}#}}}
+Submethods {#{{{
+    
+    Submethods are public methods, but they don't get inherited to subclasses.
+
+    They're useful for object creation/initialization and destruction.
+
+    If you're overriding the default BUILD method, you probably want to make 
+    your override a submethod.
+        Actually, later on the tut says "custom BUILD methods should always be 
+        submethods, otherwise they break attribute initialization in 
+        subclasses", so there ya go.
+
+}#}}}
+Inheritance {#{{{
+    
+    I've already shown simple inheritance in an example above.  You can also 
+    do multiple inheritance:
+            class Grandchild is Parent is Grandparent {}
+
+
+
+    The tut says I can do this to query a subclass's Method Resolution Order:
+        copypasta from the tut:
+            say List<.^mro>;      # List() Cool() Any() Mu()
+
+        NYI
+        However, that just doesn't work.  I get this:
+            say List<.^mro>;      # (Any)
+
+
+
+    Unfortunately, the tut doesn't go into any more detail than this.
+
+}#}}}
+Object Construction {#{{{
+
+    
+    The simplest:
+            class Example { }
+            my $e = Example.new();
+
+
+    When you define a class, you get new() and BUILD() methods automatically.  
+    You can override both.
+
+
+    So when you instantiate, what happens is:
+        - you call new()
+            - new() was inherited from class Mu, the parent of all objects.
+        - new() calls BUILDALL().
+        - BUILDALL() walks through the inheritance tree in reverse Method 
+          Resolution Order, calling BUILD on all classes in the chain.
+            - I don't foresee overriding BUILDALL() all that often.
+        - BUILD() initializes the objects.
+
+
+    The tut explicitly says that this is poor practice, but in case you really 
+    really want it at some point, here's how you'd set up a class to accept 
+    positional args:
+            class Example {
+                has $.foo;
+                has $.bar;
+                method new ($foo, $bar) {
+                    self.bless( foo => $foo, bar => $bar);
+
+                    ### This would also work, and probably would be more 
+                    ### perl6-y.  
+                    #self.bless( :$foo, :$bar);
+
+                    ### DO NOT RETURN SELF AT THE END OF YOUR new METHOD!
+                    ### Not only is it unnecessary, it fucks things up badly.
+                    #return self;       # GONNNNNGGG!!!!!  
+                }
+            }
+            my $e = Example.new( 'FOO', 'BAR' ); 
+
+
+    Inside new(), your object is only partially constructed.  You have access 
+    to user-defined methods, but not attributes or accessors:
+            class Example {
+                has $!foo;
+                has $.bar;
+
+                method new {
+                    #say $!foo;         # doesn't work
+                    #say $.bar;         # doesn't work
+                    self.stuff;         # works
+                    self.bless();
+                }
+                method stuff { say "this is stuff" }
+            }
+        Yes, I did try moving the bless() up to the top of that method, with 
+        the same results.  Can't get at $!foo or $.bar yet.
+
+
+    The tut claims that "new" is not special in p6.  So you could make a 
+    routine called create() that does the blessing as above, and then the 
+    caller could call "my $e = Example.create()".  
+
+    But the fact that we get "new" for free when we create a class means to me 
+    that "new" is at least a little special, regardless of what the tut says.  
+    It's at least on the medium bus.
+
+
+    BUILD() gets called with the named arguments passed in by the user.
+            class Example {
+                has $.foo;
+                has $.bar;
+                method BUILD (:$foo, :$bar) {
+                    say $foo;
+                    say $bar;
+                }
+            }
+
+            my $e = Example.new( foo => 'FOO', bar => 'BAR' );
+
+        That outputs:
+            FOO
+            BAR
+
+        ...so the uc() values passed in by the user are what get sent to 
+        BUILD, rather than the default (lc) values set when the attributes 
+        were declared.
+
+    NOTE that the output shown above is from the two "say" lines inside BUILD, 
+    just for example's sake.  At this point, if we tried to do this:
+            say $e.foo;
+            say $e.bar;
+
+        Our output for that would be:
+            (Any)
+            (Any)
+
+    This is because BUILD is what normally assigns the arguments to the 
+    attributes.  Since we overrode BUILD, but didn't force the assignments in 
+    our override, those attributes have no values.
+
+        What we could have done is this:
+            class Example {
+                has $.foo;
+                has $.bar;
+                method BUILD (:$foo, :$bar) {
+                    $!foo := "The foo attribute now contains: " ~ $foo;
+                    $!bar := $bar;
+                }
+            }
+            my $e = Example.new( foo => 'FOO', bar => 'BAR' );
+            say $e.foo;     # The foo attribute now contains: FOO        (yay!)
+
+        But really, what we should have done is this:
+            class Example {
+                has $.foo;
+                has $.bar;
+                method BUILD (:$!foo, :$!bar) { }               # Note the bangs!
+            }
+            my $e = Example.new( foo => 'FOO', bar => 'BAR' );
+            say $e.foo;     # The foo attribute now contains: FOO        (yay!)
+
+        By declaring the arguments to BUILD to be the local attribute values, 
+        the assignments are bound automatically.
+
+
+
+
+    The following is not covered in the tut, I only found it while dicking 
+    around with some test classes, so all of this info is just stuff I've 
+    worked out.
+
+
+    Trying to combine "assign a default value when the attribute is declared" 
+    with "override BUILD" does not appear to work:
+            class Example {
+                has $!foo = 'foo';
+                method BUILD () {
+                    say $!foo;          # (Any)
+                }
+            }
+        BUILD does not have access to the default value 'foo' as set when the 
+        attribute was declared.  There might be some way for BUILD to get at 
+        that value, but I haven't been able to figure it out yet.
+
+    This is even worse - Schroedinger's value:
+            class Example {
+                has $.bar = 'bar';
+                method BUILD () {
+                    say $!bar;          # (Any)
+                }
+            }
+            my $e = Example.new();
+            say $e.bar;                 # (Any)         WTF?
+
+        By accessing $.bar, BUILD not only finds it to be (Any), but it sets 
+        it that way too.  So when we print out $e.bar in the caller, we find 
+        that it's set to (Any) there.
+
+        Removing the whole BUILD routine, or even leaving that routine but 
+        just removing its attempt to access $!bar, results in our caller 
+        seeing that $e.bar is set to 'bar':
+            class Example {
+                has $.bar = 'bar';
+                method BUILD () {
+                    ### This time, we're not touching $!bar at all here.
+                }
+            }
+            my $e = Example.new();
+            say $e.bar;                 # bar
+
+
+
+    I think the rule to go with is:
+        If you're overriding BUILD, DO NOT NOT NOT attempt to assign default 
+        values to the attributes when declaring them.
+
+        Avoiding default attribute values might be a good idea to get into 
+        anyway.
+
+                
+}#}}}
+Object Cloning {#{{{
+
+    http://doc.perl6.org/language/objects#Object_Cloning
+
+    All objects inherit a clone method from the object superclass, Mu.  This 
+    clone method allows copying of object private data from the original 
+    object to the cloned one.
+
+    But the cloning is shallow:
+            class Example {
+                has %.hash = ( foo => 'original foo' );
+            }
+            my $e = Example.new();
+            say $e.hash{'foo'};             # original foo
+
+            my $new = $e.clone;
+            $new.hash{'foo'} = "new foo";
+
+            say $new.hash{'foo'};           # new foo
+            say $e.hash{'foo'};             # new foo   <--- ruh-roh.
+
+    
+    There's more info on the tut about creating your own overridden clone 
+    method, but it's involving callwith and nextwith, which haven't totally 
+    sunken in to my noggin yet.  See the tut if you need this.
+
+}#}}}
+Roles {#{{{
+
+    OK, this is fairly retarded, but:
+
+            role Color {
+                has $.shade;
+                submethod BUILD {
+                    $!shade = 'dark';
+                }
+            }
+
+            class Red does Color {
+                has $.rgb = 'ff0000';
+            }
+
+            my $r = Red.new();
+            say $r.shade;               # dark
+
+
+    Roles are immutable as soon as the parser hits the role's closing curly 
+    brace.  So the role code can modify itself, I suppose, mess with its own 
+    meta state, but once it's finished being defined, nothing else can mess 
+    with it.
+
+    If you instantiate a Role, a class by the name of the role will be 
+    automatically created, and that's what you'll really be instantiating.
+            my $c = Color.new();
+            say $c.shade;
+
+        But note the section below on Stubs.  If your role contains a stub 
+        method, then attempting to instantiate it will create the same 
+        compile-time error as trying to instantiate a class that does not 
+        implement its role's stubs.
+                
+}#}}}
+Role Application {#{{{
+    
+    When a role gets applied to a class, its methods are copied in to the new 
+    class (this is different from class inheritance).
+
+    If a class implements multiple roles, and those roles have conflicting 
+    methods (multiple roles with the same method name), this conflict will 
+    cause a compile-time error.
+        You can avoid this error by creating a method of this name in your 
+        class -- that class method will override all of the role methods of 
+        the same name.
+
+    "This is much safer than multiple inheritance".  If there's a method name 
+    conflict using multiple inheritance, no error is thrown, and the method 
+    that ends up getting used is the one that appears earliest in the method 
+    resolution order, which may or may not be what you wanted.
+
+}#}}}
+Stubs {#{{{
+
+    When a role contains a stub method, the implementing class MUST include a 
+    method of that name.
+
+    This allows you to create roles as abstract interfaces.
+
+
+    The literal ... in the role indicates a stub method.
+            role Superhero {
+                method primary_power { ... }
+            }
+
+            class Superman does Superhero {
+                method primary_power { return 'strength' }
+            }
+        If the Superman class had not included its primary_power method at 
+        all, the above would have created a compile-time error.
+    
+}#}}}
+Parameterized Roles {#{{{
+
+    http://doc.perl6.org/language/objects#Parameterized_Roles
+    
+    You can give a role a signature, but the tut is starting to lose me here.
+
+}#}}}
+Mixins of Roles {#{{{
+
+    http://doc.perl6.org/language/objects#Mixins_of_Roles
+    
+    the tut is starting to lose me here.
+
+}#}}}
+Meta Object Programming and Introspection {#{{{
+
+    You can get any object's or class's meta object by calling HOW on it.  HOW 
+    is not exactly a method; it's special-cased in the compiler, so it's more 
+    like a macro.  I'll probably end up calling it a method, but it's not.
+
+            class Superman {
+                method primary_power { return 'strength' }
+            }
+            my $s = Superman.new();
+            say $s.HOW;                 # Perl6::Metamodel::ClassHOW.new
+
+    You can check any two objects' meta objects to see if they have the same 
+    meta-class:
+            my $s1 = Superman.new();
+            say $s.HOW === $s1.HOW;     # True
+
+            say 1.HOW === Int.HOW;      # True
+            say 1.HOW === Num.HOW;      # False (false?  htf is 1 not a Num?)
+
+    There's a different instance of that Perl6::Metamodel::ClassHOW for every 
+    class.
+
+
+
+    To introspect an object, you call the appropriate method on that object's 
+    HOW meta-object.  BUT ALSO you have to send the original object as an 
+    argument:
+            my $num_obj     = 1;
+            my $meta_obj    = $num_obj.HOW;
+            say $meta_obj.name( $num_obj );         # Int
+
+        That whole thing can be shortened to:
+            my $num_obj     = 1;
+            say $num_obj.HOW.name($num_obj);        # Int
+
+    
+    You can avoid having to pass the object in as an argument by doing:
+            my $num_obj     = 1;
+            say $num_obj.^name;                     # Int
+
+        The tut doesn't explain this any further than to say that you can do 
+        it.
 
 }#}}}
 
