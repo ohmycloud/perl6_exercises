@@ -1,11 +1,163 @@
 
-http://doc.perl6.org/language/operators
+Precedence is a bit different in p6.
+    http://doc.perl6.org/language/operators#Operator_Precedence
 
-This page is pretty extensive, and looks like it covers all of the operators.  
-I'm not going to copy all of that here.
+Arrow Operator {#{{{
+    If you need to deref something, use the . instead of ->.  But you probably 
+    won't be dereffing too often, as you probably won't be using references 
+    too often.
+}#}}}
+Auto Inc/Dec {#{{{
+    Mostly as expected.  But ++ and -- call the 'succ' and 'pred' methods on 
+    the objects they're being used on.
+
+    So in your own classes, you can define those methods to be able to auto 
+    inc and dec your objects.
+}#}}}
+Unary \ {#{{{
+    
+    This no longer exists.  To take a reference to a named variable, use 
+    item().
+        my @arr = <a b c>;
+        my $aref = item(@arr);
+
+    To get a reference to a sub, just use the &:
+        sub foo { say "this is foo" }
+        my $cref = &foo;
+}#}}}
+x (repeat) {#{{{
+    x 80 repeats a string 80 times.     (think 'short')
+    xx 80 repeats a list 80 times.      (think 'long')
+
+    my $str = '-=' x 80;
+    my @ones = '-=' xx 80;
+    
+}#}}}
+Equality {#{{{
+    == and != both work as expected.
+
+    cmp and <=> both return Order::Less, Order::Same, or Order::More.
+
+    cmp is no longer just for strings.  "leg" now does that, so "leg" replaces 
+    "cmp".
+
+    cmp still exists though.  It choses between "leg" and "<=>", depending 
+    upon its arguments.
 
 
+    UPSHOT - unless you're doing something weird, you probably want to use cmp 
+    always.
+}#}}}
+Smartmatch {#{{{
+    http://design.perl6.org/S03.html#Smart_matching
+}#}}}
+Defined-Or {#{{{
+    //, as in p5.
+
+    There's also a low-precedence version now: "orelse", so we can do this:
+        my $undef;
+
+        my $defor_one = $undef // '1';
+        say $defor_one;                     # 1
+
+    The die hits here.
+        my $defor_two = $undef orelse die "$undef must be set!";
+}#}}}
+Ranges {#{{{
+
+    The most basic usage is as expected:
+        my @range_one = 1..5;       # [1 2 3 4 5]
+
+    But now we have the carat as an endpoint excluder.  Be careful of where 
+    you put it:
+        my @range_two   = 1^..5;    # [2 3 4 5]      (exclude startpoint)
+        my @range_three = 1..^5;    # [1 2 3 4]      (exclude endpoint)
+        my @range_four  = 1^..^5;   # [2 3 4]        (exclude startpoint and endpoint)
+
+    This is a sort of auto-range, starting at zero:
+        my @range_five = ^5;        # [0 1 2 3 4]
+
+    Read the carat here as "up to".
+
+}#}}}
+Conditional (Ternary) {#{{{
+    Instead of:
+        (cond) ? true : false;
+
+    We now have:
+        (cond) ?? true !! false;
+
+    That's going to burn me nine ways to Sunday, over and over again.
+}#}}}
+Fat Comma {#{{{
+    It still exists, and should be usable in the same places you'd use it in 
+    p5.
+
+    However, the rule in p5 is:
+        => is a comma that auto-quotes its LHS.
+
+    But in p5, the => constructs a Pair object.
+}#}}}
+Quote-like Operators {#{{{
+    
+    Q// and ｢｣ both quote "absolute literal strings".  The funky half-braces 
+    are going to be a pain to type without copy/paste, so I'll probably just 
+    use the Q// when needed.  But they (the funky half-braces) do work.
+        Q{This is a backslash -> \}.say;
+        ｢This is a backslash -> \｣.say;
+
+    q// is as with p5.
+
+    qq// is also as with p5, but interpolating variables other than scalars is 
+    a little funky.  You need to append square braces to the variable, or p6 
+    will just print the variable name.
+
+        my @q_arr = <a b c>;
+        say qq/arr: @q_arr/;    # arr: @q_arr
+        say qq/arr: @q_arr[]/;  # arr: a b c
+
+        my %q_hash = (a => 'A', b => 'B', c => 'C');
+        say qq/hash: %q_hash/;  # hash: %q_hash
+
+        OK, here's where we get funky.  When interpolating a hash, keys and 
+        values are printed on separate lines, with a tab separating the k/v.
+            say qq/hash: %q_hash[]/;
+hash: a A
+b       B
+c       C
 
 
+    qw// works as in p5, but <> is a synonym and saves two keystrokes.
+        @arr = qw/a b c/;
+        @arr = <a b c>;
 
+    qqw// is new.  It's an interpolating qw//.  And <<>> works as a synonym.
+        my $var = "foobar";
+        my @arr = qqw/a $var c/;
+        my @arr = <<a $var c>>;
+
+    qx// runs a shell command.  qqx// interpolates.
+        $r = qx/ls/;
+
+        $cmd = 'ls';
+        $r = qqx/$cmd/;
+
+    qr// is GONE.
+
+
+    Heredocs exist but use different syntax now.  See ./test.p6 for the 
+    examples.
+}#}}}
+IO Operators {#{{{
+    Full docs:
+        http://doc.perl6.org/language/io
+
+    You can either open a filehandle from a filepath, or construct an IO 
+    object directly from the filepath:
+        for '/path/to/file.csv'.IO.lines -> $line {
+            # do something with this one line from the file.
+        }
+
+    my $scalar = '/path/to/file.csv'.IO.slurp;
+}#}}}
 

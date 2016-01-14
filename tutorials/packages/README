@@ -1,0 +1,17 @@
+
+http://doc.perl6.org/language/packages
+
+Modules, classes, grammars ("and others") are packages.
+
+
+
+The docs make it look like it might be possible to do this:
+        my $mod = 'Linux';
+        use <$mod>::CurrentOS;
+
+    ...but alas, it's not.
+
+
+
+There's some other info at the URL about package variables, none of which I care about ATM.
+

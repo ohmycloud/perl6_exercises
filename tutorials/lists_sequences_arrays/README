@@ -1,0 +1,215 @@
+
+http://doc.perl6.org/language/list
+
+
+
+Literal Lists {#{{{
+
+    Commas create lists, NOT parentheses.  You'll often see parens involved, 
+    but they're not what's creating the lists, it's the commas.
+
+            1, 2            # 2-element list
+            (1,2)           # same
+            (1)             # NOT A LIST, just a 1 in parens
+            (1,)            # 1-element list
+            (1,2),(3,4)     # list of two lists
+
+    You can use subscripts directly on a list, with caution:
+            say (1,2)[0];   # 1
+            say (1,2)[1];   # 2
+            say (1,2)[2];   # Nil (right - this is _not_ an error)
+
+    This is a compile-time error:
+            say (1,2)[-1];
+
+        Unsupported use of a negative -1 subscript to index from the end; in 
+        Perl 6 please use a function such as *-1
+
+
+    You can assign a list to a variable by using the binding assignment 
+    operator:
+            my @list := (1, 2);
+            say @list.WHAT;         # (List)
+
+        If you used a regular = operator, the list would get containerised on 
+        assignment into an Array.
+
+}#}}}
+The @ sigil {#{{{
+
+
+    Variables starting with the @ are "expected to contain some sort of 
+    list-like object".
+
+    This means that any @ variable supports positional subscripting, meaning 
+    it supports the Positional role.
+        Subscripts - http://doc.perl6.org/language/subscripts
+        Positional Role - http://doc.perl6.org/type/Positional
+
+
+
+    You _can_ do this:
+            my @arr = 1;
+            say @arr.WHAT;          # (Array)
+        That DWIM and generates a one-element array out of your int.
+
+    HOWEVER, if you were to try to use the binding assignment, you'll get an 
+    error:
+            my @arr := 1;
+        Type check failed in binding; expected Positional but got Int
+
+
+
+    By default, @ variables are arrays:
+            my @arr = 1, 2, 3;
+            say @arr.WHAT;          # (Array)
+
+    We saw earlier that we cannot bind an int to a @ variable.  But since a 
+    List does support the Positional role, we _can_ bind a list:
+            my @arr := 1, 2, 3;
+            say @arr.WHAT;          # (List)
+        Though I'm not sure why you'd want to do that.
+
+}#}}}
+Iteration {#{{{
+    
+    All lists may be iterated.
+        That's literal from the tut, including the lower-case "lists".  So my 
+        guess is that it means "any thingy that implements the Positional 
+        role".
+
+            for 1, 2, 3 { .say }
+
+            my @arr = (1, 2, 3);
+            for @arr { .say }
+
+
+    Remember that you can bind the iterated value if needed:
+            for 1, 2, 3 -> $elem { $elem.say }
+
+}#}}}
+Sequences {#{{{
+
+    These are a little harder to grasp.  To make matters worse, the tut seems 
+    to contradict itself at least once.
+
+    Think of a sequence as a lazily-evaluated, infinite list.
+
+
+
+    This says "42" an infinite number of times, and needs to be SIGINTed to 
+    quit:
+            loop { 42.say };
+
+    But "loop" returns a Sequence, which we can subscript.  This says "42" 
+    three times:
+            (loop { 42.say})[2];
+
+    You can't bind a sequence to an @ variable because Sequence does not fully 
+    implement the Positional role:
+            my @arr := (loop { 42.say})[2];             # GONNNNG!
+
+
+
+
+    And here's where I start to get confused.  The tut says:
+        It is possible to hide a Seq inside a List, which will still be lazy, 
+        but will remember old values...
+
+    It then shows this assignment:
+            my @list := (loop { 42.say }).list;
+            say @list.WHAT;                             # (List)
+    
+    And now it gets weird.
+
+    Start with code that looks cromulent:
+            my @list := (loop { 42.say }).list;
+            @list[0];           # says "42" 1 time
+            @list[1];           # says "42" 1 time
+            @list[2];           # says "42" 1 time
+
+    But see this:
+            my @list := (loop { 42.say }).list;
+            @list[0];           # says "42" 1 time
+            @list[2];           # says "42" 2 times
+        When we call the [2] subscript, we have not yet exhausted the [1] 
+        subscript.  So calling [2] continues our loop, printing out both [1] 
+        and [2].
+
+    I used the word "exhausted" there on purpose:
+            my @list := (loop { 42.say }).list;
+            @list[0];           # says "42" 1 time
+            @list[2];           # says "42" 2 times
+            @list[1];           # says NOTHING
+        Examining [2] _exhausted_ [1], which no longer produces any output.
+
+        Another example of exhaustion:
+            my @list := (loop { 42.say }).list;
+            @list[0];           # says "42" 1 time
+            @list[0];           # says NOTHING
+            @list[0];           # says NOTHING
+
+    At this point, remember that the tut said "...but will remember old 
+    values..." -- it's clearly not remembering old values, or I'm clearly not 
+    understanding what it's trying to tell me.
+
+    I mean, I guess I can see what's happening here, but that statement in the 
+    tut is, at least, poorly worded.
+
+}#}}}
+Slips {#{{{
+
+    It should be easy to understand this:
+            say (1, (2, 3), 4) eqv (1, 2, 3, 4);        # False
+
+    But sometimes you want to insert the elements of one list into another.  
+    For this we use a Slip.
+            say (1, (2, 3), 4);             # (1 (2 3) 4)
+            say (1, Slip.new(2, 3), 4);     # (1 2 3 4)
+
+
+    Henry Rollins' favorite class.  Slip it in.
+
+
+    An example with arrays.  First, our problem:
+            my @letters = <a b c d>;
+            my @numbers = <1 2 3 4>;
+            my @chars   = (@letters, @numbers);
+            say @chars;                             # [[a b c d] [1 2 3 4]]
+        Well shit - that's not what we want.  We want @chars to be a single 
+        list (array) containing our two different types of chars.
+
+    "Slip.new()" does not work on arrays.
+            my @chars = (Slip.new(@letters), Slip.new(@numbers));
+            say @chars;                             # [[a b c d] [1 2 3 4]]
+        Well shit again.
+
+    The other way to create a Slip, other than "Slip.new()", is with a leading 
+    pipe.  And this _does_ work on arrays:
+            my @chars = (|@letters,|@numbers);
+            say @chars;                             # [a b c d 1 2 3 4]
+
+    That pipe works on arrays, but is NOT limited to arrays:
+            say (1, |(2, 3), 4);                    # (1 2 3 4)
+
+
+    The thing about Slip.new() not working on arrays is not covered in the 
+    tut, I just found it by playing.  My guess is that Slip.new() is looking 
+    for a more scalar-y arg, which a List provides, but which an Array does 
+    not.
+
+}#}}}
+Immutability {#{{{
+
+    List, Seq, and Slip are all types of lists, and all are immutable.
+
+    But remember it's the list that's immutable:
+            (1, 2, 3)[1] = 'foo';               # GONNNNG!
+
+    But if the list contains a scalar, that scalar is still mutable:
+            my $num = 2;
+            (1, $num, 3)[1] = 'foo';            # No problem.
+
+
+}#}}}
+

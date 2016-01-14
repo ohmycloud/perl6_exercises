@@ -178,5 +178,8 @@ Modules Directory (CPAN-equivalent) {#{{{
 
 }#}}}
 
+Module-Authoring Tools
+    http://doc.perl6.org/language/modules-extra
 
+    Info for making modules at that link.  No need to repeat it here.
 

@@ -1,0 +1,5 @@
+
+role OS {
+    method report { ... }
+}
+
