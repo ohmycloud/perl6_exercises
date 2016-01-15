@@ -1,0 +1,95 @@
+
+
+http://doc.perl6.org/language/phasers
+
+
+The lifetime (execution timeline) of a program is broken up into phases. A 
+phaser is a block of code called during a specific execution phase.
+
+Familiar phasers from p5 would be the BEGIN and END blocks.
+
+List of p6 phasers {#{{{
+
+    The tut lists these in a single gray box:
+            BEGIN {...}     #  * at compile time, ASAP, only ever runs once
+            CHECK {...}     #  * at compile time, ALAP, only ever runs once
+            LINK {...}      #  * at link time, ALAP, only ever runs once
+            INIT {...}      #  * at run time, ASAP, only ever runs once
+            END {...}       #  at run time, ALAP, only ever runs once
+
+            ENTER {...}     #  * at every block entry time, repeats on loop blocks.
+            LEAVE {...}     #  at every block exit time (even stack unwinds from exceptions)
+            KEEP {...}      #  at every successful block exit, part of LEAVE queue
+            UNDO {...}      #  at every unsuccessful block exit, part of LEAVE queue
+
+            FIRST {...}     #  * at loop initialization time, before any ENTER
+            NEXT {...}      #  at loop continuation time, before any LEAVE
+            LAST {...}      #  at loop termination time, after any LEAVE
+
+            PRE {...}       #  assert precondition at every block entry, before ENTER
+            POST {...}      #  assert postcondition at every block exit, after 
+            LEAVE
+
+            CATCH {...}     #  catch exceptions, before LEAVE
+
+
+    These are then listed right underneath, but in a separate gray box:
+            CONTROL {...}   #  catch control exceptions, before LEAVE
+
+            COMPOSE {...}   #  when a role is composed into a class
+
+
+    The * indicate phasers that return a runtime value, eg:
+            BEGIN my $compiletime = now;
+
+
+}#}}}
+Phaser execution order {#{{{
+
+    Another copy-paste from the tut, but worth having here I guess.
+
+
+Compilation Begins
+  BEGIN {...} #  at compile time, ASAP, only ever runs once
+  CHECK {...} #  at compile time, ALAP, only ever runs once
+   LINK {...} #  at link time, ALAP, only ever runs once
+COMPOSE {...} #  when a role is composed into a class
+
+Execution Begins
+   INIT {...} #  at run time, ASAP, only ever runs once
+
+Before block execution begins
+    PRE {...} #  assert precondition at every block entry, before ENTER
+
+Loop execution begins
+  FIRST {...} #  at loop initialization time, before any ENTER
+
+Block execution begins
+  ENTER {...} #  at every block entry time, repeats on loop blocks.
+
+Exception maybe happens
+  CATCH {...} #  catch exceptions, before LEAVE
+CONTROL {...} #  catch control exceptions, before LEAVE
+
+End of loop, either continuing or finished
+   NEXT {...} #  at loop continuation time, before any LEAVE
+   LAST {...} #  at loop termination time, after any LEAVE
+
+End of block
+  LEAVE {...} #  at every block exit time (even stack unwinds from exceptions)
+   KEEP {...} #  at every successful block exit, part of LEAVE queue
+   UNDO {...} #  at every unsuccessful block exit, part of LEAVE queue
+
+Post-condition for block
+   POST {...} #  assert postcondition at every block exit, after LEAVE
+
+Program terminating
+    END {...} #  at run time, ALAP, only ever runs once
+
+
+}#}}}
+
+
+Again, there's more detail at the tut page (link at top of this file).
+
+
