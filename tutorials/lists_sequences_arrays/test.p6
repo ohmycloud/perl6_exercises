@@ -1,5 +1,14 @@
 #!/home/jon/.rakudobrew/bin/perl6
 
+#my $c = \42;
+#my $c = \( 1, 2, (foo => 'bar') );
+#say $c.list;
+#say $c.hash;
 
-            my $num = 2;
-            (1, $num, 3)[1] = 'foo';
+
+
+''.say;
+
+my @h = (1, 2, 3, 4, 5)[1, 2];
+say @h;
+

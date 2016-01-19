@@ -1,0 +1,270 @@
+
+http://doc.perl6.org/language/quoting
+
+
+On the surface, q{} and qq{} work like they did in p5, but there are actually 
+quite a few differences noted in here.
+
+
+
+Grouping Characters {#{{{
+
+    For simplicity, I'm using curlies below in constructs such as q{}, qq{}, 
+    Q{}, etc.
+
+    But the actual characters can be pretty much any non-word character.  If 
+    the character is a grouping construct (eg [], {}, <>), then the closing 
+    character is the appropriate closing character, as expected.
+
+    This is mostly cromulent from a p5 point of view.  
+
+    ***
+    NOTE ON PARENS (NYI)
+    ***
+        Parens sort-of work as grouping characters.  However, they're never 
+        used in any of the examples on the tutorial page, and I think there's 
+        a reason for that.
+
+        q() does not allow you to escape an internal right paren:
+            say q( This is a right-paren: \) and we're still here. );       # GONNNNG!
+                ===SORRY!===
+                You can't backslash that
+
+
+        Since the tutorial doesn't mention them at all, I don't know if this 
+        is a bug or just the way that it is.
+
+        And since there may be other funk involving parens that I haven't 
+        stumbled across by accident, JUST DO NOT USE PARENS AS YOUR GROUPING 
+        CHARACTERS.  Use curlies or bangs or slashes or whatever you like, 
+        just not parens.
+    ***
+
+
+    Less important NOTE
+        ISTR seeing some obfu p5 a long time ago that used letters as the 
+        quote characters (eg: say xfoobarx;).  I may well be mis-remembering, 
+        but regardless, that's not allowed in either p6 or my 
+        currently-installed p5.
+
+}#}}}
+q{} and qq{} and interpolation {#{{{
+
+    q{} and qq{} MorL work as before, with q{} not interpolating and qq{} 
+    interpolating:
+            my $var = "foo";
+            say q($var);          # $var
+            say qq($var);         # foo
+
+
+
+
+    q{} does allow backslash escapes:
+            say q{show one backslash: \\};      # show one backslash \
+
+    That means that we can include one of our grouping characters inside a q{} 
+    string as long as we escape it:
+            say q{ This is a right-curly: \} and we're still here. };
+
+    ***
+    BUT, for whatever reason, that trick does not work if you're using parens 
+    as your grouping characters:
+            say q( This is a right-paren: \) and we're still here. );       # GONNNNG!
+        Compile error: "You can't backslash that".  WTF.
+
+    So stop using parens as grouping characters.
+    ***
+
+
+
+    A new feature of the interpolating qq// (and remember that regular 
+    double-quotes count as identical to qq//) is that it will now interpolate 
+    perl code that appears inside internal curlies:
+            my $a = 1;
+            my $b = 2;
+            my $c = 3;
+
+            say "The sum is {$a + $b + $c}.";       # the sum is 6.
+            say qq/The sum is {$a + $b + $c}./;     # the sum is 6.
+
+        When you're including code like that, your grouping characters 
+        themselves cannot be curlies.  So get into the habit of using 
+        something else.
+
+    That code interpolation feature means that we can now more easily use 
+    objects that return strings:
+            class Jontest {
+                method sayit { "this is sayit."; }
+            }
+            my $a = Jontest.new();
+
+            say qq!Jontest's sayit() method produces this: '{$a.sayit}'!;
+
+        But even moar better, p6 recognizes a method call inside a string as 
+        long as the method call ends with parens:
+            say qq!Jontest's sayit() method produces this: '$a.sayit()'!;
+
+        Both of those say() lines outputs
+            Jontest's sayit() method produces this: 'this is sayit.'
+
+        Neato.
+
+
+
+    Interpolating quotes normally only interpolate $-sigiled variables.  This 
+    avoids the old p5 problem of trying to print an email address and having 
+    the compiler bitch at you because it can't find an array named "@gmail".
+
+    So trying to print out an array now just prints the sigil and the array 
+    name:
+            my $var     = "foobar";
+            my @arr     = <1 2 3>;
+            my %hash    = ( foo => 'bar' );
+
+            say "var: $var";            # var: foobar   (interpolated)
+            say "arr: @arr.";           # arr: @arr     (NOT interpolated)
+            say "hash: %hash.";         # hash: %hash   (NOT interpolated)
+
+    There are two ways around that.
+        First, you can wrap your non-scalar inside curly braces, so it gets 
+        evaluated like any other p6 code as noted in the previous section:
+            say "arr: {@arr}.";         # arr: 1 2 3.
+            say "hash: {%hash}.";       # hash: foo     bar.
+
+        Second, you can add the appropriate empty subscript braces after the 
+        variable name:
+            say "arr: @arr[].";         # arr: 1 2 3.
+            say "hash: %hash{}.";       # hash: foo     bar.
+
+        Use whichever you prefer.
+
+}#}}}
+Q{} and ｢…｣ {#{{{
+    
+    But now we also have Q{} (*sigh*).  Q{} differs from q{} in that Q{} 
+    prints a literal string, where q{} respects backslash escapes:
+            say Q{show two backslashes: \\};    # show two backslashes \\
+            say q{show one backslash: \\};      # show one backslash \
+
+
+    This means that a Q{} string cannot contain its own grouping character:
+            say Q{ right-curly: \} and we're still here. };     # GONNNG!
+
+        ...whereas we were fine when we used q{}, which does support 
+        backslashes:
+            say q{ right-curly: \} and we're still here. };     # no problem
+
+
+    You can also use ｢…｣ as what the tut calls a "shortcut" to Q{}.  It also 
+    says it can be viewed "more plainly":
+            say Q{show two backslashes: \\};    # show two backslashes \\
+            say ｢show two backslashes: \\｣;    # show two backslashes \\
+
+            ...iguess.jpg
+
+        See the "Vim..." section below on easy ways to insert those funky 
+        braces.
+
+
+    I assume that the fact that you cannot backslash-escape the right closing 
+    character explains why p6 wants to use these funky ｢｣ characters.  The 
+    string you're trying to print is very unlikely to contain those 
+    characters. 
+
+}#}}}
+Word quoting {#{{{
+
+    Again, this works similarly to the way p5 did:
+            my @arr = qw/foo bar baz/;
+
+        You can also write that using just <> characters:
+            my @arr = <foo bar baz>;
+
+        Either way, the string ("foo bar baz") is broken up on whitespace into 
+        a list:
+            say @arr;   # [foo bar baz]
+
+
+    Along with qw//, there's now also Qw//.  The differences are similar to 
+    the differences between q// and Q// -- the lower-case version allows 
+    backslash escaping.
+
+
+    The "true" form of these word quote constructs are:
+            q:w / foo bar baz /
+            Q:w / foo bar baz /
+
+        so:
+            my @arr1 = q:w / foo bar baz /;
+            my @arr2 = Q:w / foo bar baz /;
+
+        I assume some part of the compilation process is translating q<foo bar 
+        baz> into q:w/foo bar baz/ or some such, but I don't think I'll ever 
+        use this colon notation.
+
+        But I'm betting some blogger or freenoder will at some point, so when 
+        you see it, this is what they're doing.
+
+
+    
+    Neither qw() nor <> interpolates:
+            my $var = "foobar";
+            my @arr = qw/foo bar baz $var/;
+            say @arr;                           # foo bar baz $var
+
+    If you want interpolation, use qqw():
+            my $var = "foobar";
+            my @arr = qqw/foo bar baz $var/;
+            say @arr;                           # foo bar baz foobar
+    
+    Hey look - more funky delimiters!  We can also use «» to do the same 
+    thing:
+            my $var = "foobar";
+            my @arr = «foo bar baz $var»;
+            say @arr;                           # foo bar baz foobar
+
+        Again, I've set up .vimrc iabbrs for those things, but there's nothing 
+        wrong with just using qqw//
+
+}#}}}
+Shell quoting {
+
+}
+
+
+
+Vim and those funky characters {#{{{
+
+    I've set up some iabbrs in my .vimrc to handle some of these funky 
+    grouping characters.
+    
+    and also modified autoclose.vim to help deal with these goofy braces.  The 
+    autoclose is not perfect, but it's better than trying to memorize the 
+    codepoints for these damn things.
+
+    The iabbrs:
+            lb      ｢       # left brace
+            rb      ｣       # right brace
+            bb      ｢｣      # both braces
+
+            <<      «       # no mnemonic needed, I hope.
+            >>      »       # no mnemonic needed, I hope.
+
+
+    The autoclose tweak I made means that when you type "lb", that left brace 
+    will appear, and autoclose will take over, creating the right brace 
+    automatically and placing your cursor inside.
+
+    Your cursor will be surrounded by spaces, but you can deal with those with 
+    <del> and <bs> if you want.  This is what typing lb produces with 
+    autoclose on (the pipe represents the cursor):
+            ｢ | ｣
+
+        ...but I guess you could just try it to see.
+
+
+    The end result is that the lb abbrv output ends up being similar to the bb 
+    output.  Decide which you like better. 
+
+}#}}}
+
