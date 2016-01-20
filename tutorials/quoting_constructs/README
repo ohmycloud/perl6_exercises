@@ -2,11 +2,6 @@
 http://doc.perl6.org/language/quoting
 
 
-On the surface, q{} and qq{} work like they did in p5, but there are actually 
-quite a few differences noted in here.
-
-
-
 Grouping Characters {#{{{
 
     For simplicity, I'm using curlies below in constructs such as q{}, qq{}, 
@@ -48,6 +43,7 @@ Grouping Characters {#{{{
         currently-installed p5.
 
 }#}}}
+
 q{} and qq{} and interpolation {#{{{
 
     q{} and qq{} MorL work as before, with q{} not interpolating and qq{} 
@@ -227,11 +223,115 @@ Word quoting {#{{{
         wrong with just using qqw//
 
 }#}}}
-Shell quoting {
+Shell quoting (the new backticks) {#{{{
 
-}
+    Along with qx{} and qqx{} which I'm covering here, p6 can also run 
+    external commands with "shell" and "run".
+
+        http://doc.perl6.org/routine/shell
+            Runs a command through the system shell, interpreting meta characters 
+            like pipes, redirects, env vars, etc.
+            Not sure how this differs from qx{}.
+
+        http://doc.perl6.org/routine/run
+            Runs a command without involving the shell (if possible).
+
+    Both shell and run return a Proc object:
+        http://doc.perl6.org/type/Proc
 
 
+
+    Instead of backticks, p6 now uses qx{...}.
+            print qx{echo "Hello, World!"};
+
+        the "echo" produced its own newline, hence "print" there instead of 
+        "say", which would have given us an extra newline.
+
+
+    qx{} does not interpolate perl variables:
+            print qx{echo "Hello, $name!"};
+
+        That outputs simply
+            Hello, !
+
+        It was looking for the SHELL variable $name.  So in FISH:
+            $ cat test.p6
+            #!/home/jon/.rakudobrew/bin/perl6
+            print qx{echo "Hello, $name!"};
+            $ set -x name foobar
+            $ ./test.p6
+            Hello, foobar!
+
+    As expected, qqx{} does interpolate where qx{} does not:
+            my $name = "jon";
+            print qqx{ echo "Hello, $name!"};           # Hello, jon!
+
+
+    Both qx{} and qqx{} return their outputs, so you can do this:
+            my $output = qx{ echo "hi there" };
+            say "--$output.chomp--";                    # --hi there
+                                                        # --
+
+        Whoopsie.  The echo produced a newline.  Let's try it again:
+            my $output = qx{ echo "hi there" }.chomp;
+            say "--$output.chomp--";                    # --hi there--
+
+        Yay!
+
+
+
+    A slightly more real-world example:
+            my $cmd     = "ack";
+            my $opt     = "-i";
+            my $word    = 'gogopuffs';
+            my $dir     = '/home/jon/work/rakudo/tutorials';
+
+            my $out     = qqx{$cmd $opt $word $dir};
+            say $out;
+
+
+}#}}}
+Heredocs {#{{{
+
+The tut uses the word "convenient" to describe these.  lol.
+
+I'm purposely not indenting this note, since indentation is one of the things 
+I'm going to mention below; I don't want the note's indentation to confuse 
+things.
+
+
+Anyway, to start with, heredocs look reasonably familiar:
+say q:to/END/;
+lsdkj
+lksdjfhg
+lskdfjgh
+END
+
+
+One of the problems with these damn things is that the text has to be flush 
+left or the leading spaces actually get output.  And flushing all this stuff 
+left ruins the look of your nicely indented code.
+        for 1..5 {
+            say q:to/END/;
+shit this
+is unindented and
+looks like crap.
+END
+        }
+
+
+So in p6, if we indent our terminator, then that amount of indentation is 
+removed from the produced string:
+        for 1..5 {
+            say q:to/END/;
+                Yay!  Now both my code
+                and my output look good!
+                END
+        }
+
+    This is fucking fantastic.
+
+}#}}}
 
 Vim and those funky characters {#{{{
 

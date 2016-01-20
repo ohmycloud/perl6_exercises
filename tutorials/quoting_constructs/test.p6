@@ -1,10 +1,10 @@
 #!/home/jon/.rakudobrew/bin/perl6
 
 
-my $var = "foobar";
+for 1..5 {
+    say q:to/END/;
+        Yay!  Now both my code
+        and my output look good!
+        END
+}
 
-#my @arr = qqw/foo bar baz $var/;
-            my @arr = «foo bar baz $var»;
-#my @arr = <foo bar baz $var>;
-
-say @arr;

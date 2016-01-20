@@ -155,6 +155,46 @@ Named Regexes {#{{{
 
             
 }#}}}
+Regex Substitutions {#{{{
+
+    This is not covered on this tutorial page, but I keep grepping these files 
+    for "regex" and ending up back here, so I figured I'd add this info here.
+
+    p6 regex rules:
+    http://search.cpan.org/~dconway/Perl6-Rules-0.03/Rules.pm
+
+
+    Substitute all commas for nothing (remove all commas) from $str:
+            $str ~~ s:global{','} = q{};
+        
+        You don't have to type out "global":
+            $str ~~ s:g{','} = q{};
+
+        Note that when we're specifying a literal string in our pattern, it 
+        needs to be quoted.
+
+
+    Substitute out all commas, colons, and apostrophes with a character class:
+            $str ~~ s:g{<[',:]>} = q{};
+
+        Note the <> wrapped around the character class, and also note that now 
+        nothing needs to be quoted.
+
+
+
+    You can also use the method form, which looks a bit more p6-y.  Again, sub 
+    out apostrophes, colons, commas:
+            my $new = $str.subst(/<[',:]>/, q{}, :g);
+
+        The args to subst() are (PATTERN, REPLACEMENT, FLAGS).
+
+        You can see that the subst() method returns its result to a new 
+        variable.  If you want to just change $str in-place, use the 
+        assignment version of the method call:
+            $str.=subst(/<[',:]>/, q{}, :g);
+                ^^
+
+}#}}}
 Creating Grammars, Action Objects {#{{{
     
     A grammar is used only to parse text, and is declared with the "grammar" 

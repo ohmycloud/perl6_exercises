@@ -1,0 +1,100 @@
+
+http://doc.perl6.org/language/regexes
+
+There is, predictably, a lot to this tut page.  Read it again.
+
+
+
+Lexical Conventions {#{{{
+
+    Create a regex object with either of:
+            rx/abc/;
+            /abc/;
+
+    You can also use this, but it immediately matches $_:
+            m/abc/;
+
+    So, all of these conditionals work:
+            if 'properly' ~~ /perl/ {
+            if 'properly' ~~ m/perl/ {
+            if 'properly' ~~ rx/perl/ {
+                say "match";
+            }
+
+    To use that "match $_" version:
+            my @arr = <abc def ghi>;
+            for @arr {
+                if m/d/ { .say }        # def
+            }
+
+    The rx// and m// versions can use any grouping characters EXCEPT colons 
+    and regular parenthesis.  The // version with no prefix must use slashes.  
+    Very p5-y.
+
+}#}}}
+Whitespace {#{{{
+
+    Whitespace in regexen is generally ignored, like a p5 regex with the //x 
+    flag set.
+
+    So instead of turning on "ignore whitespace", in p6 you have to turn it 
+    off (if you want it off), using the :s (:sigspace) adverb.
+
+}#}}}
+Literals (quoting and escaping) {#{{{
+
+    The rules for this are different from p5.
+
+    
+    Alphanumerics and _ are literals.  ANY other character has to be escaped.
+            if m/foobar/ { }
+            if m/ foo\ bar/ {}
+            if m/ foo\:bar/ {}
+
+    That's going to lead to a lot of escaping.  To avoid leaning-toothpick 
+    syndrome, you can quote the string inside the pattern:
+            if m/ "foo bar"/ {}
+            if m/ "foo:bar"/ {}
+
+}#}}}
+The Match class {#{{{
+
+    http://doc.perl6.org/type/Match
+
+    After a successful match has been made, $/ contains that match class 
+    (think of it as $_ for regexen).
+
+    So we get this, which is nice:
+            if 'abcdefg' ~~ / de / {
+                say $/;                 # ｢de｣
+                say ~$/;                # de
+                say $/.prematch;        # abc
+                say $/.postmatch;       # fg
+                say $/.from;            # 3
+                say $/.to;              # 5
+            }
+
+
+    The match attempt returns either a Match object on success, or a Nil 
+    object on failure.
+        Success:
+            my $thingy = 'abcdefg' ~~ / de /;
+            say $thingy;                # ｢de｣
+            say $thingy.WHAT;           # (Match)
+            say $thingy.prematch        # abc
+            ### etc as above
+
+        Failure:
+            my $thingy = 'abcdefg' ~~ / flurble /;
+            say $thingy;                # (Any)
+            say $thingy.WHAT;           # (Any)
+
+            say $thingy.prematch
+            # GONNNG!  Method 'prematch' not found for invocant of class 'Any'
+
+}#}}}
+Wildcards and character classes {
+
+
+}
+
