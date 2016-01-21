@@ -347,8 +347,12 @@ Vim and those funky characters {#{{{
             rb      ｣       # right brace
             bb      ｢｣      # both braces
 
-            <<      «       # no mnemonic needed, I hope.
-            >>      »       # no mnemonic needed, I hope.
+            <<<     «       # no mnemonic needed, I hope.
+            >>>     »       # no mnemonic needed, I hope.
+
+    "<<" and ">>" are actual operators (at the least, they're the regex left- 
+    and right- word boundary specifiers), so the abbrv for the funky angle 
+    brackets is three, NOT TWO, regular angle brackets.
 
 
     The autoclose tweak I made means that when you type "lb", that left brace 

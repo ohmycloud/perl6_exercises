@@ -93,8 +93,292 @@ The Match class {#{{{
             # GONNNG!  Method 'prematch' not found for invocant of class 'Any'
 
 }#}}}
-Wildcards and character classes {
+Wildcards and character classes (including predefined classes like \d and \w) {#{{{
 
+    A dot matches any character.  Yes, ANY character:
+            my $str = "foo\nbar";
+            if $str ~~ /foo.bar/ { say "match"; }       # hits!
+
+        A DOT NOW MATCHES ANY CHARACTER INCLUDING NEWLINE.
+
+
+    Also, remember that whitespace gets ignored:
+            'perl' ~~ / pe . l /;                       # True
+
+
+    Pre-defined character classes
+        These look similar to p5 but there's some new stuff.
+
+        \d and \D {#{{{
+            match digits and non-digits
+
+            Unicode Roman numerals (Ⅴ, Ⅶ, Ⅸ, etc) do not match here.
+
+        }#}}}
+        \h and \H {#{{{
+            Horizontal whitespace.
+            So space, nbsp, tab.
+
+            Not a newline.
+        }#}}}
+        \n and \N {#{{{
+            Logical newline.
+
+            \n is "supposed to also match a windows crlf codepoint pair".  The 
+            tut waffles on this a little.
+        }#}}}
+        \s and \S {#{{{
+            Single whitespace character, not necessarily only horizontal (so 
+            newline does match, along with space and tab etc).
+        }#}}}
+        \t and \T {#{{{
+            A tab.  Just the tab character.  "Exotic" higher unicode tabs 
+            don't match.
+        }#}}}
+        \v and \V {#{{{
+            Vertical whitespace.  Newline, linefeed, vertical tab, carriage 
+            return, etc all match.
+
+            Horizontal-only whitespace (space, tab, etc) do NOT match.
+
+            Yes, the bare carriage return is included here (tested).
+        }#}}}
+        \w and \W {#{{{
+            Digit, underscore, or letter.
+            
+            "Letter" is defined as anything in unicode category "L".  Here's a 
+            list of unicode categories:
+                http://www.fileformat.info/info/unicode/category/index.htm
+
+            Unicode Roman numerals (Ⅴ, Ⅶ, Ⅸ, etc) are listed in the Unicode 
+            category "[Nl]", or "Number, Letter".  They do not match here.  
+            Note that the examples in parens above are not regular letters; 
+            particularly note that the Ⅴ is not a V.  Slide your cursor 
+            right-to-left over those examples in command mode to see them 
+            better.
+        }#}}}
+
+}#}}}
+Unicode properties {#{{{
+
+    There's a nice long list of unicode properties at
+        http://doc.perl6.org/language/regexes#Unicode_properties
+
+    For eg, the unicode property "Lu" matches an uppercase letter, and would 
+    be used like this:
+            say "a" ~~ / <:Lu> /;       # Nil
+            say "A" ~~ / <:Lu> /;       # ｢A｣
+
+
+    Those properties can be negated with a preceding bang:
+            say "a" ~~ / <!:Lu> /;      # ｢｣    (empty set, but match.)
+            say "A" ~~ / <!:Lu> /;      # Nil
+
+
+    Properties can be combined to create a character class, using +.  Here 
+    we're trying to match either an uppercase letter or a digit:
+            say "A" ~~ / <:Lu + :Nd> /;      # ｢A｣
+            say "1" ~~ / <:Lu + :Nd> /;      # ｢1｣
+            say "a" ~~ / <:Lu + :Nd> /;      # Nil
+            
+}#}}}
+User-defined character classes and ranges {#{{{
+
+    This looks very p5-y.
+
+    Start a character class with <>.  We already showed this in the previous 
+    section on Unicode properties, but that's what we were doing -- creating a 
+    class:
+            say 'ababcde1234' ~~ /<:Ll + :Nd>/;
+
+
+
+    When we're not using unicode properties, we need to use [] to specify our 
+    class "pieces".
+
+    Combine multiple range definitions:
+            say '1234567890'    ~~ /<[0..3] +[4..6] +[7..9]>/;
+            say 'ababcde1234'   ~~ /<[a..d 1..4]>/;
+
+        Allow a number from 1-3 or 6-9, but no other numbers:
+            say '1'    ~~ /<[0..3] +[6..9]>/;       # ｢ 1 ｣
+            say '4'    ~~ /<[0..3] +[6..9]>/;       # Nil
+            say '8'    ~~ /<[0..3] +[6..9]>/;       # ｢ 8 ｣
+
+    That first range, [0..3], does not have a sign in front of it.  The first 
+    class mentioned doesn't need one; it defaults to '+'.  But that + is 
+    there, inherently.  These three are the same as the above three:
+            say '1'    ~~ /<+[0..3] +[6..9]>/;       # ｢ 1 ｣
+            say '4'    ~~ /<+[0..3] +[6..9]>/;       # Nil
+            say '8'    ~~ /<+[0..3] +[6..9]>/;       # ｢ 8 ｣
+
+
+
+    Negating a character class is NOT p5-y; we're not using the carat at all.  
+    Instead, we specify a minus sign instead of the plus signs used above.  
+    Which, frankly, makes more sense than the carat.
+
+        This example we already saw.  The first character, 'a', matches our 
+        class:
+            say 'ababcde1234' ~~ /<:Ll +:Nd>/;      # ｢a｣
+
+        This one is new.  We're negating "Letter, lowercase", so the 'a' 
+        doesn't match anymore.  But "Number, digit" is still true, so the '1' 
+        matches:
+            say 'ababcde1234' ~~ /<-:Ll +:Nd>/;     # ｢1｣
+
+        Here, we're negating both Letter, lowercase AND Number, digit.  Since 
+        our pattern doesn't contain any character that does not match either 
+        of those, this match fails.
+            say 'ababcde1234' ~~ /<-:Ll -:Nd>/;     # Nil
+
+        Last, we'll add a capital Q in there.  That does match because it 
+        doesn't fall into either of our negated categories:
+            say 'ababcdQe1234' ~~ /<-:Ll -:Nd>/;     # ｢Q｣
+
+    So if you're trying to match the contents of a quote-delimited string:
+            my $str = 'He said "perl6 looks interesting" to me.';
+            say $str ~~ / '"' <-["]> + '"' /;       # ｢ "perl6 looks interesting" ｣
+
+
+}#}}}
+Quantifiers {#{{{
+
+    Again, whitespace is ignored, so unlike p5, you can have whitespace 
+    between the atom and its quantifier.
+
+    These all look p5-cromulent:
+        One or more: +
+            say 'aa' ~~ / \w + /;       # ｢ aa ｣
+
+        zero or more: *
+            say 'aa' ~~ / \w * /;       # ｢ aa ｣
+
+        zero or one: ?
+            say 'aa' ~~ / \w ? /;       # ｢ a ｣
+
+
+    This is different; no more curly braces:
+        min..max: **
+            say 'abcdef' ~~ / \w ** 2..4 /;     # ｢ abcd ｣
+            say 'abcdef' ~~ / \w ** 7..11 /;    # Nil
+
+        An exact quantity match is similar; just provide a number instead of a 
+        range:
+            say 'abcdef' ~~ / \w ** 6 /;        # ｢ abcdef ｣
+
+        You can specify a non-inclusive range (eg "a length of between, but 
+        not including, 1 to 6 digits"):
+                say '1'         ~~ /\d ** 1^..^6/;      # Nil
+                say '12'        ~~ /\d ** 1^..^6/;      # ｢ 12 ｣
+                say '123456'    ~~ /\d ** 1^..^6/;      # [12345]
+
+        To specify that your password must have more than 6 characters, with 
+        no upper limit, use the "Whatever" operator (*) for the upper:
+                say 'qwerty'    ~~ / \w ** 6^..* /;     # Nil
+                say 'longpass'  ~~ / \w ** 6^..* /;     # ｢ longpass ｣
+
+
+    Here's some funk.  You can add a "quantifier modifier" in the form of a 
+    percent followed by a sepchar, presumably to check if the CSV record 
+    you're dealing with is in the correct format:
+                say Bool('foo,bar' ~~ / \w+ % ',' /);   # True
+
+    The tut specifically states that this will not match, because of the 
+    trailing comma:
+            say Bool('foo,bar,' ~~ / \w+ % ',' /);
+
+        ...and for that, you should double up your percent chars:
+            say Bool('foo,bar,' ~~ / \w+ %% ',' /);
+
+        HOWEVER, both of those lines with the trailing comma, both with the 
+        single and the double percents, return true.
+
+    This whole thing strikes me as being a little bit too precious even if it 
+    did work as documented, and probably won't ever get used outside of obfu 
+    code.
+
+
+}#}}}
+Alternation {#{{{
+
+    Specify alternatives with double pipes.  The first matching alternative 
+    wins:
+            say 'foobarbaz' ~~ / 'blarg' || 'foo' || 'bar' /;   # ｢ foo ｣
+
+
+
+    Tut says that you can use a single pipe, but that will match the longest 
+    alternative regardless of their specified order.
+
+    It only offers this one example:
+            say ('abc' ~~ / a | .b /).Str;
+        The output of that is "ab".
+
+    However, this code:
+            my $str = 'foobarbazblargquux';
+            say $str ~~ / 'foo' | 'blarg' /;
+        returns "foo".
+
+    We can get a longer string, but only if the RHS of our alternative is just 
+    a longer version of the LHS:
+            my $str = 'foobarbazblargquux';
+            say $str ~~ / 'foo' | 'foobar' /;
+
+    Which seems fairly fucking useless.  I guess I can imagine the need for 
+    "get 'foobar' if it's there, but if it's not, and just 'foo' is there, get 
+    that", but I can't see the that need for that popping up more than very 
+    very rarely.
+
+}#}}}
+Anchors {#{{{
+
+    Again, p5-y.
+
+    Front anchor:
+            say so 'perl'       ~~ / ^ perl /;      # True
+            say so 'perly'      ~~ / ^ perl /;      # True
+            say so 'properly'   ~~ / ^ perl /;      # False
+
+    Rear anchor:
+            say so 'perl'       ~~ / perl $ /;      # True
+            say so 'perly'      ~~ / perl $ /;      # False
+            say so 'pro-perl'   ~~ / perl $ /;      # True
+
+    The rear anchor matches the end of the string, not the end of a line.
+            my $str = "I like perl.
+            It's goodly.";
+            say so $str ~~ / perl $/;               # False
+
+
+
+    Start and End of Line Anchors
+        Instead of mucking with suffixes or flags, use ^^ and $$ to indicate 
+        start and end of line versus the single-char versions, which are start 
+        and end of string.
+
+        Again, whitespace does not matter.
+
+            my $str = q:to/END/;
+            one is one
+            two is two
+            three is three
+            END
+
+            say so $str ~~ /^^ one .* one$$     /;      # True
+            say so $str ~~ /^^ two .* two     $$/;      # True
+            say so $str ~~ /^^ three .* three$$ /;      # True
+
+}#}}}
+Word Boundaries {#{{{
+
+    No more \b.  Now we can specify left- or right- word boundaries.
+            my $str = "The quick brown fox";
+            say so $str ~~ / << quic /;             # True
+            say so $str ~~ / quic >> /;             # False
+
+}#}}}
+Grouping, Capturing {
 
 }
 
