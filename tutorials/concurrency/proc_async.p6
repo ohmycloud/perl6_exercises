@@ -1,6 +1,61 @@
 #!/home/jon/.rakudobrew/bin/perl6
 
-{ # Basics #{{{
+
+### JWorthington's Video {
+
+    ### Asynchrony
+    if True {
+        ### Another fake sub that pretends to scp a bunch of files across our 
+        ### network using the 'scp' in our PATH.
+
+        my $start = DateTime.now.second.Int;
+
+        my @files = <file_one file_two file_three file_four>;
+
+        my @working;
+        for @files -> $file {
+            my $target = $file ~ ".new";
+
+            ### Here's the command we're pretending to run.
+            #my $proc = Proc::Async.new( 'scp', $file, $target );
+
+            ### But since I don't want to actually scp anything anywhere, 
+            ### here's what we'll really run.  Pretend it's performing the 
+            ### scp.  Each copy is going to take 1-3 seconds.
+            ###
+            ### Note this is the system's sleep being called, not Perl 6's.
+            my $proc = Proc::Async.new( 'sleep', 3.rand.Int + 1 );
+
+
+
+            ### Proc.Async returns a promise.
+            ###
+            ### BUT, if we just await each promise as we iterate our list of 
+            ### files, this block will still take 1-3 seconds per file.  So we 
+            ### don't want to do this.
+            #await $proc.start;
+
+
+            ### Instead, we'll create an array of promise.starts:
+            @working.push($proc.start);
+        }
+
+        ### Now, we can await our entire array:
+        await @working;
+        ### And now our code takes between 1-3 (probably 3) seconds, rather 
+        ### than 4-12 seconds, to run.
+
+        my $end = DateTime.now.second.Int;
+        say "That took {$end - $start} seconds to run.";
+        exit;
+
+    
+    }
+
+### }
+
+
+if False { # Basics #{{{
 
     my $proc = Proc::Async.new('echo', 'foo', 'bar');
 
@@ -52,7 +107,7 @@
     
     ''.say;
 }#}}}
-{ # Write to an external command#{{{
+if False { # Write to an external command#{{{
 
     ### The ":w" means we're going to write to the command.
     ###

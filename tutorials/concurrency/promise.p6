@@ -1,5 +1,25 @@
 #!/home/jon/.rakudobrew/bin/perl6
 
+
+sub parse_json_file(Str $filename) {
+    sleep 3;
+    return 'foo';
+}
+
+my $start = DateTime.now;
+my $PONE = start parse_json_file('file_one');
+my $PTWO = start parse_json_file('file_two');
+my ($ONE, $TWO) = await $PONE, $PONE;
+my $end = DateTime.now;
+say "that took {$end.second - $start.second} seconds.";
+exit;
+
+
+
+
+
+
+
 { # Basics #{{{
     
 
@@ -85,22 +105,6 @@ my $r3 = await $p3;
 say $r3;
 ''.say;
 
-    ### NOTE NYI
-    ### The code using 'start' above works just fine.
-    ###
-    ### The docs state that start is provided "as a subroutine".  But note 
-    ### that in the working code above, there are no parens:
-    ###         start { ...code... };
-    ###     ...rather than...
-    ###         start( { ...code... } );
-    ### 
-    ### If you include those parens, p6 produces an "Undeclared routine" 
-    ### exception at compile time.
-    ###
-    ### I'm fine with not using the parens, but not being allowed to use them 
-    ### seems strange.
-
-
 
 ### await is almost the same as calling result on the promise object.  The 
 ### difference is that await can take a list of promises, and return the 
@@ -109,6 +113,66 @@ my $p4 = start { my $var = 2 * 3 };
 my $p5 = start { my $var = 4 * 5 };
 my @r4 = await $p4, $p5;
 say @r4;                            # [6 20]
+
+
+
+if False {
+
+    ### There are some sleeps in the code below, so only make this block's 
+    ### conditional true if you're specifically looking at this block.
+
+
+    ### So far, the examples have been purely academic and not very useful.
+    ###
+    ### Here, we have a function that pretends to read a file and parse it 
+    ### from JSON.  We'll assume the process takes 3 seconds.
+    sub parse_json_file(Str $filename) {
+        sleep 3;
+        return 'json result';
+    }
+
+    my ($before, $after);       # for time reporting below.
+
+
+    ### We have 2 JSON files and want to compare them them both.
+    $before = DateTime.now;
+    my $json_one = parse_json_file('file_one');
+    my $json_two = parse_json_file('file_two');
+
+    say $json_one eqv $json_two
+        ?? "The two files are identical."
+        !! "The two files are different.";
+
+    $after = DateTime.now;
+    say "that took {$after.second - $before.second} seconds.";
+
+
+    ### As you can guess, that's going to take a little over 6 seconds, since 
+    ### we're running the two parsing calls sequentially.
+
+
+    ### So what we want to do is to run them as promises so they run in 
+    ### parallel:
+    $before = DateTime.now;
+    my $parsing_one = start parse_json_file('file_one');
+    my $parsing_two = start parse_json_file('file_two');
+
+    my ($parallel_json_one, $parallel_json_two) = await $parsing_one, $parsing_two;
+
+    say $parallel_json_one eqv $parallel_json_two
+        ?? "The two files are identical."
+        !! "The two files are different.";
+
+    $after = DateTime.now;
+    say "that took {$after.second - $before.second} seconds.";
+
+
+    ### And now we're back to taking only just over 3 seconds, since the two 
+    ### parsing runs ran in parallel.
+
+}
+
+
 
 }#}}}
 { # anyof, allof#{{{

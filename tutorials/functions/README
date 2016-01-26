@@ -697,6 +697,113 @@ Coercion Types (Type Casting) {#{{{
     can.
 }#}}}
 
+### Stuff not from the tut, but which I've picked up from videos etc.
+User-Defined Types (subsets) {#{{{
+
+    Ovid video:
+        https://www.youtube.com/watch?v=lpu-3UF_b48
+        I didn't mark the time, but it's before the currying section, which 
+        starts at 19:46, so this "subsets" bit of the video happens before 
+        that.
+
+    
+    We want our sub to accept a string, but want to make sure it's not empty.
+            sub foo(Str $mystr) {
+                if not $mystr.Bool {
+                    die "\$mystr cannot be empty!";
+                }
+                ...do stuff because our string is not empty...
+            }
+
+    That's the standard way to deal with requiring a non-empty string as your 
+    arg.  But with p6 we can define our own types ("subsets"), and then just 
+    use that user-defined subset in our routine signature:
+
+            subset NonEmptyString of Str where *.chars > 0;
+
+            sub foo(NonEmptyString $str) {
+                say "I got --$str--.";
+            }
+
+        Which gives us:
+            foo('bar');         # I got --bar--.
+            foo();              # Runtime error - too few positionals passed
+            foo('');            # Runtime error - Constraint type check failed (Yay!)
+
+
+    Ovid says that he thinks that NonEmptyString subset will probably be the 
+    "most popular subset declared in Perl 6"
+
+
+    Other examples:
+        Require the password be between 8 and 24 characters, non-inclusive:
+            subset Password of Str where 8 < *.chars < 24;
+
+        Require the string be under 256 characters to fit into your database 
+        column (if your column is defined as VARCHAR(256) and you pass in a 
+        larger string, MySQL is just going to silently truncate it - yikes).
+            subset DBColumn of Str where *.chars < 256;
+
+        Only allow drivers between 16 and 90:
+            subset DriverAge of Int where 16 <= * <= 90;
+
+        etc
+
+}#}}}
+Caching (currying) functions {#{{{
+
+    Ovid video
+        https://www.youtube.com/watch?v=lpu-3UF_b48
+        about 19:45 in
+    
+
+    This is a fibonacci sub that prints out the value of the Nth value in the 
+    fib sequence:
+            subset NonNegativeInt of Int where * >= 0;
+            
+            sub fib(NonNegativeInt $nth) {
+                given $nth {
+                    when 0 { 0 }
+                    when 1 { 1 }
+                    default { fib($nth-1) + fib($nth-2) }
+                }
+            }
+
+            say fib(7);         # 13
+            say fib(20);        # 6765, takes about a second
+            say fib(30);        # 832040, takes about a MINUTE
+
+    That's fine, and it returns the correct answer.  But the way it's 
+    recursing means that the same value has to be passed through recursive 
+    calls again and again.
+    fib(20) has a noticeable pause, and fib(30) takes about a minute (I just 
+    eyeballed the runtime, but it does take a while).
+
+    Anyway, what we'd normally do in p5 is cache the previous results, 
+    probably using CHI.
+
+    With p6, caching is much simpler.  It's also experimental as I write this 
+    (01/2016), but it looks veddy veddy nice.  All we have to do is declare 
+    that we want to use the experimental caching feature, add then add the "is 
+    cached" trait to the sub declaration:
+            use experimental :cached;
+            sub fib(NonNegativeInt $nth) is cached {
+                given $nth {
+                    when 0 { 0 }
+                    when 1 { 1 }
+                    default { fib($nth-1) + fib($nth-2) }
+                }
+            }
+
+            say fib(7);         # 13
+            say fib(20);        # 6765, takes under a second
+            say fib(30);        # 832040, takes under a second
+
+    Ovid, from the video: q|Perl 6 says "Here's a feature you can use.  Try 
+    not to cut yourself with it."|
+
+}#}}}
+
 
 ### This stuff is over my head ATM and needs to be revisited.
 ### CHECK

@@ -20,7 +20,7 @@ Avoid Thread and Scheduler {#{{{
     http://doc.perl6.org/type/Thread
     http://doc.perl6.org/type/Scheduler
 }#}}}
-Promise {#{{{
+Promise (Perl 6's "asynchronous scalar") {#{{{
     Sometimes called a "future" in other languages.
 
     See ./promise.p6
@@ -38,11 +38,12 @@ Promise {#{{{
 
         So just keep in mind that you can't call $p.cause wherever you want.
 }#}}}
-Supplies {#{{{
+Supplies (Perl 6's "asynchronous array or sequence") {#{{{
     https://i.ytimg.com/vi/5AplRigbvtI/hqdefault.jpg
 
-    A Supply is an "asynchronous data streaming mechanism".  Sounds like a 
-    form of event programming.
+    A Supply is an "asynchronous data streaming mechanism".
+
+    See also the Supplies section from JW's video, notes are below.
 
     ./supplies.p6
 
@@ -56,13 +57,81 @@ Channels {#{{{
     
 }#}}}
 Proc::Async {#{{{
+
     I thought this sounded like a replacement for fork, but no.
 
-    It's essentially a replacement for system().
+    I'm not getting enough info from the tut, but see notes on asynchrony in 
+    Jonathan Worthington's video, below.
+
 }#}}}
 Low-level APIs {
     The start of the Concurrency section warned me against using these.  So I 
     probably won't bother making a test script, but do want to at least read 
     the section once so it's been pasteurized.
 }
+
+
+### Info from places other than the tut
+
+    Jonathan Worthington vid:
+        "Parallelism, Concurrency, and Asynchrony in Perl 6"
+        https://www.youtube.com/watch?v=JpqnNCx7wVY
+
+        race (batch processing data using threads) {#{{{
+            starts around 16:40.
+
+            He's reading weather station data from a bunch of files.  Filtering it to 
+            only stations in Europe.  Then trying to find the hottest place in Europe.
+
+            By 16:40 he's already discussed the sequential solution, and also talked 
+            about splitting up the input files and passing them separately through 
+            read, filter, find-hottest routines using promises.
+
+            But at 16:40 he shows how to use race() to turn on parallel computing for 
+            the whole mess.  Looks nice.
+        }#}}}
+        asynchrony (Proc::Async) {#{{{
+            18:25
+
+            
+            Even though JW's examples are good and helpful, they're still just 
+            about synchronous shell commands, which is the same problem I had 
+            with the tutorial.  He talks about GUI events being an example of 
+            asynchrony, but he doesn't give any example of how to handle that 
+            kind of stuff using Proc::Async.
+
+
+
+            This is about things that will happen in the future, but exactly 
+            when they'll happen is not under our control.
+                Responses to web requests coming back
+                User interaction with a GUI
+                Signals
+                etc
+
+            The first example he gives is shown in ./proc_async.p6.
+
+            ***
+            At about 22:00 he talks about how to throttle that example so it 
+            doesn't overwhelm the network.  Not going to bother copying, but 
+            it's idiomatic, so see the video.
+
+        }#}}}
+        Supplies {
+            JW notes 3 types of supplies:
+
+            Infinite:
+                <---Emit--Emit------Emit----Emit----->
+
+            Finite (success):
+                --Emit---Emit-----Emit--Emit---DONE
+
+            Finite (error):
+                --Emit---Emit-----ERROR(Quit)
+
+
+    I LEFT OFF AT 25:22
+
+
+        }
 

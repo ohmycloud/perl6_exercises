@@ -122,6 +122,11 @@ Superscripts, Subscripts, Math Symbols {#{{{
                 p <bs> *        lowercase pi (as above)
                 P <bs> *        uppercase pi
 
+        I also set up iabbrs in vi for pi, so you can just type "pi" or "PI" 
+        to get the unicode character:
+                iabbr pi π
+                iabbr PI Π
+
         I did get this to work once (the lowercase pi above was created this 
         way), but 9 times out of 10 the digraph just fails to work.
 
