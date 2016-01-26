@@ -108,6 +108,28 @@ TUTORIALS {#{{{
     Looks pretty useful.
 
 }#}}}
+BLOGS, IRC, etc {
+    
+    Mike Friedman
+        http://friedo.com/blog/
+
+    Will Coleda
+        http://blogs.perl.org/users/coke/
+
+    Jonathan Worthington
+        https://6guts.wordpress.com/
+
+    Zoffix
+        http://blogs.perl.org/users/zoffix_znet/
+
+    Damian
+        http://blogs.perl.org/users/damian_conway
+
+    IRC
+        #perl6 on irc.freenode.org
+        There's also a #perl6 on irc.perl.org.
+
+}
 FAQ, Glossary ***CHECK*** {#{{{
 
     There's a FAQ section that I'm not going to repeat here, because it's 
