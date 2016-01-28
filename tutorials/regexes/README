@@ -378,7 +378,84 @@ Word Boundaries {#{{{
             say so $str ~~ / quic >> /;             # False
 
 }#}}}
-Grouping, Capturing {
+Grouping, Capturing {# {{{
+
+    Output Note
+        Below, I'm printing eg $0 and getting output wrapped in ｢｣ symbols.  
+        The tut has been doing this:
+            print ~$0;
+            print ~$<mystr>;
+        ...etc, and the output when you do that is NOT wrapped in ｢｣ symbols.  
+
+        I don't recognize that leading tilde at this point so I haven't been 
+        using it.
+
+
+
+    Grouping works as expected:
+            / a || b || c /         # matches 'a' or 'b' or 'c'
+            / (a || b) || c /       # matches 'ac' or 'bc'
+
+    Capturing works almost as expected, but capture variables start at $0 
+    rather than $1 like p5:
+            my $str = 'number 42';
+            if $str ~~ /(number) \s (\d)+/ {
+                say "The word is $0";
+                say "The number is $1";
+            }
+
+    When capturing, $/ is a Match object that behaves somewhat like an array 
+    in that it's subscriptable.  So the above could be written as:
+            my $str = 'number 42';
+            if $str ~~ /(number) \s (\d)+/ {
+                say "The word is $/[0]";
+                say "The number is $/[1]";
+            }
+
+
+    If you want to set up grouping like in the first example, but don't want 
+    your groups to capture, use square braces instead of parens.
+
+        Parens:
+            my $str = 'ac';
+            if $str ~~ / (a || b) || c / {
+                say "Match";                    # Match
+                say $0;                         # ｢ac｣ (the parens both group and capture)
+            }
+
+        Squares:
+            my $str = 'ac';
+            if $str ~~ / [a || b] || c / {
+                say "Match";                    # Match
+                say $0;                         # Nil (square braces only group)
+            }
+
+
+    Capture numbers normally start at $0 and go up as expected.  But 
+    alternations reset the capture number count.  'bar' here _is_ in capture 
+    number $0, not $1, since the || resets the number:
+            my $str = 'bar';
+            if $str ~~ / (foo) || (bar) / {
+                say $0;                         # ｢bar｣
+            }
+
+
+    I've never bothered with named captures, but they're here if you want 
+    them:
+            my $str = 'bar';
+            if $str ~~ / $<mystr> = (foo || bar) / {
+                say $<mystr>;                   # ｢bar｣
+            }
+
+        Named captures don't always need the parens, if there's no grouping to 
+        worry about:
+            my $str = 'bar';
+            if $str ~~ / $<mystr> = bar / {
+                say $<mystr>;                   # ｢bar｣
+            }
+
+}# }}}
+Substitution {
 
 }
 

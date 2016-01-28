@@ -4,8 +4,6 @@ Docs home
 
 
 
-
-
 I'm working through
     http://doc.perl6.org/language.html
 
@@ -17,7 +15,7 @@ I'm going throw them as listed anyway just so I can keep track.
 
 Left off at
     Regexes
-        Grouping and Capturing
+        Substitution
 
 
 INSTALLING {#{{{
@@ -103,17 +101,26 @@ implementing Perl 6.c.
 This is rakudo version 2015.11-357-g587f700 built on MoarVM version 2015.11-34-gc3eea17 implementing Perl v6.b.
 
 }#}}}
-TUTORIALS {#{{{
+TUTORIALS, DOCS {#{{{
     http://doc.perl6.org/language.html
+        This page is a list of links to different perl6 tutorials and docs 
+        sites.  Looks pretty useful.
 
-    This page is a list of links to different perl6 tutorials and docs sites.  
-    Looks pretty useful.
+        The whole "doc.perl6.org" is pretty damn useful :)
+
+    http://perl6intro.com/
+        CHECK
+        A nice-looking intro tutorial that I want to go through after 
+        finishing going through the main docs.
+
 
 }#}}}
 BLOGS, IRC, etc {{{{
     
     Mike Friedman
         http://friedo.com/blog/
+        He has a lot of p6-related articles, many of them how-tos.  Good place 
+        to start.
 
     Will Coleda
         http://blogs.perl.org/users/coke/

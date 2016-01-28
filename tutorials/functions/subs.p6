@@ -1,5 +1,17 @@
 #!/home/jon/.rakudobrew/bin/perl6
 
+
+#sub jontest(Str $foo, Int $bar, Str $baz) { }
+#say &jontest.signature.perl;
+#exit;
+
+my $jt = sub jontest(Str $foo, Int $bar, Str $baz) { }
+$jt.signature.perl.say;
+exit;
+
+
+
+
 sub no_args {
     say "No args, no prototype, no signature.";
 }

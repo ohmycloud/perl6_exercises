@@ -803,6 +803,24 @@ Caching (currying) functions {#{{{
     not to cut yourself with it."|
 
 }#}}}
+Introspection {
+    
+    Query a routine to figure out its signature:
+
+            sub jontest(Str $foo, Int $bar, Str $baz) { ... }
+            &jontest.signature.perl.say;
+
+        or...
+            my $jt = sub jontest(Str $foo, Int $bar, Str $baz) { }
+            $jt.signature.perl.say;
+
+        either way, this is output:
+            :(Str $foo, Int $bar, Str $baz)
+
+
+    Nice.
+
+}
 
 
 ### This stuff is over my head ATM and needs to be revisited.

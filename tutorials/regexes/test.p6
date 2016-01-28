@@ -1,20 +1,13 @@
 #!/home/jon/.rakudobrew/bin/perl6
 
-use experimental :cached;
+my $str = 'bar';
+#if $str ~~ / $<mystr> = (foo) || $<mystr> = (bar) / {
+            if $str ~~ / $<mystr> = (foo || bar) / {
+    say "Match";
+    say $<mystr>;
+}
 
-            subset NonNegativeInt of Int where * >= 0;
-            
-            #sub fib(NonNegativeInt $nth) {
-            sub fib(NonNegativeInt $nth) is cached {
-                given $nth {
-                    when 0 { 0 }
-                    when 1 { 1 }
-                    default { fib($nth-1) + fib($nth-2) }
-                }
-            }
 
-            say fib(20);
-            say fib(30);
 
 
 
