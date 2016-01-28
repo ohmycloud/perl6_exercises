@@ -20,7 +20,7 @@ Avoid Thread and Scheduler {#{{{
     http://doc.perl6.org/type/Thread
     http://doc.perl6.org/type/Scheduler
 }#}}}
-Promise (Perl 6's "asynchronous scalar") {#{{{
+Promise {#{{{
     Sometimes called a "future" in other languages.
 
     See ./promise.p6
@@ -38,7 +38,7 @@ Promise (Perl 6's "asynchronous scalar") {#{{{
 
         So just keep in mind that you can't call $p.cause wherever you want.
 }#}}}
-Supplies (Perl 6's "asynchronous array or sequence") {#{{{
+Supplies {#{{{
     https://i.ytimg.com/vi/5AplRigbvtI/hqdefault.jpg
 
     A Supply is an "asynchronous data streaming mechanism".
@@ -71,11 +71,21 @@ Low-level APIs {
 }
 
 
+
+
 ### Info from places other than the tut
 
     Jonathan Worthington vid:
         "Parallelism, Concurrency, and Asynchrony in Perl 6"
         https://www.youtube.com/watch?v=JpqnNCx7wVY
+
+        "With parallelism, you _choose_ do to things in parallel.  Concurrency 
+        choose you".  The example he gives on concurrency is two passengers 
+        attempting to book a plane ticket concurrently.  We must make sure we 
+        don't sell both of them the same seat.
+
+        "Concurrency is a property of a problem."  He doesn't say this, but 
+        the implication is that "parallelism is a property of a solution".
 
         race (batch processing data using threads) {#{{{
             starts around 16:40.
@@ -90,7 +100,7 @@ Low-level APIs {
             But at 16:40 he shows how to use race() to turn on parallel computing for 
             the whole mess.  Looks nice.
         }#}}}
-        asynchrony (Proc::Async) {#{{{
+        Proc::Async (asynchrony)  {#{{{
             18:25
 
             
@@ -99,6 +109,11 @@ Low-level APIs {
             with the tutorial.  He talks about GUI events being an example of 
             asynchrony, but he doesn't give any example of how to handle that 
             kind of stuff using Proc::Async.
+
+
+            As I go through the video more, I think that Proc::Async is 
+            specifically meant for asynchronously running system calls.  
+            "Asynchrony" in p6 is not limited to Proc::Async.
 
 
 
@@ -117,21 +132,47 @@ Low-level APIs {
             it's idiomatic, so see the video.
 
         }#}}}
-        Supplies {
+        Promise (Perl 6's "asynchronous scalar") {#{{{
+        }#}}}
+        Supplies (Perl 6's "asynchronous array or sequence") {#{{{
+
             JW notes 3 types of supplies:
+                    Infinite:
+                        <---Emit--Emit------Emit----Emit----->
 
-            Infinite:
-                <---Emit--Emit------Emit----Emit----->
+                    Finite (success):
+                        --Emit---Emit-----Emit--Emit---DONE
 
-            Finite (success):
-                --Emit---Emit-----Emit--Emit---DONE
-
-            Finite (error):
-                --Emit---Emit-----ERROR(Quit)
-
-
-    I LEFT OFF AT 25:22
+                    Finite (error):
+                        --Emit---Emit-----ERROR(Quit)
 
 
-        }
+            He gives an example of watching a file for changes.  See 
+            ./file_watch_supply.p6.  Tapping a supply like this is like 
+            setting up an event.
+
+            "A supply is sort of like a pipeline ... but values are pushed 
+            through it" - JW
+
+
+        }#}}}
+whenever (asynchronous for loop) {{{{
+
+    See file_watch_supply.p6.
+
+
+    whenever is essentially an asynchronous for loop.  It must be used in 
+    either a supply block or a react block.
+
+    The supply block returns a supply you can tap, as we've seen before.
+    See file_watch_supply.p6.
+
+
+    The react block is like an event loop.  There's an example sub in 
+    file_watch_supply.p6, but there's a whole script that's probably a better 
+    example in dir_checker.p6.
+
+    
+}}}}
+
 

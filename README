@@ -19,16 +19,6 @@ Left off at
     Regexes
         Grouping and Capturing
 
-    ***
-    I actually went off the rails a bit and started watching Jonathan 
-    Worthington's youtube video on Parallelism.
-
-    My notes are in tutorials/concurrency/README, at the bottom.
-
-    I left the video URL and a time bookmark of where I left off in that note.  
-    Pick up from there.
-    ***
-
 
 INSTALLING {#{{{
     http://rakudo.org/how-to-get-rakudo/
@@ -120,7 +110,7 @@ TUTORIALS {#{{{
     Looks pretty useful.
 
 }#}}}
-BLOGS, IRC, etc {
+BLOGS, IRC, etc {{{{
     
     Mike Friedman
         http://friedo.com/blog/
@@ -141,7 +131,7 @@ BLOGS, IRC, etc {
         #perl6 on irc.freenode.org
         There's also a #perl6 on irc.perl.org.
 
-}
+}}}}
 FAQ, Glossary ***CHECK*** {#{{{
 
     There's a FAQ section that I'm not going to repeat here, because it's 
