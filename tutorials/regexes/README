@@ -1,8 +1,10 @@
 
 http://doc.perl6.org/language/regexes
 
-There is, predictably, a lot to this tut page.  Read it again.
 
+Grammars are mentioned on this tut page several times in conjunction with 
+regexen.  Grammars have their own tut page, which I think I mostly skipped.  
+I'm not covering them here, but I definitely need to get back to them again.
 
 
 Lexical Conventions {#{{{
@@ -31,7 +33,29 @@ Lexical Conventions {#{{{
     and regular parenthesis.  The // version with no prefix must use slashes.  
     Very p5-y.
 
+    The section on substitution also warns against using "balancing delimiters 
+    such as {}".  So I'd stay away from those and square brackets while you're 
+    at it.
+
+    Just use slashes fer Paul's sake.
+
 }#}}}
+Regex Objects {# {{{
+    
+    This is partially covered elsewhere, I just wanted to have a topic to 
+    easily find later.
+
+            my $re = /bar/;     # NOTE this cannot start with m// -- just slashes.
+            my $re = m/bar/;    # GONNNNG!  The .match() method below won't be found.
+            
+            if 'foobarbaz'.match($re) {
+                say "Match!";
+            }
+
+
+    If you want to include adverbs in your regex, nothing changes:
+            my $re = / i: bar /;
+}# }}}
 Whitespace {#{{{
 
     Whitespace in regexen is generally ignored, like a p5 regex with the //x 
@@ -455,7 +479,233 @@ Grouping, Capturing {# {{{
             }
 
 }# }}}
-Substitution {
+Substitution {# {{{
 
-}
+    Basic:
+            my $str = 'foobar';
+            $str ~~ s/foo/BLARG/;
+            $str.say;
+
+        Or, the same code but using defaults:
+            $_ = 'foobar';
+            s/foo/BLARG/;
+            .say;
+
+    As with a normal matching regex, you can use other delimiters than slashes 
+    (but stay away from parens, curly braces, and colons).
+
+    
+    Substitution follows the same rules specified elsewhere in this file, so I 
+    won't bother restating.
+
+}# }}}
+Adverbs (flags) {# {{{
+
+    Instead of jamming flags on at the end of the regex as in p5, in p6 they 
+    get added on the front:
+        p5:
+            "fOoBaR" =~ s/foo/blarg/i;      # case-insensitive match on 'foo'
+        p6:
+            "fOoBaR" ~~ s:i/foo/blarg/;     # same thing - ci match on 'foo'
+
+
+    ADVERB PLACEMENT
+
+    There are two types of adverbs; Regex Adverbs and Matching Adverbs.
+
+    Regex Adverbs can apply to only part of your regex, and can appear either 
+    outside the regex as above, or inside it.  These two are identical:
+            "fOoBaR" ~~ s:i/ foo /blarg/;
+            "fOoBaR" ~~ s/:i foo /blarg/;
+
+    The adverb only applies to parts of the pattern that occur lexically after 
+    the adverb:
+            say so "fooBARbaz" ~~ m/ 'foo' :i 'bar' 'baz' /;     # True
+            say so "fooBARbaz" ~~ m/ 'foo' 'bar' :i 'baz' /;     # False
+
+        That works without quoting the strings in the pattern, but omitting 
+        those quotes produces a warning reminding you that space is not 
+        significant, and quoting the strings removes that warning.
+
+    You can also use grouping constructs to apply your adverb to only a 
+    specific part of your pattern:
+            say so "fooBARbaz" ~~ m/ 'foo' (:i 'bar' 'baz') /;     # True
+            say so "FOObarbaz" ~~ m/ 'foo' (:i 'bar' 'baz') /;     # False
+
+
+    Matching Adverbs can only appear on the outside of the regex.
+
+
+    AVAILABLE ADVERBS
+        
+    :ratchet, :r -- Do not backtrack (Regex)
+            say so 'abc' ~~ / \w+ . /;              # True
+            say so 'abc' ~~ m:r/ \w+ . /;           # False
+
+        In the first case, "w+" matches "abc", which means there's nothing 
+        left to match the remaining ".".  That regex initially fails to match, 
+        but then it backtracks, and the "w+" then matches just the "ab", 
+        leaving the "c" available to match the ".".  So after backtracking, 
+        the regex comes back true.
+
+        In the second case, we get the same initial failed match.  But because 
+        of :r, no backtracking occurs, and we just end up with a failure.
+
+        Including :r will result in faster regex since backtracking is 
+        expensive, but you obviously have to be careful about where you use 
+        it.
+
+        If you're using regex objects, a "token" is just a shortcut for a 
+        ratcheting regex.  These two are identical:
+                my token thing { ... }
+                my regex thing { :r ... }
+
+            It's additional cognitive load for not much of a shortcut, but 
+            there ya go.
+
+    :sigspace, :s - Make whitespace significant (Regex)
+        Already partially covered in this file.  Whitespace in patterns in p6 
+        is not significant by default unless it's quoted, like p5 with //x 
+        turned on.
+
+        Adding the :sigspace adverb makes whitespace significant, like p5's 
+        default.
+
+
+            True, but produces a warning reminding you that space is not 
+            significant here:
+                say so 'photoshop' ~~ m/photo shop/;        # True
+
+            True, with no warning because of the quotes:
+                say so 'photoshop' ~~ m/'photo' 'shop'/;    # True
+
+            False, because whitespace is now significant:
+                say so 'photoshop' ~~ m:s/photo shop/;      # False
+
+            Same as above, but doesn't mess with Vim's syntax coloring:
+                say so 'photoshop' ~~ m/s: photo shop/;      # False
+
+
+        CHECK
+        There a good bit of info at
+            http://doc.perl6.org/language/regexes#Sigspace
+        talking about <.ws> and how it relates to whitespace and how grammars 
+        can change what <.ws> matches, but it looks like something I need to 
+        come back to later.
+
+    From here down, the rest are Matching Adverbs, so they cannot appear 
+    inside the regex.
+
+    :continue, :c -- Continue
+        This takes an integer argument and specifies what offset of the string 
+        to begin searching.
+
+        This is a normal-looking match, looking for the 3 word characters 
+        after finding 'foo'.  Perfectly cromulent:
+            'foobarfoobaz' ~~ m/ foo (\w ** 3) /;
+            say $0;                                 # bar
+
+        Adding :c(3) means that we're going to start looking for 'foo' at 
+        offset 3.  So we'll find the second instance of 'foo' and therefore 
+        end up with 'baz' instead of 'bar':
+            'foobarfoobaz' ~~ m:c(3)/ foo (\w ** 3) /;
+            say $0;                                 # baz
+
+        We could have started at any offset from 1 to 6 inclusive and ended up 
+        with 'bar'.
+
+    :exhaustive, :ex -- Exhaustive search.
+        Find all possible matches, including overlapping ones.  See :global 
+        for non-overlapping.
+        
+        Here's a normal match:
+            '1234' ~~ m/(..)/;
+            say ~$/;                # 12
+
+        And here's the same match with :ex:
+            '1234' ~~ m:ex/(..)/;
+            say ~$/;                # 12 23 34
+
+        Another ex example:
+            '1234' ~~ m:ex/.*/;     # 1234 123 12 1  234 23 2  34 3  4
+
+    :global, :g -- Global.
+        You know what this does.  Similar to :ex, but :g does not return 
+        overlapping matches.
+            '1234' ~~ m:g/(..)/;
+            say ~$/;                # 12 34
+        
+    :pos, :p -- Anchor the match at a specific point in the string
+            '1234' ~~ m:pos(2)/(.)/;
+            say ~$/;                # 3
+
+    :overlap, :ov -- Include overlapping matches
+        This differs from :ex in that it only returns the longest match each 
+        time:
+            '1234' ~~ m:ov/.*/;     # 1234 234 34 4
+
+}# }}}
+Lookaround Assertions (now easier to deal with) {# {{{
+    
+    Lookahead Assertions
+        Find a pattern that appears before another pattern.
+            'foobarFOObaz' ~~ m:i/ foo <?before baz> /;         # FOO
+
+    Lookbehind Assertions
+        Find a pattern that appears after another pattern.
+            'foobarFOObaz' ~~ m:i/ <?after bar> foo /;          # FOO
+
+
+    Those can both be negated by using a bang instead of a ?
+            'foobarFOObaz' ~~ m:i/ foo <!before baz> /;         # foo
+            'foobarFOObaz' ~~ m:i/ <!after bar> foo /;          # foo
+
+}# }}}
+
+Best Practices {# {{{
+
+
+    The tut lists this section as "Best Practices and Gotchas", but doesn't 
+    really list any Gotchas.
+
+
+    As already mentioned, whitespace is not significant unless you turn on the 
+    :sigspace adverb.
+
+    That means that you can break up your regexen and include comments, just 
+    like p5 //x:
+            my regex float {
+                <[+-]>?                 # sign is optional
+                \d*                     # leading digits, optional
+                '.'                     # decimal point.  Quoted, so not "any character"
+                \d+                     # fractional digits, not optional
+
+                [
+                    'e' <[+-]>? \d+     # Optional exponent
+                ]
+            }
+
+
+    Where possible, decompose your regexen into smaller atoms.  The above 
+    'float' regex is more readable as:
+            my token sign       { <[+-]> }
+            my token decimal    { \d+ }
+            my token exponent   { 'e' <sign>? <decimal> }
+
+            my regex float {
+                <sign>?
+                <decimal>?
+                '.'
+                <decimal>
+                <exponent>
+            }
+
+        That's quite nice.
+
+
+    There are a couple other sections in the tut, but they're about stuff that 
+    I already know about and Grammars, which I already know that I need to go 
+    back and re-read.
+
+}# }}}
 

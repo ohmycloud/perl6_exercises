@@ -9,6 +9,10 @@ if you need to parse out text, grammars is the way to go.
 Grammars are made up of named regexes.
 
 
+CHECK
+Re-read this and understand it better.
+
+
 Named Regexes {#{{{
     
     These are declared somewhat similar to subs.
