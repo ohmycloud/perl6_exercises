@@ -1,0 +1,280 @@
+
+http://doc.perl6.org/language/setbagmix
+
+
+Sets, Bags, and Mixes are unordered containers.  Since the contents are 
+unordered, these containers are more efficient than Lists (and presumably 
+Arrays) for looking up elements or dealing with containing repeated items.
+
+Types:
+    Set, SetHash
+    Bag, BagHash
+    Mix, MixHash
+
+
+Set, Bag, and Mix are all immutable types, and the associated 'Hash' versions 
+are mutable.
+
+Don't think of these 'Hash' versions as Hashes.  They're just the mutable 
+versions of the basic immutable types.
+
+
+Constructor versus Coercer {# {{{
+
+
+    I originally had a note here stating that the constructors were broken, 
+    but I was just mis-understanding them.  They work fine:
+            my $sh = SetHash.new( 'red', 'green', 'blue', 'red', 'red');
+
+
+    Just remember that the "Hash" in the names SetHash, BagHash, and MixHash, 
+    are just a SHITTY DESIGN CHOICE.  These containers might use hashes under 
+    the covers, but they're not hashes.
+
+    You don't pass hash data to the constructors - these things ARE NOT HASHES 
+    so the constructors are not expecting hashes.  If you pass hashes, you're 
+    gonna have a bad time.
+
+    If you've got a hash in-hand, and you want to use it as eg a SetHash ("Is 
+    'jon' in my hash of fnames?"), you'd COERCE your hash into a SetHash:
+            %fnames = (
+                jon     => 'barton',
+                john    => 'koch'
+            );
+
+            my $sh = %fnames.SetHash;       # <-- coercion
+            say $sh<jon>;                   # True
+            say $sh<kermit>;                # False
+
+
+    However, that's pretty patently stupid, unless (I suppose), you're doing a 
+    shitload of these sorts of checks, and the SetHash turns out to be much 
+    faster than just checking to see if a given key appears in your Hash.  I 
+    haven't benchmarked this to know if it's worthwhile.
+
+
+    Weird-ass edgecases aside, the constructors do work.
+
+}# }}}
+Angle Brackets or Curlies? {# {{{
+    
+    The tut specifically says that we can use the {} postfix to access 
+    elements from our set/bag/mix, but then it goes on in examples to show 
+    this:
+            say $my_container<red>;
+
+
+    All that's happening there is that the angle brackets are like qw in p5.  
+    So we can use the curlies like the tut says, we just have to then quote 
+    the key:
+            say $my_container{'red'};
+
+
+    So those two lines of code are the same thing.
+
+}# }}}
+
+Set/SetHash (no dupes, no order, "is it in there?") {# {{{
+
+    For containing elements without duplicates.  A Set only cares if an item 
+    exists in it, not how many times it exists or what order it's in.
+
+    "What are your favorite colors" would be a set.  What we want out of this 
+    is to be able to say "is red one of your favorite colors?".  We don't care 
+    how often it's listed.
+
+
+
+            my $fav_colors = Set.new( 'red', 'green', 'blue', 'red', 'red' );
+            say $fav_colors;        # set(red, green, blue)
+
+        red only gets shown once in the output even though we included it in 
+        the assignment multiple times.
+
+    If you want to remove duplicates but you _do_ care about element order, 
+    the List object has a unique() routine.
+
+
+
+    The SetHash is the mutable version of the Set.
+        http://doc.perl6.org/type/SetHash
+
+
+    Create a SetHash either using its constructor:
+            my $sh = SetHash.new( 'red', 'green', 'blue', 'red', 'red', 'red' );
+
+        ...or by using its coercer:
+            my $sh = (red green blue red red).SetHash;
+            say $sh.elems;          # 3
+            say $sh.keys;           # (red green blue)
+            say $sh<red>;           # True
+            say $sh<green>;         # True
+            say $sh<orange>;        # False     <-- orange wasn't in the assignment.
+
+        Since it's mutable, we can do this:
+            $sh<orange> = True;
+            $sh<red> = False;
+            say $sh.keys;           # (orange green blue)
+
+
+
+    Here's a SetHash made out of an actual hash:
+            my $sh = (
+                'red'   => 'ff0000',
+                'green' => '00ff00', 
+                'blue'  => '0000ff',
+                'red'   => 'ff0000',
+                'red'   => 'ff0000',
+            ).SetHash;
+
+            say $one<red>;          # True
+
+
+    You cannot get the original hex code back out of the SetHash.  But the 
+    more I look at that example, the more I think it's completely fucking 
+    stupid.  You'd never do this, and you'd never expect to get those hex 
+    values back out again.
+
+}# }}}
+Bag/BagHash (count occurrences; integer weight) {# {{{
+
+    Bags keep track of how many times an element appears.  Each element gets 
+    an integer weight that describes how many times it's been seen.
+
+            my $fav_colors = Bag.new(
+                'red',
+                'green',
+                'blue',
+                'red',
+                'red',
+                'red',
+            );
+            say $fav_colors.elems;          # 3     <- num distinct elements
+            say $fav_colors.keys.sort;      # (blue green red)
+            say $fav_colors<blue>;          # 1     <- num occurrences of blue
+            say $fav_colors<red>;           # 4     <- num occurrences of red
+
+
+
+    The BagHash is mutable:
+            my $fav_colors_h = BagHash.new(
+                'red',
+                'green',
+                'blue',
+                'red',
+                'red'
+                'red'
+            );
+            say $fav_colors_h<red>;         # 4
+            say $fav_colors_h<orange>;      # 0
+            $fav_colors_h<orange> = 3;      # no problem
+            say $fav_colors_h<orange>;      # 3
+
+
+
+    While I'm having trouble figuring out why I'd ever want to coerce a Hash 
+    into a SetHash, coercing one into a BagHash makes much more sense:
+            my $fav_colors_h = (
+                'red'   => 4,
+                'green' => 1,
+                'blue'  => 1,
+            ).BagHash;
+            say $fav_colors_h<red>;         # 4
+
+}# }}}
+Mix/MixHash (count occurrences; fractional weight) {# {{{
+    
+    A Mix is much like a Bag, but a Mix allows fractional weights.
+
+    Using the (immutable) Mix constructor gives behavior identical to a Bag:
+            my $fav_colors = Mix.new(
+                'red',
+                'green',
+                'blue',
+                'red',
+                'red',
+                'red',
+            );
+            say $fav_colors<red>;       # 4
+
+
+    But if we were to coerce, we could assign our own values:
+            my $fav_colors = (
+                'red'       => 4.3,
+                'green'     => 2
+            ).Mix;
+            say $fav_colors<red>;       # 4.3
+
+
+
+    As with the others, the MixHash is mutable:
+            my $fav_colors = MixHash.new(
+                'red',
+                'red',
+                'green',
+            );
+            say $fav_colors<red>;       # 2
+            $fav_colors<red> = 9.34;
+            say $fav_colors<red>;       # 9.34
+    
+
+}# }}}
+
+Operators {# {{{
+    
+    I'm not going to go through them all, but there are a lot of operators for 
+    comparing two sets.
+
+            "Is element 'foo' present in Set A?"
+            "Is Set A a subset of Set B?"
+
+        ...that sort of thing.
+
+
+    
+    These operators all have both Unicode representations and more reasonable 
+    ASCII representations.
+    
+    The Unicode representations are very cool and math-y looking, and which 
+    I'll never ever use because I'd first have to wander off to figure out how 
+    to create the @#$% character.
+
+    The tut lists all of these operators out, but it lists them vertically on 
+    the page and the result is that it's hard to get an overview.
+
+
+    OTOH, this advent calendar entry:
+        https://perl6advent.wordpress.com/2012/12/13/day-13-bags-and-sets/
+    Has a nice table about halfway down the page (look for the string "Between 
+    Set and Bag we have a very rich collection of operators:") that shows 
+    these operators much more clearly.
+
+
+
+    These operators would most often (probably) be used with Sets, but can 
+    also be used with Bags.  See the Advent Calender table.
+
+
+
+    USING THE OPERATORS
+
+    my $s = Set.new('red', 'blue', 'green');
+
+
+    (elem) and ∈ are the ASCII and Unicode representations of the same 
+    operator, so the following two blocks are identical.  "Is 'red' an element 
+    of our set?":
+            if 'red' (elem) $s {
+                say "red is in there.";             # hits
+            }
+
+            if 'red' ∈ $s {
+                say "red is in there.";             # hits
+            }
+
+
+    When using the ASCII version, you do have to include the parens.
+
+
+}# }}}
+
