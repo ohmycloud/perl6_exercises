@@ -1,0 +1,543 @@
+
+http://doc.perl6.org/language/subscripts
+
+
+Basics {# {{{
+
+    There are basically two subscripting interfaces:
+            []  zero-based keys (eg Arrays, etc)
+            {}  string or object keys (eg Hashes, etc)
+
+        I used Arrays and Hashes above since that's what I'm used to from p5, 
+        but both subscript types are used for other objects as well.
+
+
+    When using a hard-coded string as your subscript, you must quote it:
+            %ages{"jon"};
+            %ages{"kermit"};
+        etc.
+
+        But as a shortcut, you can use <> around single-word, stringy keys, 
+        similar to qw():
+            %ages<jon>;
+            %ages<kermit>;
+
+}# }}}
+Stringy or object keys {# {{{
+
+    You can do some interesting things with keys:
+            my %h;
+            %h{1/2}         = "one half";
+            %h{Date.today}  = "today's date";
+            %h{pi}          = "the cake is a lie.";
+
+            say %h.perl;
+            # {"0.5" => "one half", "2016-02-03" => "today's date", "3.14159265358979" => "the cake is a lie."}
+
+        Also, now that we've assigned to "%h{pi}", we can also do this:
+            say %h{π};          # the cake is a lie.
+
+
+    CAVEAT re key stringification:
+        The string conversion (eg %h{pi}) does not come from the curly braces 
+        themselves.  That conversion is part of the default Hash 
+        implementation.  So :
+    
+            my $m := MixHash.new;
+            $m{pi} = 2.3;
+            $m.perl.say;            # (3.14159265358979e0=>2.3).MixHash
+
+        Note that the key in the output there (3.14...) is not quoted, but in 
+        our the example output above (using a Hash), that key _is_ quoted.
+
+        I'm not 100% sure what to make of that at this point.
+
+
+    Any expression that returns a subscriptable object can itself be 
+    subscripted:
+            say "__Hello__".match(/__(.*)__/)[0];   # ｢Hello｣ 
+
+    
+    We can get a hash slice pretty easily:
+            %h<foo> = "FOO";
+            %h<bar> = "BAR";
+            %h{pi}  = "the cake is a lie.";
+            say %h<foo bar>;            # (FOO BAR)
+
+        That slice does just return a list as expected:
+            my @arr = %h<foo bar>;
+            for @arr { "-$_-".say }     # FOO\nBAR
+
+        If we want to include our π key in our output, we can't use the angle 
+        brackets anymore, since they're just for single words.  So we just 
+        fall back to the actual {} subscript and quoting our strings:
+            say %h{'foo', 'bar', pi};   # (FOO BAR the cake is a lie.)
+            say %h{'foo', 'bar', π};    # Same thing.
+
+
+
+    Even scalar values are subscriptable; they'll fall back to being treated 
+    as a single-element list:
+            "Hi"[0].say;        # Hi
+
+
+}# }}}
+Nonexistent subscripts, Truncating slices {# {{{
+    
+    What happens when you try to access a non-existent subscript is up to 
+    whatever object type you happen to be dealing with.
+            #my @arr, %hash;    GONNNG - can't do this anymore.
+
+    Hashes and Arrays both produce empty objects of whatever the container is 
+    constrained to.
+        By default, that's Any:
+            my @arr;
+            my %hash;
+            say @arr[10];           # (Any)
+            say %hash<foo>;         # (Any)
+
+        But, if you declared the variables with a constraint:
+            my Int @arr;
+            my Str %hash;
+            say @arr[10];           # (Int)
+            say %hash<foo>;         # (Str)
+
+    
+    Here's an example of accessing a nonexistent subscript on a List:
+            my $l = (0, 1, 34);
+            $l[10].say;             # Nil
+
+    
+    :v Adverb Truncation
+        So we know that this happens:
+            my @letters = <a b c d e f>;
+            say @letters[10];               # (Any)
+            say @letters[2, 4, 10];         # (c e Any)
+
+        adding the :v adverb does two things:
+            - Return the element value rather than a mutable container
+            - Skip non-existent elements
+            say @letters[10]:v;                 # ()
+            say @letters[2, 4, 10]:v;           # (c e)
+
+        Note the caveat on Range Truncation not working (below).  This :v 
+        adverb _does_ work.
+
+
+    Range Truncation - NYI
+    If you're dealing with a slice, and it contains non-existent subscripts, 
+    you're going to get Any (or whatever the variable type supports) in your 
+    output:
+            my @letters = <a b c d e f>;
+            say @letters[3, 4, 5, 6, 7].perl;   # ("d", "e", "f", Any, Any)
+
+        Fine, that's as you'd expect.  
+
+    The tut says that, if your subscript is a range this (this example is 
+    copy/pasted), then your empty script values will be truncated on output:
+            dd @letters[3, 4, 5, 6, 7];  #-> ("d", "e", "f", Any, Any)
+            dd @letters[3 .. 7];         #-> ("d", "e", "f")
+
+        The "dd" is "tiny data dumper".  I'm leaving it there because it's 
+        what the tut uses, but it's not what's doing the truncation.  It's the 
+        fact that the subscript is a range.
+
+    ANYWAY, the output shown in the comment above (again, that's from the tut) 
+    is simply not what happens.  Here's what I get when I run that:
+            my @letters = <a b c d e f>;
+            dd @letters[3 .. 7];         #-> ("d", "e", "f", Any, Any)
+
+    So the range truncation claimed by the tutorial is simply not happening.
+
+}# }}}
+From the end, code subscripts {# {{{
+    
+    In p5, we'd just use a negative subscript to work from the end:
+            my @arr = qw(one two three);
+            say $arr[-1];       # three
+
+    In p6, we need to add an asterisk:
+            my @arr = <one two three>;
+            say @arr[*-1];       # three
+
+        Passing just a bare negative integer is a compile error.
+
+
+
+    That asterisk is referred in this file by me as a "splat" a few times.  
+    But I'm noticing that the tut sometimes calls it a "Whatever-star".
+
+
+
+
+    That asterisk does not just mean "count from the end". It allows you to 
+    use a code expression as a subscript, with the * representing the array 
+    length:
+            my @arr = <one two three four five six>;
+            say @arr[* div 2];      # four
+
+    This one's a little goofier.  Length (of the array) is 6.  14 % 6 is 2.  
+    It's fairly ridiculous, but it works.
+            say @arr[14 % *];       # three
+
+
+
+    Even though the splat has been used to indicate "array length" so far, we 
+    can do this:
+            my @arr = <one two three>;
+            say @arr[*];                    # (one two three)
+
+        We do not get an "Any" at the end of our output, even though there's 
+        no element [3], yet we've been told that the splat indicates the 
+        length (which is 3).  No explanation given for that, just idiomatic I 
+        suppose.
+
+
+
+    You can even use custom code as your subscript.  The example subroutine is 
+    stupid, but it works:
+            sub my_ss ($len) {
+                say "--$len--";
+                return $len - 2;
+                
+            }
+            say @arr[-> $size { my_ss($size)} ];
+
+        Output is:
+            --6--
+            five
+
+    Another example of using code as a subscript.  Only prints out the array 
+    when it contains an even number of elements.  Again, stupid, but works.  
+    Run it twice, once with each array assignment:
+            my @arr = <one two three four five six>;
+            #my @arr = <one two three four five six seven>;
+            sub ensure_even ($len) {
+                return $len % 2 ?? $len !! 0..$len-1;
+            }
+            say @arr[ -> $size { ensure_even($size)} ]:v;
+
+        Note the use of the :v adverb to quiet the (Any) we would get by using 
+        a non-existing subscript.
+
+}# }}}
+Slices {# {{{
+
+    http://doc.perl6.org/language/subscripts#Slices
+
+    
+    I already touched on these, but:
+            my @arr = 'a' .. 'z';
+            say @arr[15, *-9, 0];       # (p r a)
+
+        And with just the splat:
+            say @arr[*];       # (prints out all letters from a to z)
+
+    And for associative slices:
+            my %color = kiwi => 'green', banana => 'yellow', apple => 'red';
+            say %color{'kiwi', 'apple'};    # (green red)
+
+        the <> shortcut is often handy:
+            say %color<kiwi apple>;         # (green red)
+
+        And the splat that we've seen with arrays works here too:
+            say %color{*};    # (yellow green red)
+
+
+
+    There's a table on the tut that tells you what result you get from slicing 
+    using various different subscripts.  Re-check that page if you need more 
+    info.
+
+}# }}}
+Zen slices {# {{{
+    
+    If you use subscript notation ( {}, <>, or [] ), but don't put an actual 
+    subscript inside the grouping characters, you get back the subscripted 
+    object itself.
+
+    "It is empty but returns everything", hence "Zen slice".  A little overly 
+    cutesy, but OK.
+
+            my @arr = <one two three four>;
+            say @arr[];         # [one two three four]
+    
+        OK, great and all but it's the same as this:
+            say @arr;           # [one two three four]
+
+        And we already saw that we can use the "Whatever-star":
+            say @arr[*];        # (one two three four)
+
+
+    So the difference between the Zen slice and a slice using the Whatever 
+    Star is that the WS returns a list, while the Zen slice returns the object 
+    that was subscripted.  That's why the first two examples up there are 
+    identical, using square brackets, and the one with the WS uses parens, 
+    indicating a list.
+
+
+    So the reason to use the Zen slice instead of just the variable is that 
+    the Zen slice can interpolate into strings.
+
+        We've seen elsewhere that this does not interpolate:
+            say "My array contains: @arr.";
+
+        ...so that line outputs:
+            My array contains: @arr.
+
+        But using that Zen slice does interpolate:
+            say "My array contains: @arr[].";
+
+        ...so that line outputs:
+            My array contains: one two three four.
+
+
+}# }}}
+Autovivification {# {{{
+
+    p6 takes this concept a step further than p5.
+            my $beatles;
+
+        Great, it's declared, but what is it?
+            say $beatles.WHAT;          # (Any)
+
+        It's currently an Any, which means that it knows it's a variable of 
+        some sort, but doesn't know which sort yet.
+
+    
+    So let's give it a stringy subscript and a value:
+            $beatles{'Yellow'} = 'Submarine';
+            say $beatles.WHAT;          # (Hash)
+            say $beatles{'Yellow'};     # Submarine
+
+        Now it's been treated like a Hash, so it became a hash.
+    
+
+    This does bring me back to being slightly confused about sigils.  If we'd 
+    done this:
+            my %stones;
+            say %stones.WHAT;       # (Hash)
+
+        That variable does know from the outset that it's a Hash.  But the 
+        $beatles variable we were dealing with before is also a Hash, and not 
+        a HashRef, even though it uses the $ sigil instead of the %.
+
+        I guess that the difference is that, by using a specific sigil at 
+        declaration, we're telling the compiler what type our variable is so 
+        it doesn't have to guess.
+
+
+    Autovivification can be nested:
+            my $who;
+            $who{'Tommy'}[0] = 'Overture';
+            $who{'Tommy'}[1] = "It's a Boy";
+            say $who;                       # Tommy => [Overture It's a Boy]
+            dd $who;                        # Hash $who = ${:Tommy($["Overture", "It's a Boy"])}
+
+
+}# }}}
+Binding {# {{{
+    
+    Normal assignment
+            my @arr = <one two three four>;
+            my $var = 'BLARG';
+
+        Assign our var to element 1 of our array, overwriting the previous 
+        array element value:
+            @arr[1] = $var;
+            say @arr;           # [one BLARG three four]
+
+        Now change the value of $var, and print out the array again, to show 
+        that changing that variable did not affect the array at all:
+            $var = "FOO";
+            say @arr;           # [one BLARG three four]
+
+
+    However, if we had used Binding assignment when we assigned the variable 
+    to the array, then the array element would have been Bound (just like a 
+    symlink) to the variable.
+            my @arr = <one two three four>;
+            my $var = 'BLARG';
+
+        Here's our binding assignment using the colon.  The initial result is 
+        the same as last time:
+            @arr[1] := $var;
+            say @arr;           # [one BLARG three four]
+
+        But now, if we change the value in $var, we're also changing the value 
+        in the array, since the two are Bound:
+            $var = "FOO";
+            say @arr;           # [one FOO three four]
+
+}# }}}
+Adverbs {# {{{
+
+    These control the return value and side-effects of subscripting.
+
+    BEWARE that adverbs have loose precedence!
+        This does not do what you want!  The adverb is applied to the || op, 
+        not to the subscript op, and produces a compile error:
+            if $foo || %hash<key>:exists {}
+
+        This does do what you want because the parens enforce the precedence 
+        you're going for:
+            if $foo || (%hash<key>:exists) {}
+
+
+    Adverbs can be negated by using a bang AFTER the colon:
+            if %hash<key>:exists    { ... }
+            if %hash<key>:!exists   { ... }
+
+
+
+    ADVERB LISTING
+            my %hash = ( foo => 'FOO', bar => False, baz => Nil );
+
+    :exists
+            if %hash<bar>:exists  { say "bar exists"; }       # hits
+            if %hash<baz>:exists  { say "baz exists"; }       # hits
+
+        Basically works as expected, but it's still going to cause me no end 
+        of heartache, because "exists" is an adverb, while "defined" is NOT AN 
+        ADVERB, but a method:
+            my %hash = ( foo => 'FOO', bar => False, baz => Nil );
+            if %hash<bar>.defined { say "bar is defined"; }   # hits
+            if %hash<baz>.defined { say "baz is defined"; }   # does not hit
+
+        So it's
+            :exists     colon
+            .defined    period
+
+        Fuck.  I'm going to get that wrong every single time.
+
+
+    :delete
+            %hash<foo>:delete;
+            say %hash;          # bar => False, baz => (Any)    (no foo)
+
+        This also returns its value, so:
+            my $ex_foo = %hash<foo>:delete;
+            say %hash;          # bar => False, baz => (Any)    (no foo)
+            say $ex_foo;        # FOO
+
+        Attempting to delete a non-existent subscript generates no error or 
+        warning:
+            %hash<key>:delete;
+            %hash<key>:delete;      # no problem
+
+        You can pass a boolean argument to the adverb.  The key will be 
+        deleted only if the arg is true.  But the current value will be 
+        returned whether the delete happened or not:
+            %hash<key> = 'foo';
+
+            my $rv1 = %hash<key>:delete(False);
+            say %hash<key>;     # foo
+            say $rv1;           # foo
+
+            my $rv2 = %hash<key>:delete(True);
+            say %hash<key>;     # (Any)
+            say $rv2;           # foo
+
+    :p
+        Returns the key and value in the form of a Pair.  Non-existent 
+        elements are skipped silently.
+            say %hash<foo>:p;       # foo => FOO
+            say %hash<blarg>:p;     # ()
+
+        Negate the adverb if you don't want to skip non-existent elements:
+            say %hash<foo>:!p;       # foo => FOO
+            say %hash<blarg>:!p;     # blarg => (Any)
+            
+        Can be combined with :exists and :delete:
+            say %hash<foo>:delete:p;    # foo => FOO
+            say %hash;                  # bar => False, baz => (Any)    (but no foo)
+
+        There's also a pairs routine, fwiw:
+            for <a b c>.pairs { .say }
+                0 => a
+                1 => b
+                2 => c
+
+    :kv
+        Returns key and value as a List (rather than as a Pair).  Non-existent 
+        elements are skipped silently.
+            say %hash<foo>:kv;       # (foo  FOO)
+            say %hash<blarg>:kv;     # ()
+
+        Like :p, can be negated to not skip non-existent elements.
+
+        This can be used to iterate over a slice:
+            for %month<Jun Sep>:kv -> $month, $i {
+                say "somebody had a birthday in the $i month of this year.";
+            }
+
+    :k
+        Return only the key.  Silently skip non-existent.
+
+            my @letters = <a b c>
+            say @letters[1]:k;          # 1
+
+        doesn't look very interesting.
+
+    :v
+        Return only the value.  Silently skip non-existent.  Returns the 
+        VALUE, not a mutable container.
+
+            my @letters = <a b c>
+            say @letters[1]:v;          # b
+
+
+
+    Aside:
+        I'm beside myself with happiness that the tut is using the term "loose 
+        precedence" rather than "high" or "low" precedence, because it was 
+        never clear to me whether "high" meant "higher (lexically) on the 
+        table", and thus tighter, or "higher in rank", and thus looser.
+
+        Is 2 "higher" than 1 because it because it's a bigger number, or 
+        "lower" than 1 because it appears underneath it?
+           TIGHTEST BINDING
+                +---+
+                | 1 |
+                +---+
+                | 2 |
+                +---+
+                | 3 |
+                +---+
+            LOOSEST BINDING
+
+        I know I've looked up the answer to that question multiple times, but 
+        it never stuck with me.
+
+}# }}}
+Custom Types {# {{{
+
+    Each of the subscripting operations actually calls a method, which you can 
+    override.
+
+    eg:
+            %foo<key>;
+    actually calls
+            %foo.AT-KEY("aa");
+
+
+    The methods are:
+        when you write: 	    this gets called behind the scenes:
+        %foo<aa> 	            %foo.AT-KEY("aa")
+        %foo<aa>:delete 	    %foo.DELETE-KEY("aa")
+        @foo[3,4,5] 	        @foo.AT-POS(3), @foo.AT-POS(4), @foo.AT-POS(5)
+        @foo[*-1] 	            @foo.AT-POS(@foo.elems - 1)
+
+
+
+    There's a code example at
+        http://doc.perl6.org/language/subscripts#Custom_type_example
+
+    And each of the methods is individually documented, both for positional 
+    and associative subscripts.
+
+    I'm not going to repeat that all here.
+
+}# }}}
+
+
