@@ -1,0 +1,369 @@
+
+http://doc.perl6.org/language/syntax
+
+
+Separators {# {{{
+
+    Semicolons are expression separators, not line terminators.
+
+
+
+    The tut claims that:
+            A closing curly brace followed by a newline character implies a 
+            statement separator
+
+        Bullshit.  You cannot do this, though the tut implies that you can:
+            say %foo{'bar'}
+            say "still here";
+
+        That first line is a "closing curly brace followed by a newline 
+        character".  But without the semicolon, p6 barfs on that.
+
+        The point that the tut is trying to make here is that this is legal:
+                if True {
+                    say "It's true"
+                }
+                say "after the block";
+
+            ...as is this:
+                if True { say "It's true" }
+                say "after the block";
+
+            ...but this is NOT legal:
+                if True { say "It's true" } say "after the block";      # GONNNG
+
+            If you really wanted to write code like that last case, the block 
+            WOULD need a semicolon separator:
+                if True { say "It's true" }; say "after the block";     # Fine.
+
+
+}# }}}
+Comments {#{{{
+
+    This works like in p5:
+            # Single-line comment
+
+
+    This is new:
+            if #`( Inline comment ) True {
+                say "This is true"
+            }
+        You can use any grouping pair for that.
+
+    That inline comment can also be used as a multiline comment.
+            #`(
+                Here's a multiline
+                comment.
+            )
+
+    The inline comment _can_ contain its own grouping characters.  The parser 
+    looks for the balanced closing character, not just the first one:
+            #`(
+                Here's a (multiline) comment.  The (parens) inside are OK.
+            )
+
+    Also, your grouping characters can be more complex if you want, just to 
+    disambiguate (for your own eyes -- as I said, internal grouping chars do 
+    not confuse p6, just the p6 programmer) from any internal brackets (eg if 
+    you're commenting out a chunk of code):
+            #`{{
+                if True {
+                    say "This is some code that we're commenting out.";
+                    say "The double curlies used as the comment grouper";
+                    say "are more obvious since they're doubled up."
+                }
+            }}
+
+
+    VIM
+        I've set up an iabbr ("mlc") for these multiline comments.  It does 
+        include newlines and internal indentation because it's meant as a 
+        multiline comment block, not as an inline comment.
+        I don't foresee using that inline comment all that often, and when I 
+        do want it, I figure I can just use the "mlc" iabbrv and then fix it 
+        into a single line by hand.
+
+
+    POD
+    You can still use POD as a multiline comment.  But POD syntax has changed 
+    now, in that you have to label your blocks.
+
+    This no longer works:
+            =pod
+
+            This is no good anymore.
+
+            =cut
+
+    Instead, you need this:
+            =begin mycomment
+
+            This works.
+
+            =end mycomment
+
+        "mycomment" is just a label name and can be anything.
+
+
+    Slightly off-topic:
+        A good feature to the new POD is that the POD commands do not have to 
+        start at column zero in your file.  You can actually indent them.  The 
+        =begin and =end POD commands do have to have exactly the same 
+        indentation level as each other (and I'd assume that any other POD 
+        commands would also need to share the same indentation), but they can 
+        be indented.
+
+    But to me, using POD as a multiline comment has always seemed to be a 
+    horrible work-around.  Since you need to type even more to get it, and 
+    since we now have a real multiline comment setup, you really shouldn't be 
+    using POD for this anymore.  Use POD for plain ol' documentation, not for 
+    comments.
+
+}#}}}
+Identifiers {#{{{
+
+    Similar to p5, but some extended rules.  These rules apply to variables, 
+    constants, routines, and types.
+
+    - Must start with an alphabetic (a-zA-Z) or underscore.
+    - After the first alpha char, you can use more letters as well as numbers.
+    - You can also use hyphens and single-ticks, just not two in a row.
+
+        FINE:
+            my $foobar      = 1;
+            my $foobar1     = 1;
+            my $foo-bar     = 1;
+            my $foo'bar     = 1;
+            my $fo'o-bar    = 1;
+
+        GONNNG!:
+            my $1foobar     = 1;
+            my $foo--bar    = 1;
+            my $foo'-bar    = 1;
+
+}#}}}
+Statements and Expressions {#{{{
+
+    I think this is the same as p5, I've just never thought about it in 
+    exactly this way.
+
+    All expressions are statements.  Expressions return a value, statements 
+    may not.
+
+            if True { print 42 }            # Statement, not expression
+            my $foo = if True { print 42 }  # syntax error since the statement
+                                            # does not return a value.
+
+            1 + 2;                          # Statement and expression
+            my $foo = 1 + 2;                # fine since 1 + 2 is an expression.
+
+}#}}}
+Terms (nouns) {#{{{
+    
+    Variable names ($var), type names (Int), literals (42), declarations ( sub 
+    foo {} ), and calls ( foo() ) are all Terms.
+
+}#}}}
+Operators (verbs) {#{{{
+    
+    As you'd expect.
+            my $rslt = 2 * $var;
+
+    $rslt, 2, and $var are all terms.  = and * are operators (verbs).
+
+}#}}}
+Barewords (Constants, type names) {#{{{
+
+    This includes "self" and other sigil-less variables.
+
+    Constant:
+            constant ANSWER = 42;
+
+    'get_name', and 'self' below are Barewords.
+            class Jon {
+                has $.name = 'Jon';
+                method get_name {
+                    return self.name.uc;
+                }
+            }
+
+}#}}}
+Packages, Qualified names {#{{{
+
+    Again, similar to p5, with some extensions.
+
+            $foo;               # simple identifier
+            $Foo::Bar::foo      # compound (qualified) identifier
+
+            my $ns = 'Bar';     # namespace
+            $Foo::($ns)::foo    # compound identifier with interpolation (yay!)
+    
+    
+}#}}}
+Literals {
+
+    String literals {#{{{
+            say 'A string with no interpolation.';
+            say "A string with\n\tinterpolation\nbecause of the double-quotes.";
+    }#}}}
+    Integer literals {#{{{
+        Like p5, use underscores for digit grouping.  The parser ignores them; 
+        they are only for the programmer's convenience.  These are all 
+        identical:
+            $num = 1000000;
+            $num = 1_000_000;
+            $num = 10_00_00_0;
+            $num = 1_0_0_0_0_0_0;   # pathetic and sad, but legal.
+
+        Decimal is the default, but other bases can be used:
+            $decimal    = 20;
+            $binary     = 0b10100;      # 0b
+            $octal      = 0o24;         # 0o
+            $hex        = 0x14          # 0x
+
+        Those are the bases for which shortcuts exist.  But if you really 
+        wanted to, you can use any base:
+            $base_three = :3<202>;
+            say $base_three;            # 20
+
+        Leading zeroes that aren't followed by 'b', 'o', or 'x' to indicate a 
+        different base result in a warning:
+            $decimal    = 0001;         # gonnng!
+    }#}}}
+    Rat literals {#{{{
+            $rat        = 1.0;
+            $rat        = :3<21.0012>;
+            $rat        = 3.14159;
+            $irrat      = π;            # legal, but not rational.
+    }#}}}
+    Num literals {#{{{
+        Scientific notation.
+            $num        = 1e0;
+            $num        = 6.2e23
+    }#}}}
+    Complex literals {#{{{
+        These include an imaginary number.
+            $comp       = 1 + 2i;
+            say $comp               # 1+2i
+    }#}}}
+    Pair literals {#{{{
+        Generally used when assigning to a hash.
+            %h = (
+                foo => 'bar'        # this is the Pair literal
+            );
+
+        This is identical to the above.  Not positive why I'd want this, I 
+        guess because it looks like JSON.
+            %h = (
+                foo:('bar')         # this is the Pair literal
+            );
+    }#}}}
+    Arrow pairs {#{{{
+        The LHS can be an expression or identifier.
+            lhs             => 42
+            "lhs"           => 42
+            ('lh' ~ 's')    => 42
+
+        So this is ridiculous, but legal:
+            my %h = (
+                "foo"           => 'bar',
+                ('lh' ~ 's')    => 42
+            );
+            say %h;             # foo => bar, lhs => 42
+    }#}}}
+    Adverbial pairs {#{{{
+            my $ans     = 42;
+            :$ans       # ans => 42
+            :ans        # ans => True
+            :!ans       # ans => False
+
+        So we can do this:
+            my $one     = 1;
+            my $two     = 2;
+            my $three   = 3;
+
+            my %h = ( :$one, :two, :!three );
+            say %h;     # one => 1, three => False, two => True
+    }#}}}
+    Array literals (contains an N.YI) {#{{{
+        The square brackets make it an Array, not a List.
+            ['a', 'b', 'c'].join(' ').say;          # a b c
+
+        NYI:
+            The tut specifically says that this assignment flattens the @a 
+            array:
+                my @a = 1, 2;
+                say [@a, 3, 4].elems;
+
+            The tut says that that 'say' will produce '4', since the @a array 
+            got flattened out.  However, when I run that, I am getting '3' 
+            output, not '4' - @a is NOT being flattened.
+
+            What's happening makes perfect sense to me; I think that the 
+            tutorial is just wrong.
+
+            What I'm finding here
+                http://doc.perl6.org/language/containers
+            is that you can flatten if you want to (you can leave your friends 
+            behind), but you have to do it explicitly:
+                my @a = 1, 2;
+                say [@a, 3, 4].elems;           # 3
+                say [flat @a, 3, 4].elems;      # 4
+                     ^^^^
+    }#}}}
+    Hash literals {#{{{
+        A pair of curlies around a list of Pairs forms a hash literal, as 
+        expected.
+            { foo => 'bar', baz => 'quux' }.say;
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ --> hash constructor
+
+        The curly braces are optional when assigning to a variable with a % 
+        sigil, since that type-hints to the compiler what's going on:
+            my %hash = foo => 'bar', baz => 'quux';     # No curlies, this is fine because of the %
+            say %hash.WHAT;                             # (Hash)
+            
+            my $var = { foo => 'bar', baz => 'quux' };  # With curlies, this is fine too.
+            say $var.WHAT;                              # (Hash)
+
+            my $var = foo => 'bar', baz => 'quux';      # Produces a warning.  No %, no curlies.
+            say $var.WHAT;                              # (Pair)
+
+        
+        Object Keys
+            When using bare curly braces, keys are forced to be strings.
+                my $h = { now => 'foo' };
+                say $h.WHAT;                    # (Hash)
+                say $h;                         # now => foo
+
+            To use objects as keys, prefix the curly braces with a colon:
+                my $h = :{ now => 'foo' };
+                say $h.WHAT;                    # (Hash[Mu,Any])
+                say $h;                         # now => foo     (hmm, that still wasn't what I meant...)
+
+            ...and wrap your non-string in parens:
+                my $h = :{ (now) => 'foo' };
+                say $h.WHAT;                    # (Hash[Mu,Any])
+                say $h;                         # Instant:1454628572.925223 => foo
+
+        NOTE - when your hash includes object keys, you can no longer access 
+        non-string keys as strings.
+
+            Here's a 'regular' hash:
+                my $h = { 0 => 'zero' };        # Regular string-keyed hash
+                say $h{'0'};                    # zero
+                say $h{0};                      # zero
+
+            And here's an object-keyed hash:
+                my $h = :{ 0 => 'zero' };       # Colon, so keys can be objects
+                say $h{'0'};                    # (Any)
+                say $h<0>;                      # (Any) -- same as {'0'}
+                say $h{0};                      # zero
+        
+    }#}}}
+    Regex literals {
+        
+    }
+
+
+}
+

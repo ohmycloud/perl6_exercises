@@ -15,8 +15,11 @@ I'm going throw them as listed anyway just so I can keep track.
 
 
 Left off at
-    Syntax
+    Syntax -- Regex literals
 
+shebang {# {{{
+#!/home/jon/.rakudobrew/bin/perl6
+}# }}}
 
 INSTALLING {#{{{
     http://rakudo.org/how-to-get-rakudo/
