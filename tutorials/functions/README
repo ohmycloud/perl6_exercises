@@ -2,6 +2,9 @@
 
 http://doc.perl6.org/language/functions
 
+There's also a lot of info on the syntax of declaring functions in 
+../syntax/README.
+
 
 Verbiage {#{{{
     Code Objects
@@ -54,6 +57,12 @@ Signatures {#{{{
     A sub signature is also its own class:
         http://doc.perl6.org/type/Signature
 
+            sub greet($name)        { ... }
+            sub greet(Str $name)    { ... }
+            sub say_age(Str $name, Int $age where $age > 0 and $age < 120 ) { ... }
+
+    See also the note about signature literals in the literals section of 
+    ../syntax/README
 
 }#}}}
 Methods {#{{{
@@ -803,7 +812,7 @@ Caching (currying) functions {#{{{
     not to cut yourself with it."|
 
 }#}}}
-Introspection {
+Introspection {#{{{
     
     Query a routine to figure out its signature:
 
@@ -820,7 +829,7 @@ Introspection {
 
     Nice.
 
-}
+}#}}}
 
 
 ### This stuff is over my head ATM and needs to be revisited.

@@ -200,7 +200,7 @@ Packages, Qualified names {#{{{
     
     
 }#}}}
-Literals {
+Literals {#{{{
 
     String literals {#{{{
             say 'A string with no interpolation.';
@@ -360,9 +360,359 @@ Literals {
                 say $h{0};                      # zero
         
     }#}}}
-    Regex literals {
-        
-    }
+    Regex literals {#{{{
+        http://doc.perl6.org/language/syntax#Regex_literals
 
-}
+            
+                /foo/;              # short version
+                rx/foo/;            # long version
+
+        With the long version, you can use delimiters other than // (eg 
+        rx!foo!), but if omitting the 'rx', you do need to use the slashes.
+
+        The tut also shows this version:
+                Q :regex /foo/      # silly long version
+
+            It's ridiculous; there's no need to type that nonsense when the 
+            other two versions exist.
+
+            PLUS (NYI), it doesn't work.  It produces a compile error.
+
+
+        Both of these conditionals hit:
+                my $re = rx/foo/;
+                if 'foobar' ~~ $re      { say 'match' }
+                if 'foobar'.match($re)  { say 'match' }
+
+            Hard to remember, but .match() is a method of the string, NOT of 
+            the regex.
+        
+    }#}}}
+    Signature literals {#{{{
+
+        The tut I'm reading from:
+            http://doc.perl6.org/language/syntax#Signature_literals
+
+        The signature class:
+            http://doc.perl6.org/type/Signature
+
+
+        Signatures are generally used to constrain the arguments passed in to 
+        a routine.  But they can also be used in a pattern match.  All of 
+        these hit:
+                say "match" if 5 ~~ :Int;
+                say "match" if 5, "fish" ~~ :(Int, Str);
+
+                my $sig = :(Int $a, Str);
+                say "match" if (5, "fish") ~~ $sig;
+
+        There is a reason for declaring $a above.  Though it's not necessary 
+        to the above example, here's one where it is necessary:
+                given "foo", 42 {
+                    when :(Str, Str) {
+                        say "This won't match"
+                    }
+                    when :(Str, Int $n where $n > 20 ) {
+                        say "This will match"
+                    }
+                }
+
+    }#}}}
+
+}#}}}
+Declarations {#{{{
+    
+    Variable declarations {#{{{
+
+                my $x;              # lexical variable, type is Any
+                my $x = 7;          # type implicitly Int
+                my Int $x = 7;      # type explicitly Int
+                my Int:D $x = 7;    # variable must be defined (no undef)
+
+            Constraint based on a function:
+                my Int $x where { $_ > 3 } = 7;
+
+            Same constraint as above, but using what the tut calls L<Whatever> 
+            shorthand:
+                my Int $x where * > 3 = 7;
+
+
+        Attempting to assign a value to a variable if that variable does not 
+        match the declaration results in a runtime error:
+
+                my Int:D $x = 7;
+                # Type check failed in assignment to $x; expected Int:D but got Rat
+                $x = 4.2;
+                # Type check failed in assignment to $x; expected Int:D but got Any
+                $x = Any;
+
+                my Int $x where { $_ > 3 } = 7;
+                $x = 2;
+                # Type check failed in assignment to $x; expected <anon> but got Int
+
+            That last error is confusing.  "But I gave it an Int, wtf?"
+
+
+        If you're constraining based on a function, you can go ahead and 
+        define that function once:
+                my $mysub = sub constrain(Int $const) {
+                    return $const > 3 ??  True !!  False;
+                }
+
+            Then use it in either of these two ways:
+                my Int $x where $mysub($_)      = 7;
+                my Int $x where constrain($_)   = 7;
+
+
+        Also see
+            http://docs.perl6.org/language/variables#Variable_Declarators_and_Scope
+
+    }#}}}
+    Subroutine declarations {#{{{
+        
+        The signature on a sub declaration is optional:
+                sub sayit { say "foo"; }
+
+        However, I don't believe there's any way to pass in an argument 
+        without a sig.  None of these work:
+                sub say_arg { say $_    }
+                sub say_arg { $_.say    }
+                sub say_arg { .say      }
+
+
+        Subs can be assigned to variables.
+        
+        The & sigil, like @ and %, indicate that the variable is meant to hold 
+        a routine.  But it still doesn't know exactly what type of routine, so 
+        it starts out as Callable:
+                my &code;
+                say &code.WHAT;     # (Callable)
+
+                &code = sub{ say "this is code" }
+                say &code.WHAT;     # (Sub)
+
+
+        You can also assign code to a scalar.  That scalar just won't have a 
+        type any more specific than Any until the assignment:
+                my $code;
+                say $code.WHAT;     # (Any)
+
+                $code = sub{ say "this is code" }
+                say $code.WHAT;     # (Sub)
+
+
+        You can also use lambda-style syntax using either sigil.  I'm not sure 
+        that this gets you anything extra; I assume it's just to make the 
+        Haskell programmers more comfortable:
+                my $code = -> { say "this is code" }
+                my &code = -> { say "this is code" }
+        
+
+    }#}}}
+    Module, Class, Role, Grammar declaration {#{{{
+        
+        I'm not sure why the tut bothered to include this, but the extent of 
+        it is:
+                module MyMod        { ... }
+                class MyClass       { ... }
+                role MyRole         { ... }
+                grammar MyGrammar   { ... }
+
+
+        Each of those can be declared as a "unit".  It looks like that's 
+        similar to a p5 package declaration, where the following code is not 
+        wrapped in curlies:
+                unit module MyMod;
+                ### code here is part of the MyMod module.
+
+            But since I started using brace-delimited classes as soon as 5.14 
+            made them available, I don't foresee ever wanting that unit.
+
+    }#}}}
+    Multi Dispatch declaration {#{{{
+
+                multi sub greet             { say "Hello" }
+                multi sub greet(Str $name)  { say "Hello, $name" }
+
+        You can do the same thing with methods.
+        
+    }#}}}
+
+}#}}}
+Subroutine & Method calls {#{{{
+            my &f = sub foo { say 'this is foo' }
+
+            foo;
+            foo();
+            &f();
+
+    This is the same as &foo():
+            &f.();
+
+    We need that version with the . in it if we have an array of functions 
+    that we want to call:
+            my @functions = (&f, &f, &f);
+            @functions>>.();                # calls foo() 3 times
+
+
+
+    Method calls are listed as:
+            $person.set-name-age('jane', 98);  # Most common way
+            set-name($person: 'jane', 98);     # Invocant marker
+
+            $person.set-name: 'jane', 98;      # Precedence drop
+
+        The first two calls make sense, though the second call doesn't look 
+        all that useful.
+        
+        The third, labeled "Precedence drop" is not explained in the tut other 
+        than that comment.  I don't know what precedence gets dropped.
+
+}#}}}
+Operators {#{{{
+    
+    There's nothing earthshattering here, except maybe an explanation of 
+    terminology:
+
+        <foo bar baz>;      # circumfix.  operator surrounds single input.
+        %foo<bar>;          # postcircumfix.
+    
+}#}}}
+Meta Operators (In-Place value modifications, Reductions, Hyper Operators) {#{{{
+
+            my $var = 3;
+
+
+    As with p5, you can combine ("compose") any binary (infix) operator with 
+    assignment:
+            $var += 2;
+            $var *= 9;
+            $var /= 4;
+        etc
+
+
+    IN-PLACE VALUE MODIFICATION
+        You can also use that composition in a different way now:
+            my $str = 'foobar';
+
+        Str's uc() method RETURNS its value:
+            my $uppercase = $str.uc;
+            say $uppercase;                 # FOOBAR
+
+        But if you wanted to uppercase your string in-place:
+            $str .= uc;                     # same as $str = $str.uc
+            say $str;                       # FOOBAR
+
+
+    REDUCTIONS
+        Wrapping your operator in square brackets creates a reduction, which 
+        works on a list of inputs to produce a single value:
+            my $var = [+] <1 2 3 4 5>;
+            say $var;                       # 15
+
+        Precedence on that is L2R, so it's equivalent to (very explicitly):
+            my $var = (((1 + 2) + 3) + 4) + 5;
+
+
+
+    HYPER OPERATORS
+        Fancy, and I spent way too much time massaging my .vimrc to get the 
+        angle brackets to produce properly, but when tf am I ever going to use 
+        this?
+
+
+        Wrapping your operator in « » makes it a "hyper operator", which works 
+        on two lists:
+            my $var = <1 2 3> «+» <4 5 6>;
+            $var.say;                           # (5 7 9)
+            $var.WHAT.say;                      # (List)
+
+
+        Great.  What if the two lists are of different sizes?  
+
+        The direction of the angle brackets determines what happens in that 
+        case.
+
+        Mnemonic: the greater-than side of the angles indicates which list is 
+        more important.
+
+        Left Left
+            Result is size of @b.  If @a is smaller, its elements will be 
+            reused.
+                @a «+« @b
+                    $var = <1 2 3 1 2 3> «+« <4 5 6>;
+                    $var.say;                               # (5 7 9)
+
+        Right Right
+            Result is size of @a.  If @b is smaller, its elements will be 
+            reused.
+                @a »+» @b
+                    $var = <1 2 3 1 2 3> »+» <4 5 6>;
+                    $var.say;                               # (5 7 9 5 7 9)
+
+        Left Right (spaceship)
+            Result is the size of whichever input is bigger.  The smaller 
+            input's elements get reused.
+                @a «+» @b
+                    $var = <1 2 3 1 2 3> «+» <4 5 6>;
+                    $var.say;                               # (5 7 9 5 7 9)
+
+        Right Left (cartman)
+            If the two inputs are of different sizes, throw an exception.
+                @a »+« @b
+                    $var = <1 2 3 1 2 3> »+« <4 5 6>;
+
+            Exception thrown:
+                Lists on either side of non-dwimmy hyperop of infix:<+> are not of the same length
+                left: 6 elements, right: 3 elements
+
+
+        You could also wrap a unary operator with the hyper operator:
+                say -« <1 2 3>;     # (-1 -2 -3)
+            
+            Again, you can't have any space in your hyper operator:
+                say - « <1 2 3>;     # (-1 -2 -3)
+                     ^
+                     |
+                     +-- causes compile error
+
+            But again, wtf would you ever need to do this?
+
+
+        ***
+        You cannot have any spaces between the operator and the weird angle-y 
+        things.  This does not work:
+            « + » 
+
+        I've modified my vim iabbr a bit to try to fight that.  If you're 
+        using the spaceship version ( «+» ), then the iabbrs are perfect.  If 
+        you're using any other arrow directionality, you're going to be 
+        frustrated.
+
+        I'm thinking about updating the iabbrs to something like
+                lla
+                rra
+                lra
+                rla
+            "left left arrow", "right right arrow", etc.  But I haven't done 
+            that yet.
+
+                <<<
+                space
+                +
+                space
+                >>>
+                space
+
+            That will leave you with this:
+                «+»|
+
+            Where the pipe is the location of your cursor.
+            ***
+
+
+
+
+
+}#}}}
 
