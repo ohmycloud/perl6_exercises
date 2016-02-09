@@ -4,6 +4,35 @@ characters, but there are some Unicode characters that are specifically useful
 with p6.
 
 
+"Texas" variants {#{{{
+
+    p6 docu keeps referring to ASCII characters as "Texas".  Not that it's 
+    wrong, but I've never ever once heard 'Texas' used this way before, ever, 
+    anywhere, and it's splattered all over the p6 docs.
+        
+        Googling for "ascii texas" returns a whole bunch of ascii-art texas 
+        state maps.  I think that using "texas" this way may well be 
+        specifically a p6 thing. 
+
+        As far as I can tell, "Texas" in this context doesn't just mean ASCII, 
+        it means the ASCII equivalent to a Unicode glyph in code.
+
+        Great.  More tribal jargon that nobody else is going to understand.
+
+
+    Anyway, most of the fucked up, hard-to-enter unicode operators and such 
+    have Texas equivalents, to help save your sanity.
+
+    eg these two lines are identical:
+            my $var = <1 2 3> «+» <4 5 6>;
+            my $var = <1 2 3> <<+>> <4 5 6>;
+
+
+    This page contains a table of Unicode and Texas equivalents:
+        http://docs.perl6.org/language/unicode_texas
+    
+}#}}}
+
 Unicode as variable names {#{{{
     This works just fine:
         my $é = "foobar";

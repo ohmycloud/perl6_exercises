@@ -63,7 +63,9 @@
 }
 
 ### Break up a long string into a list (.comb), then break that list up into 
-### chunks of 10 (.rotor), without discarding the extras:
+### chunks of 10 (.rotor), without discarding the extras.  Then call join and 
+### say, both as hyper operators, so that each one works on one of the lists 
+### created by rotor:
 {
     my $str = 'abcdefghijklmnopqrstuvwxyz';
     $str.comb.rotor(10, :partial)».join».say;

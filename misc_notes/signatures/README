@@ -1,0 +1,74 @@
+
+
+http://friedo.com/blog/2016/02/exploring-perl-6-signatures-part-2
+
+
+Basics {#{{{
+
+    Variable sig:
+            my Int $var = 42;
+
+    Routine sig:
+            sub foo (Int $num, Str $name) { ... }
+
+    With a where clause, the following block must return True:
+            sub bar (Int $num where {$num > 10 and $num < 30}) { ... }
+
+    You can include a function call rather than a block in that where clause:
+            sub is_positive (Real $n) { $n > 0 };
+            sub foo ( Int $num where is_positive($n) ) { ... }
+
+
+}#}}}
+Return types {#{{{
+            
+    All eval to true:
+            sub foo() { return True }
+            sub foo() { True }
+            sub foo() { 1 }
+
+
+    You can specify the return type in the signature itself.
+        When using "returns ...", that clause goes OUTSIDE the sig parens.
+            sub greet(Str $name) returns Str { "Hi, $name." }
+
+        When using "-->" notation (that's two hyphens), the clause goes INSIDE 
+        the sig parens.
+            sub greet(Str $name --> Str) { "Hi, $name." }
+
+}#}}}
+Introspection {#{{{
+
+    How to get sig info out of an existing routine.  Given this:
+            sub greet(Str $name) returns Str { "Hi, $name." }
+
+        Get the number of required incoming args:
+            say &greet.signature.arity;             # 1
+
+        Get the return type:
+            say &greet.signature.returns;           # (Str)
+
+
+    .arity returns the number of _required_ args:
+            sub greet(Str $fname, Str $lname, Int $age = 20) returns Str {
+                "Hi, $fname."
+            }
+            say &greet.signature.arity;
+
+        That prints 2, not 3, since $age has a default so it's not required.
+
+
+    Get more detail on the params:
+            sub greet(Str $fname, Str $lname, Int $age = 20) returns Str {
+                "Hi, $fname."
+            }
+            say &greet.signature.params[0];         # Str $fname
+            say &greet.signature.params[1];         # Str $lname
+            say &greet.signature.params[2];         # Int $age = { ... }
+
+            say &greet.signature.params[0].name;    # $fname
+            say &greet.signature.params[0].type;    # (Str)
+            say &greet.signature.params[0].sigil;   # $
+
+}#}}}
+

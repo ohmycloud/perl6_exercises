@@ -1,0 +1,98 @@
+
+From
+    http://blogs.perl.org/users/zoffix_znet/2016/02/how-to-make-a-perl-6-module-bit-rot-thursday.html
+
+
+The whole module system isn't mature yet, like it is for p5.  There's a 
+PAUSE-like system in the works, but not available yet.
+
+In the meantime, p6 folks appear to mainly be keeping their code in github.
+
+
+There are some tools available to help with making a module:
+    http://doc.perl6.org/language/modules-extra
+
+
+Terminology and URLs {#{{{
+
+    https://github.com/perl6/ecosystem/
+        This repo contains, mainly, a META.list file which contains URLs to 
+        the module project pages.
+
+        I assume, when you say "hey p6 go install Some::Module", the module 
+        installer first consults that META.list file to figure out where 
+        Some::Module lives, and then goes and retrieves and installs it.
+        
+    panda
+        p6 module installer.  Like cpan or cpanm.  I've used this, it seems 
+        fine.
+
+    zef
+        Another p6 module installer.  I haven't used this.
+
+    https://github.com/perl6/perl6-most-wanted/blob/master/most-wanted/modules.md
+        P6 "Most Wanted Modules" list.  If you're looking to create a module 
+        but don't know what to write, this list gives suggestions.
+
+}#}}}
+Files in a module {#{{{
+
+    These are the files allowed in your module.  Obviously this list is 
+    partially meta:
+            META6.json
+            README.md
+            .travis.yml
+            .gitignore
+            bin/baker.p6
+            lib/Bread/Baker.pm6
+            resources/recipe.txt
+            t/00-test-bake.t
+            xt/00-ensure-bread-is-tasty.t
+
+    bin/
+        scripts, executables
+
+    lib/
+        modules
+
+    resources/
+        templates, images, etc.
+
+    t/
+        user-run tests
+
+    xt/
+        author-run tests
+        these tests are not run as part of the install process.
+
+    .travis.yml
+        Travis testing is encouraged.
+        https://travis-ci.org/
+
+    META6.json
+        "Most important of all".  Specifies prereqs, authorship, what your 
+        module does, etc.
+
+        All keys allowed in this file:
+            http://design.perl6.org/S22.html#META6.json
+
+        A sample META6.json file:
+            https://raw.githubusercontent.com/zoffixznet/perl6-IO-MiddleMan/master/META6.json
+
+        The Raw link to this file is the URL that goes into the META.list file 
+        in the perl6/ecosystem/ repo mentioned above.
+
+    .gitignore, README.md
+        You know what these are.
+            
+}#}}}
+
+Ecosystem Future {#{{{
+    
+    The plan is to get a PAUSE-like setup working.  And it sounds like it's 
+    partially there now.  The bottom of zoffix's blog post includes some brief 
+    info on how to upload a p6 module to pause right now.  See the blog for 
+    info.
+
+}#}}}
+

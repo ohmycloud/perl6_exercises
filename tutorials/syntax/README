@@ -200,7 +200,7 @@ Packages, Qualified names {#{{{
     
     
 }#}}}
-Literals {#{{{
+Literals (BIG SECTION LOOK IN HERE) {#{{{
 
     String literals {#{{{
             say 'A string with no interpolation.';
@@ -616,6 +616,19 @@ Meta Operators (In-Place value modifications, Reductions, Hyper Operators) {#{{{
 
 
     HYPER OPERATORS
+        If you're looking for "hyper method calls", see the section below on 
+        "Info from places other than the tut"; the Zoffix blog article.
+
+        When dealing with these « and » characters, while they are 
+        cool-looking, they can be a pain in the ass to get into your code.  I 
+        have some vim abbrevs for them (see below), but they're still a pain.
+
+        P6 does allow us to use the "Texas" variants of simply << and >>.  So 
+        these next two lines are identical:
+            my $var = <1 2 3> «+» <4 5 6>;
+            my $var = <1 2 3> <<+>> <4 5 6>;
+
+
         Wrapping your operator in « » makes it a "hyper operator", which works 
         on two lists:
             my $var = <1 2 3> «+» <4 5 6>;
@@ -732,6 +745,164 @@ Meta Operators (In-Place value modifications, Reductions, Hyper Operators) {#{{{
 
 
 
+
+
+}#}}}
+
+
+###
+### Info from places other than the tut 
+###
+
+
+http://blogs.perl.org/users/zoffix_znet/2016/02/perl-6-shortcuts-part-1.html
+
+Remove parenthesis on method calls {#{{{
+    
+    If a method call is the last one in a call chain, you can replace its 
+    parens with a colon:
+            class Foo {
+                method greet(Str $name) { "Hi, $name"; }
+            }
+            my $f = Foo.new();
+
+        Instead of:
+            say $f.greet('Jon');
+
+        ...we could do:
+            say $f.greet: 'Jon';
+
+
+    So something like this:
+            $f.log('INFO').name('Jon').greet('Jon');
+
+        ...could be written like this:
+            $f.log('INFO').name('Jon').greet: 'Jon';
+
+        log() and name() cannot use that colon since they're not the last in 
+        the chain, but greet() can.
+
+
+    This becomes more useful if your arguments are, themselves, method calls.  
+    Here, you want to log the user's name, when he's chosen to use his casual 
+    nickname:
+            $f.log( $f.use_name( $f.nick_name( 'casual' ) ) );
+
+        OK, that's a lot of parens.  But those method calls are nested, 
+        they're not chained.  So, we could do this:
+            $f.log: $f.use_name: $f.nick_name: 'casual';
+
+        This may or may not be easier to read, depending on what your eyes are 
+        used to seeing, I guess.
+
+
+
+    You can also omit parens on a sub call, but you don't need the colon:
+            sub greet(Str $name) { "Hi, $name"; }
+            say greet 'Sub';
+
+
+    I'm assuming that the colon is behaving like p5's -> in that it's sending 
+    the invocant's class as the first arg.
+
+
+}#}}}
+Comma-less named arguments {#{{{
+
+    Here's a sub taking named args, and a couple "normal" ways of calling it:
+            sub faves(:$color, :$number, :$letter) {
+                "Your favorite color, number, and letter are: $color, $number, $letter.";
+            }
+            say faves( :color('red'), :number('7'), :letter('j') );
+
+            my $color = 'green';
+            my $number = '90';
+            my $letter = 'a';
+            say faves(:$color, :$number, :$letter);
+
+
+    So in this case, you can just omit the commas.  The colons do the 
+    separating for you:
+            say faves( :color('red') :number('7') :letter('j') );
+            say faves( :$color :$number :$letter );
+
+
+    You can also omit the parens:
+            say faves :color('red') :number('7') :letter('j');
+            say faves :$color :$number :$letter;
+
+
+    And you could put the args on newlines if it's easier to read:
+            say faves
+                :color('red')
+                :number('7')
+                :letter('j');
+
+            say faves
+                :$color
+                :$number
+                :$letter;
+
+}#}}}
+Integers and Booleans in named arguments and pairs {#{{{
+    
+
+    To pass an integer as a named arg, you can just prefix the named arg with 
+    the integer itself:
+            say DateTime.new: :2016year :2month :1day :16hour :32minute;
+            
+
+    You can do the same thing with Pairs, if the value is an integer:
+            my %ingredients = :4eggs, :2butter-sticks, :4sugar-cups;
+
+
+
+    Booleans work more or less the same way.  Just mentioning the arg's name 
+    is True, and including a bang after the colon is False:
+            sub foo(Bool :$one, Bool :$two) { "One is $one, two is $two"; }
+            say foo :one :!two;     # One is True, two is False
+
+
+    And for Pairs:
+            my %salad_requires = :prep, :!cooking, :mixing, :eating;
+            say %salad_requires;
+            # cooking => False, eating => True, mixing => True, prep => True
+
+
+}#}}}
+Subs as method calls {#{{{
+    
+    You can create a sub that works as an object method.
+
+    Your sub needs to accept the invocant as its first argument (again, p5-y), 
+    and your call needs to prefix this new pseudo-method with an apersand:
+
+            sub greet($self, Str $name) {
+                "$self -- $name";
+            }
+            'foo'.&greet('Jon').say;        # foo -- Jon
+
+
+
+    This trick can also be applied to imported classes:
+            my $dt = DateTime.now();
+            $dt.&greet('Jon').say;          # 2016-02-09T14:56:57.623625-05:00 -- Jon
+
+        Sure, it's a stupid example, but it works.
+
+}#}}}
+Hyper method calls {#{{{
+    
+    These are similar to the hyper operators talked about above.  They'll call 
+    the indicated method on a list of elements.
+
+            my $dt1 = DateTime.now();
+            my $dt2 = DateTime.now();
+            my $dt3 = DateTime.now();
+
+        Both of these are the same:
+            ($dt1, $dt2, $dt3)».offset-in-hours.say;   # (-5 -5 -5)
+            ($dt1, $dt2, $dt3)>>.offset-in-hours.say;   # (-5 -5 -5)
 
 
 }#}}}
