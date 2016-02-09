@@ -1,0 +1,84 @@
+
+http://doc.perl6.org/language/terms
+
+
+Most syntactic constructs consist of terms and operators.
+
+
+Literals {
+
+    Numeric Underscore Separators {#{{{
+        Normally used in place of commas to make the programmer's eyes less 
+        tired:
+                $million = 1_000_000;
+
+
+        But they don't have to be every three digits.  Put them wherever you 
+        want.  Perl just ignores them.
+                $million = 1_0_0_0_0_0_0;
+
+        The only caveat is that you can't double them up.
+                $ten = 1_0;         # fine
+                $ten = 1__0;        # GONNNG!  Compile error
+
+
+        Underscores can be used in other bases as well.
+                say 0xdeadbeef == 0xDeaD_Be_Ef;         # True
+            
+    }#}}}
+
+    Int {#{{{
+        Integer.  
+
+        Defaults to decimal.  Other bases can be specified by:
+                :radix<number>
+
+            So 20 in base 3:
+                my $var = :3<20>;
+
+        Hex, oct, and bin all have shortcuts:
+                $bin = 0b01010;
+                $oct = 0o7665;
+                $hex = 0xdeadbeef;
+
+    }#}}}
+    Rat {#{{{
+        
+        Terminating float.
+
+        Consists of an optional int, a dot, and a required int.
+            my $rat = 1.2;
+            my $rat = .2;
+            my $rat = 1.;       # GONNNG - must have int literal after the dot.
+
+    }#}}}
+    Num {#{{{
+        
+        Scientific notation.
+
+        The <number> can be an Int or a Rat
+                say 3e8;        # 300000000
+                say 1.2e3;      # 1200
+
+        The exponent can be negative:
+                say 1.2e-3;      # 0.0012
+
+    }#}}}
+    Str {#{{{
+        A string.
+    }#}}}
+    Regex {#{{{
+        /this is a regex literal/
+
+        rx/so is this/
+
+        rx!this time we're using different delimiters!
+        rx^we can only do this when we include the rx on the front.^
+    }#}}}
+    Pair {
+        
+    }
+    
+}
+
+

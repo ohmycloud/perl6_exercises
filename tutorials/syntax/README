@@ -616,11 +616,6 @@ Meta Operators (In-Place value modifications, Reductions, Hyper Operators) {#{{{
 
 
     HYPER OPERATORS
-        Fancy, and I spent way too much time massaging my .vimrc to get the 
-        angle brackets to produce properly, but when tf am I ever going to use 
-        this?
-
-
         Wrapping your operator in « » makes it a "hyper operator", which works 
         on two lists:
             my $var = <1 2 3> «+» <4 5 6>;
@@ -679,36 +674,61 @@ Meta Operators (In-Place value modifications, Reductions, Hyper Operators) {#{{{
             But again, wtf would you ever need to do this?
 
 
-        ***
-        You cannot have any spaces between the operator and the weird angle-y 
-        things.  This does not work:
-            « + » 
+    ACTUAL USE CASE
+        http://blogs.perl.org/users/zoffix_znet/2016/01/perl-6-rotor-the-king-of-list-manipulation.html
 
-        I've modified my vim iabbr a bit to try to fight that.  If you're 
-        using the spaceship version ( «+» ), then the iabbrs are perfect.  If 
-        you're using any other arrow directionality, you're going to be 
-        frustrated.
+        The tut does a bad job of demonstrating why you'd want something like 
+        this.  But I just found a blog post by Zoffix with this example:
 
-        I'm thinking about updating the iabbrs to something like
-                lla
-                rra
-                lra
-                rla
-            "left left arrow", "right right arrow", etc.  But I haven't done 
-            that yet.
+                my $str = 'abcdefghijklmnopqrstuvwxyz';
+                $str.comb.rotor(10, :partial)».join».say;
 
-                <<<
-                space
-                +
-                space
-                >>>
-                space
+        .comb breaks up the string into a list of 26 individual letters.
+        .rotor(10, :partial) combines that list into sublists of 10 letters
+            each, preserving the last 6 letters.
+            So the .rotor() call produces ((a..j) (k..t) (u..z))
 
-            That will leave you with this:
-                «+»|
+            There's a .rotor() example script in ROOT/misc_notes/ with more 
+            info.
 
-            Where the pipe is the location of your cursor.
-            ***
+        The, we use two hyper method calls, first on .join, then on .say, 
+        which produces this output:
+                abcdefghij
+                klmnopqrst
+                uvwxyz
+        
+
+
+    ***
+    You cannot have any spaces between the operator and the weird angle-y 
+    things.  This does not work:
+        « + » 
+
+    I've modified my vim iabbr a bit to try to fight that.  If you're 
+    using the spaceship version ( «+» ), then the iabbrs are perfect.  If 
+    you're using any other arrow directionality, you're going to be 
+    frustrated.
+
+    I'm thinking about updating the iabbrs to something like
+            lla
+            rra
+            lra
+            rla
+        "left left arrow", "right right arrow", etc.  But I haven't done 
+        that yet.
+
+            <<<
+            space
+            +
+            space
+            >>>
+            space
+
+        That will leave you with this:
+            «+»|
+
+        Where the pipe is the location of your cursor.
+    ***
 
 
 
