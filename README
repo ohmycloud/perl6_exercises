@@ -16,6 +16,19 @@ Left off at
     Terms (Pair)
 
 
+Modules to look into {#{{{
+    Bailador
+        http://perl6maven.com/bailador
+
+        Port of Dancer (at least partial) in p6.  Even if this doesn't get to 
+        production quality, it's probably worth looking at just to get a 
+        chance to actually use p6 for practice.
+
+        Gabor's perl6maven.com site is using this.
+        
+}#}}}
+
+
 shebang {# {{{
 #!/home/jon/.rakudobrew/bin/perl6
 }# }}}
