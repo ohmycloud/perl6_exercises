@@ -177,9 +177,25 @@ Modules Directory (CPAN-equivalent) {#{{{
     in repeating it all here, but it all looks perfectly cromulent.
 
 }#}}}
-
-Module-Authoring Tools
+Module-Authoring Tools {#{{{
     http://doc.perl6.org/language/modules-extra
 
     Info for making modules at that link.  No need to repeat it here.
+}#}}}
+
+### Info I've found somewhere other than the tut
+
+use lib {#{{{
+
+    In perl6maven's Bailador sample code, he uses this:
+            use lib callframe(0).file.IO.dirname ~ '/lib';
+
+
+    In a simple test script named "jon.p6", this:
+            say callframe();
+
+        produces:
+            ./jon.p6 at line 3
+
+}#}}}
 

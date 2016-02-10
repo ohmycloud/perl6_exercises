@@ -11,33 +11,14 @@ listed alphabetically, not in "you should follow them in this order" order.
 I'm going throw them as listed anyway just so I can keep track.
 
 
-
 Left off at
     Terms (Pair)
-
 
 
 
 shebang {# {{{
 #!/home/jon/.rakudobrew/bin/perl6
 }# }}}
-Modules to look into {#{{{
-    Bailador
-        http://perl6maven.com/bailador
-
-        I've started looking at this.  See ./bailador/.
-
-        Port of Dancer (at least partial) in p6.  Even if this doesn't get to 
-        production quality, it's probably worth looking at just to get a 
-        chance to actually use p6 for practice.
-
-        Gabor's perl6maven.com site is using this.
-
-        I installed this (successfully) at work, but I haven't played with it 
-        yet.  In included a bunch of prereqs I wanted anyway, like Mojo 
-        templates, HTTP::Easy, PSGI, URI, etc.
-        
-}#}}}
 
 INSTALLING {#{{{
     http://rakudo.org/how-to-get-rakudo/

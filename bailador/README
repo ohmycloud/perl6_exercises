@@ -1,14 +1,14 @@
 
+http://perl6maven.com/bailador
+
+
 Bailador is Spanish for "dancer".
 
 It's an attempt to imitate p5's Dancer.  I'm not sure if it's eventually meant 
 for production use, or is just a proof of concept, I suspect the latter.  But 
 perl6maven.com is using it, so it is at least partially usable in production.
 
-
-
 There's not a ton of info here yet, but it's enough to create a few examples.
-    http://perl6maven.com/bailador
 
 
 
@@ -27,6 +27,49 @@ tmpl.p6
     But Gabor misspelled the link (from the main bailador page) in to that 
     page - he missed the ending 'e' in 'template'.  
 
-    Otherwise, it works.  Template is in ./views/echo.tt
+    Bailador is doing some magic to detect the script's root dir, and from 
+    there it figures out where views/ is.  That's how it finds the template.  
+    But that pwd calculation doesn't happen automatically; we have to call 
+    this Bailador::import for that to happen.
+
+        perl6maven.com makes it sound like this is what's happening right now, 
+        but ### that it'll be fixed in some future Bailador version, so this 
+        import will ### then become unnecessary.
+    
+app/
+    A mini app in a self-contained directory.  Uses a script to run, a module 
+    with the actual code, and a template.
+
+    The text below explains the bug as given in the tutorial, but I fixed it, 
+    and app/app.p6 now works.
+
+
+
+
+    The code as given in the tutorial is broken.  The problem is the first 
+    line of the template, which is shown in the tut as:
+            % my ($h) = @_;
+        ...and later...
+            Version: <%= $h<version> %> Current time: <%= $h<date> %>
+
+    We're passing in a hash containing those elements, but that hash is being 
+    passed as a list/array (I'm not sure what @_ is at this point).  When we 
+    try to read that list/array into ($h), only one of the Pairs is ending up 
+    in $h.
+
+    So $h _is_ a hash ($h.WHAT tells us so), but it does not contain the keys 
+    'version' and 'date'.  It only contains one of those keys.  As I test, the 
+    set key is 'version', but I think that's pseudo-random.
+
+
+    The fix turns out to be easy.  Instead of reading @_ into ($h), read it 
+    into (%h), and then also change the sigils on the calls into that hash 
+    from $ to %.
+            % my (%h) = @_;
+        ...and later...
+            Version: <%= %h<version> %> Current time: <%= %h<date> %>
+        ...and there was much rejoicing.
+
+
     
 
