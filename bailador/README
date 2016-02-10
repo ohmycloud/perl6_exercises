@@ -1,0 +1,32 @@
+
+Bailador is Spanish for "dancer".
+
+It's an attempt to imitate p5's Dancer.  I'm not sure if it's eventually meant 
+for production use, or is just a proof of concept, I suspect the latter.  But 
+perl6maven.com is using it, so it is at least partially usable in production.
+
+
+
+There's not a ton of info here yet, but it's enough to create a few examples.
+    http://perl6maven.com/bailador
+
+
+
+test.p6
+    Several basic routes.  All work.  See the code for URLs.
+
+post.p6
+    Root route displays a form that POSTs back to itself.  Works.
+
+get.p6
+    Root route displays a form that GETs back to itself.  Works.
+
+tmpl.p6
+    The perl6maven page I took this from is:
+        http://perl6maven.com/echo-text-with-bailador-using-template-mojo
+    But Gabor misspelled the link (from the main bailador page) in to that 
+    page - he missed the ending 'e' in 'template'.  
+
+    Otherwise, it works.  Template is in ./views/echo.tt
+    
+

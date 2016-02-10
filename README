@@ -21,10 +21,11 @@ Left off at
 shebang {# {{{
 #!/home/jon/.rakudobrew/bin/perl6
 }# }}}
-
 Modules to look into {#{{{
     Bailador
         http://perl6maven.com/bailador
+
+        I've started looking at this.  See ./bailador/.
 
         Port of Dancer (at least partial) in p6.  Even if this doesn't get to 
         production quality, it's probably worth looking at just to get a 
