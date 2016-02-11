@@ -1,6 +1,11 @@
 #!/home/jon/.rakudobrew/bin/perl6
 
 
-        rx!we can only do this when we include the rx on the front.!
-                say 1.2e-3;
+
+                sub term:<answer> { 42 };
+
+                constant the-answer = 42;
+
+say answer.WHAT;
+say the-answer.WHAT;
 

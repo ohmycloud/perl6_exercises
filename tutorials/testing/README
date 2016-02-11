@@ -1,0 +1,17 @@
+
+http://doc.perl6.org/language/testing
+
+
+p6 testing is based off Test::More from p5, so it's familiar-looking:
+        use v6;
+        use Test;
+        use lib 'lib';
+
+        plan $num-tests;
+
+        # .... tests
+
+
+
+Running tests
+

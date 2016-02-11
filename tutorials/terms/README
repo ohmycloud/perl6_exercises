@@ -1,11 +1,10 @@
 
 http://doc.perl6.org/language/terms
 
-
 Most syntactic constructs consist of terms and operators.
 
 
-Literals {
+Literals {#{{{
 
     Numeric Underscore Separators {#{{{
         Normally used in place of commas to make the programmer's eyes less 
@@ -75,10 +74,188 @@ Literals {
         rx!this time we're using different delimiters!
         rx^we can only do this when we include the rx on the front.^
     }#}}}
-    Pair {
+    Pair {#{{{
         
-    }
-    
-}
+        For these, the key is explicitly stated as 'a':
+                a => 1                  # val is Int
+                'a' => 'b'              # val is Str
+                :a<b>                   # val is Str
+                :a('b')                 # val is Str
 
+                :a<a b c>                       # val is List
+                :a['a', 'b', 'c']               # val is Array
+                :a{foo => 'FOO', bar => 'BAR'}  # val is Hash
+
+        When no value is mentioned at all, only a key, the key becomes a Bool.  
+        False if the name starts with a bang:
+                :ThisIsTrue             # key is 'ThisIsTrue', val is Bool
+                :!ThisIsFalse           # key is 'ThisIsFalse', val is Bool
+
+
+        In these, we're not explicitly stating a key name, just using a 
+        variable.  The variable name becomes the key, and the variable value 
+        becomes the value:
+                my $var = 'FOO';
+                :$var;                  # key is 'foo', val is Str 'FOO'
+
+                my @arr = <a b c>;
+                :@arr;                  # key is 'arr', val is Array [a b c]
+
+                my %hash = {f => 'F', b => 'B'};
+                :%hash;                 # key is 'hash', val is the Hash.  
+            
+                my &callable = sub{ 'hi' };
+                :&callable;             # key is 'c', val is the Sub.
+
+
+        So you could combine all that crap above like this:
+                my $foo = 'FOO';
+                my %hash =
+                    :$foo,
+                    :IsTrue,
+                    a => 'b';
+                say %hash;          # IsTrue => True, a => b, foo => FOO
+
+
+
+        When passing an argument list, any of the above forms count as named 
+        arguments, EXCEPT 'quoted key' => 'quoted val':
+                sub greet(Str :$greeting = 'hi', Str :$name = 'jon') {
+                    say "$greeting, $name!";
+                }
+
+                my $name        = 'Jon';
+                my $greeting    = 'Hello';
+                greet(:$greeting, :$name);          # Fine
+                    Hello, Jon!
+
+                greet(name => 'Jonathan');          # Fine, $greeting not passed; default is used
+                    Hi, Jonathan!
+
+                greet('name' => 'Will Not Work');   # GONNNG!  We quoted the key.  Runtime error.
+                    Too many positionals passed; expected 0 arguments but got 1
+
+            
+    }#}}}
+    List {#{{{
+        True list literals are empty parens for the empty set:
+                ()
+
+        ...a comma separated list:
+                1, 2, 3
+                'a', 'b', 'c'
+
+        ...or any of several quoting constructs:
+                <a b c>
+                «a b c»
+                qw/a b c/
+    }#}}}
+    * (Whatever) {#{{{
+        http://doc.perl6.org/type/Whatever
+
+        "Placeholder for an unspecified value/argument".
+
+                my $foo = *;
+                say $foo;           # *
+                say $foo.WHAT;      # (Whatever)
+
+
+        I'm currently unclear how this differs from Any.
+
+
+        Some uses for this thing:
+
+        Don't actually run this as-is.  @list is an infinite list.  It's 
+        lazily evaluated so it won't blow up memory, but that for loop is 
+        infinite.
+                my @list = 1 .. *;
+                for @list -> $i { say $i }
+
+
+        The 'default' clause in a given/when is the same as saying "when *".  
+        So these next two blocks are identical:
+                given 'blarg' {
+                    when /foo/  { say "match"; }
+                    default     { say "no match"; }
+                }
+            ...
+                given 'blarg' {
+                    when /foo/  { say "match"; }
+                    when *      { say "no match"; }
+                }
+
+
+        The Whatever star can be used to create an anonymous function.
+
+            In a map, you can use * and remove the curly braces, since * 
+            creates the function.  These two are identical:
+                    my @arr = <1 3 5>;
+
+                    my @new = map { $_ + 3 }, @arr; # Normal, needs braces
+                    say @new;                       # [4 6 8]
+
+                    my @newer = map * + 3, @arr;    # Whatever star, no braces needed.
+                    say @newer;                     # [4 6 8]
+
+            This is slightly horrifying, but it works.  We're creating an 
+            anonymous function that divides Whatever arg it gets by 2:
+                    say (*/2)(4);       # 2
+                    say (*/2)(12);      # 6
+
+                ...but if you want to make it multiply, you need a space 
+                between the Whatever star and the multiplication splat.  The 
+                consecutive splats are confusing the compiler:
+                    say (**3)(4);       # GONNNG!  compiler error.
+                    say (* *3)(4);      # Fine - 12.
+                    say (* *3 )(4);     # Still fine - 12.
+
+        
+    }#}}}
+
+}#}}}
+    Identifier terms {#{{{
+
+        Built-in identifier terms:
+                self
+                    In a method, the invocant
+
+                now
+                    An Instant object representing the current time.
+                    http://doc.perl6.org/type/Instant
+
+                time
+                    An Int of the current time.  Epoch seconds.
+
+                rand
+                    A Num from 0..invocant
+                    say rand;
+                    say 10.rand;
+
+                π, pi
+                    Equivalent.  Both return p6's idea of π.
+
+                τ, tau
+                    As above, both return p6's idea of tau.
+
+                e
+                    Returns p6's idea of euler's number.
+                    say e;      # 2.71828182845905
+
+                i
+                    The imaginary number.
+                    Prints as: 0+1i
+
+
+        You can also create your own terms.
+            This creates an actual term:
+                sub term:<answer> { 42 };
+
+            This creates a constant, not a term, but I'm not even sure if 
+            there's a difference.
+                constant the-answer = 42;
+
+                FWIW, the RHS of a constant assignment is evaluated at compile 
+                time.
+
+    }#}}}
 

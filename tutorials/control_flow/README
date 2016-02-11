@@ -273,6 +273,21 @@ given/when {#{{{
         but it exits before it gets to testing if $var is an Any (which it 
         is).
 
+
+    CHECK
+    I have not figured out how to do this:
+            given 'foo bar' {
+                when /foo/ { say "this matched" }
+                when /bar/ { say "this also matched" }
+            }
+
+        ...What I want here is for BOTH of those when blocks to hit on this 
+        string.  "continue" does not work (compile error).  g/w defaults to 
+        "hit and exit the block".  I don't know how to tell it "if you hit 
+        this block do not exit; keep on evaluating".
+
+
+
 }#}}}
 proceed and succeed {#{{{
     
