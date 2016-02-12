@@ -64,6 +64,42 @@ Whitespace {#{{{
     So instead of turning on "ignore whitespace", in p6 you have to turn it 
     off (if you want it off), using the :s (:sigspace) adverb.
 
+    WILL NOT HIT!
+            my $str = "foo bar";
+            if $str ~~ /foo bar/ {
+                say "match";
+            }
+
+
+    HERE YA GO:
+            my $str = "foo bar";
+            if $str ~~ /foo \s bar/ {       # Specify the whitespace with \s
+                say "match";
+            }
+
+
+    WHITESPACE SPECIFIERS
+        \s          Any whitespace
+        ' '         Specifically a single space
+        \t, \n      Tab, newline
+        \h          Any horizontal whitespace (space, tab)
+        \v          Any vertical whitespace (newline, form feed)
+        .ws         A built-in rule for whitespace "that oftentimes does what you
+                    actually want"
+
+
+    That last one looks probably handy, but scary.  The text in quotes is what 
+    the tut says, and it's all the tut says.  
+
+    "Look, this is nifty magic!" translates in my head to "Here be dragons."  
+    .ws looks like nifty magic.
+
+    CHECK
+    I don't mean to completely avoid .ws -- it might end up being A Good 
+    Thing.  I just don't understand it, and the tut refuses to explain it.  I 
+    want to know what it is before I go slapping it into code.
+
+
 }#}}}
 Literals (quoting and escaping) {#{{{
 

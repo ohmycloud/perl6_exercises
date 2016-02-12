@@ -1,0 +1,347 @@
+
+http://doc.perl6.org/language/traps
+
+Perl6 has warts.  Hopefully fewer than p5, and hopefully the ones that are 
+there are more obscure so they won't get in your way as often (MorL from the 
+tut).
+
+Objects {#{{{
+    
+    Assigning to attributes {#{{{
+        Don't try assigning to the default accessor methods.  They're 
+        accessors only, not mutators.
+
+                class MyObj { has $.foo; }
+                $myobj.foo = 'bar';
+
+        Even within the class itself, you cannot assign to a mutator.
+                class MyObj {
+                    has Str $.foo;
+                    method change_foo (Str $new) {
+                        $.foo = $new;       # no no no stop doing that.
+                    }
+                }
+                $myobj.change_foo('bar');
+
+        The attribute is $!foo.  $.foo is $!foo's accessor method.  Your 
+        change_foo() method needs to assign to the variable, not the accessor:
+                $!foo = $new;
+
+    }#}}}
+    BUILD prevents automatic attribute init {#{{{
+        
+        This normal class works as expected:
+                class MyObj {
+                    has $.x;
+                    has $.y;
+                }
+                my $m = MyObj.new( x => 'ex', y => 'why' );
+                say $m.x;       # ex
+                say $m.y;       # why
+
+
+        But if you include your own BUILD submethod, you're overriding the 
+        default BUILD.  That means that the arguments passed in by the user in 
+        the constructor do not automatically get assigned as attributes.
+        BUILD gets called with the named arguments as passed in by the user.
+
+                class MyObj {
+                    has $.x;
+                    has $.y;
+
+                    submethod BUILD (:$x, :$y) {
+                        $!x = $x;       # Set private $!x to the $x passed in by the user
+                    }
+                }
+                my $m = MyObj.new( x => 'ex', y => 'why' );
+
+            So at this point, $m.x has been explicitly set by our BUILD, but 
+            $m.y has not.
+                say $m.x;       # ex
+                say $m.y;       # (Any)
+
+        So our BUILD override needs to explicitly set all attributes that need 
+        to be set.
+
+        Here's a bit of a shortcut -- when you create BUILD's signature, you 
+        can have the incoming variables directly assign to the class's private 
+        attributes.  Replace the entire BUILD method from above with this:
+                    submethod BUILD (:$!x, :$!y) { }
+                    #                  ^     ^
+
+        Remember that BUILD, as a submethod, does not get inherited.
+
+
+
+        The tut's next example DOES NOT WORK.  I originally thought it was a 
+        copy/paste error, but the only way I can fix it is by adding a new 
+        BUILD override, and the tut specifically says that the point of the 
+        example is to use BUILDALL and "leave BUILD alone".
+
+        CHECK
+            I suspect that the tut is trying to tell me something important 
+            here that I'd like to understand, but the fact that the given 
+            example is broken is resulting in me just not getting the point 
+            that the tut is trying to make.
+
+        Here's the tut code:
+                use v6;
+                class A {
+                    has $.x;
+                    has $.y;
+                    method BUILDALL(|c) {
+                        nextsame;
+                        $!y = 18;
+                    }
+                }
+                say A.new(x => 42).x;       # 42
+
+        Actually, the sample code, exactly as pasted, does work.  But what 
+        it's doing is showing default assignment to the $!y attribute and 
+        explicit user assignment to the $!x attribute, but only printing out 
+        that $!x attribute.  The sample does not attempt to display the 
+        default $!y, but that default is what's not working.
+
+        This is the additional line of code you'd need to add at the end that 
+        does not work -- the y attribute is NOT picking up that default value 
+        of 18:
+                say A.new(x => 42).y;       # (Any)  ---> this should be 18.
+
+        The tut's code doesn't make any sense to me -- it's calling "nextsame" 
+        and following that with an assignment.  But "nextsame" calls the next 
+        routine in the chain and does not return; that's the point of 
+        nextsame.  So following it with an assignment is useless.
+
+        Replacing 'nextsame' with 'callsame' (I'm throwing noodles at the wall 
+        here) results in another error (fatal this time), when trying to 
+        access .x
+
+        So I don't understand at all what the tut is trying to tell me here, 
+        and I can't get the tut's code to work, so I'm just going to call this 
+        example broken.
+
+        If you're on the tut webpage and following along, the broken example 
+        starts with the blurb
+            "Another, more general approach is to leave BUILD alone..."
+
+    }#}}}
+
+}#}}}
+Regexes {#{{{
+    
+    Whitespace whitespace whitespace.
+
+    This will NOT MATCH!
+            my $str = "foo bar";
+            if $str ~~ /foo bar/ {
+                say "match";
+            }
+
+    Fortunately, it will give a warning that'll let you know why it's not 
+    matching.
+
+    The thing to remember here is that whitespace in regexen is now 
+    MEANINGLESS by default.  Our code would need to do this to work:
+            my $str = "foo bar";
+            if $str ~~ /foo \s bar/ {
+                say "match";
+            }
+
+}#}}}
+Captures {#{{{
+
+    Demonstration of some possibly-unexpected order of operations:
+            my $a = 2;
+            say join ",", ($a, ++$a);
+
+        Output:
+            3,3
+
+
+    The capture is processing the args, including the autoincrement, before 
+    those args are getting passed to the join.
+    
+    The tut explains this using some terminology I don't understand.
+
+    To avoid this kind of funk, refer to the containers in the capture using 
+    expressions:
+            my $a = 2;
+            say join ",", (+$a, ++$a);
+            #              ^
+
+        Output:
+            2,3
+    
+}#}}}
+Arrays {#{{{
+    
+    Getting the last element of an array is different in p5 and p6.
+
+    p5:
+            my @arr = qw(one two three four);
+            say $arr[-1];
+
+    p6:
+        You can't use negative subscripts on their own anymore.  What we're 
+        doing here is using a function (the tut says "function", but I'm not 
+        convinced it's not an "expression").  Anyway:
+            my @arr = qw{one two three four};
+            say @arr[*-1];
+
+        Remember not to use parens with qw{} !!!
+        
+}#}}}
+Typed Array params {#{{{
+
+    You've got a routine and want it to accept an Array is its only positional 
+    argument:
+            sub foo (Array @a) { ... }
+
+        GONNNG!
+        
+        By preceding it with "Array", you're saying that it has to be an Array 
+        of Arrays.
+
+
+    @a is usually going to indicate an Array, but it could be a list
+            my @a := <a b c>;
+
+    ...and who knows, p6 may allow it to be other things as well.  If you want 
+    your routine to require that @a specifically be an Array, use a 'where' 
+    constraint in the signature:
+            sub foo (@a where Array) { ... }
+
+
+
+    Another weird one - this routine requires it be passed an Array of Ints:
+            sub foo ( Int @a ) { ... }
+
+        But we cannot call it like this:
+            foo( [1, 2, 3] );
+            
+        Or like this:
+            my @args = [1, 2, 3];
+            foo(@args);
+
+    What we're passing it there is an Array that happens to contain only Int 
+    values.  But our passed array is not specifically declared as an Int 
+    array.  Which means we could have jammed a string or whatever in there 
+    without issue.
+
+        So to call our routine, we could do this:
+            my Int @args = 1, 2, 3;     # @args has been declared as only allowing Int values
+            foo(@args);                 # ...so foo() is OK with it.
+
+        Or this.  Which is half the lines, but that doesn't make it any more 
+        readable.  Anyway:
+            foo( Array[Int].new(1, 2, 3) );
+
+
+}#}}}
+Strings {#{{{
+    
+    Capitalizing {#{{{
+
+        p6 does not have "ucfirst", it has "tc":
+            "foobar".tc.say;        # Foobar
+
+        It does also work as a function:
+            say tc "foobar";        # Foobar
+
+
+        I've bitched about this before, and I'll bitch about it again:
+            "foo bar".tc.say;       # Foo bar
+
+
+        tc() stands for "title case".  The tc() method is specifically NOT 
+        TITLECASING THE FUCKING STRING, IT'S UPPERCASING THE FIRST FUCKING 
+        LETTER!
+
+        Why the fuck would they change the name from "ucfirst", which 
+        specifically and accurately describes what the routine is doing, and 
+        which all p5 programmers are used to using, to "tc", which is a new 
+        keyword we're not used to reaching for, and which IN NO WAY ACCURATELY 
+        DESCRIBES WHAT THE ROUTINE IS DOING?
+
+
+        ...the tc() docs state that tc() does a:
+            Unicode "titlecase" operation that changes the first letter of the 
+            string to title case, or to uppercase if the character has no 
+            title case mapping.
+
+        So I guess that the answer to "why" is that Unicode has an operation 
+        named "titlecase", and p6 uses unicode.
+
+        Still, my point is that, though p6 might use unicode, p6 is NOT 
+        unicode, and has its own routines, and was designed by a linguist who 
+        is big on "natural languages".  I still maintain that this change is a 
+        mistake.
+
+        Using unicode's idea of "tc" rather than English's idea of "tc" 
+        assumes that a perl6 programmer is going to be more deeply 
+        knowledgeable about unicode than he's going to be about what "title 
+        case" means in English.  This is a mistake.
+
+    }#}}}
+    Strings are not iterable {#{{{
+        
+        This ! works:
+                say "abc".reverse;              # (abc)
+
+        reverse() works on listy things and returns listy things.  We passed 
+        it a single string, which is a list of one, and it returned that list 
+        in reverse order.
+
+
+        This works:
+                say "abc".comb.reverse.join;    # cba
+    
+    
+    }#}}}
+
+}#}}}
+Precedence {#{{{
+
+    Adverbs {#{{{
+        This section of the tut begins with a paragraph that equates to a lot 
+        of hand-waving.
+
+        The upshot is that, if you're using an adverb in conjunction with a 
+        operator, you're almost certainly going to have a bad time if you're 
+        relying on default precedence.
+
+                my %x = ( foo => 'bar' );
+
+                say %x<foo>:exists;         # True (as expected)
+
+                say !%x<foo>:exists;        # Runtime error (wtf?)
+
+            To check if the 'foo' key does not exist in %x, use parens to 
+            specify your adverbial precedence:
+                say !(%x<foo>:exists);      # There we go.
+
+    }#}}}
+    Ranges {#{{{
+
+        .. has pretty loose precedence:
+                1..3.say;
+            That outputs "3" along with a warning about useless use of "..".
+
+
+        What you wanted there was either:
+                (1..3).say;
+            That outputs "1..3"
+
+        ...or, more likely, this:
+                (1..3)>>.say;
+            Which outputs:
+                1
+                2
+                3
+
+
+
+    }#}}}
+
+}#}}}
+

@@ -193,6 +193,10 @@ BUILD {#{{{
     
 
 
+    There are more notes about BUILD and BUILDALL in ../traps_to_avoid/README.
+
+
+
     This means that BUILD has access to your class's private variables.  The 
     object is still considered "partially constructed" while you're inside 
     BUILD.  This means that you cannot do this:

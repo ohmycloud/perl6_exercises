@@ -12,30 +12,13 @@ I'm going throw them as listed anyway just so I can keep track.
 
 
 Left off at
-    Testing
+    Typesystem
 
 
 
 shebang {# {{{
 #!/home/jon/.rakudobrew/bin/perl6
 }# }}}
-pragma {#{{{
-    
-    You can start your p6 program with:
-            use v6;
-
-    That has no effect if you run the thing with perl6.  But if you 
-    accidentally invoke it as
-            $ perl scriptname.p6
-
-    It'll bomb out because you tried running it through p5.  It probably would 
-    have bombed out anyway, but I guess there's a chance with a tiny script 
-    that it'd be syntactically valid for p5 as well as p6.
-
-
-    Upshot is that I'm generally not bothering with this, but you can if you 
-    like.
-}#}}}
 
 INSTALLING {#{{{
     http://rakudo.org/how-to-get-rakudo/
@@ -105,6 +88,23 @@ INSTALLING {#{{{
 
         Yay!
 
+}#}}}
+pragma {#{{{
+    
+    You can start your p6 program with:
+            use v6;
+
+    That has no effect if you run the thing with perl6.  But if you 
+    accidentally invoke it as
+            $ perl scriptname.p6
+
+    It'll bomb out because you tried running it through p5.  It probably would 
+    have bombed out anyway, but I guess there's a chance with a tiny script 
+    that it'd be syntactically valid for p5 as well as p6.
+
+
+    Upshot is that I'm generally not bothering with this, but you can if you 
+    like.
 }#}}}
 INSTALL HISTORY {#{{{
 

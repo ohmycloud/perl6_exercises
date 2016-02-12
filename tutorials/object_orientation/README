@@ -319,7 +319,6 @@ Object Construction {#{{{
         - new() calls BUILDALL().
         - BUILDALL() walks through the inheritance tree in reverse Method 
           Resolution Order, calling BUILD on all classes in the chain.
-            - I don't foresee overriding BUILDALL() all that often.
         - BUILD() initializes the objects.
 
 
