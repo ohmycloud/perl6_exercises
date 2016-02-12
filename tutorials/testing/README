@@ -2,16 +2,455 @@
 http://doc.perl6.org/language/testing
 
 
-p6 testing is based off Test::More from p5, so it's familiar-looking:
+p6 testing is based off Test::More from p5, so it's familiar-looking.  Tests 
+live in t/ as you expect.  P6 also adds another dir (pretty sure it's named 
+xt/) that contains author-only tests.  These don't become part of your dist 
+and don't get run by the user during "make test".
+
         use v6;
         use Test;
         use lib 'lib';
-
         plan $num-tests;
-
         # .... tests
 
 
+Running tests {#{{{
 
-Running tests
+    The obvious way is simply
+            $ perl6 t/test-filename.t
+
+    You can use p5's prove as long as you let it know you're wanting to 
+    actually run it with p6:
+            $ prove --exec perl6 -r t
+    
+}#}}}
+Test plans (number of tests) {#{{{
+    
+    As in p5, you should indicate how many tests are to be run, generally at 
+    the top of your test script:
+            plan 15;        # run 15 tests
+            ...test code...
+
+    While you're creating your test script, you won't know how many tests 
+    it'll end up containing.  In that case, omit the "plan" and use 
+    "done-testing" at the bottom of your script:
+            ...test code...
+            done-testing;
+
+        Once your test script is complete and you know how many tests it 
+        contains, get rid of done-testing; and replace it with a proper plan 
+        spec at the top of the script.
+
+}#}}}
+Testing retvals {#{{{
+
+    $description is always optional in the test types below.  But it's 
+    recommended.  Just a string description of each test.
+    
+    By truth (ok, nok) {#{{{
+
+        Test passes if $value is true:
+                ok( $value, $description );
+
+        Test passes if $value is false:
+                nok( $value, $description );
+        
+    eg:
+            sub factorial(Int $n) { [*] 1..$n };
+            ok factorial(6) == 720, 'Factorial; small integer';
+
+    }#}}}
+    By string comparison (is, isnt) {#{{{
+        
+        Compare a string value to its expected result:
+                is( $value, $expected, $description );
+                isnt( $value, $expected, $description );
+
+            eg:
+                is( $name, 'Jon', 'Name value is as expected' );
+                isnt( $name, 'Programmer', 'Name confused with job?' );
+
+
+    }#}}}
+    By approximate numeric comparison (is-approx) {#{{{
+
+        The test passes if $value and $expected are within 1e-5 of each other.
+                is-approx( $value, $expected, $description );
+
+        eg:
+                my $eulers-approx = 2.71828;
+                is-approx( $eulers-approx, e, "approximate euler's constant");
+
+        This fails; it's not close enough:
+                is-approx( 3.1415, π, "approximate Pi");
+
+        But this succeeds:
+                is-approx( 3.14159, π, "approximate Pi");
+
+    }#}}}
+    By deeply nested comparison (is-deeply) {#{{{
+        
+        Compare two nested values using "eqv".
+        
+        Likely hashes, but I don't know what else it'll work on -- the tut 
+        doesn't specify what it can be used on, so I don't know whether this 
+        will work on objects.
+
+        This example isn't deeply nested, but it is obviously comparing the 
+        contents of one hash to the contents of another:
+                sub count-chars(Str() $x) {
+                    my %chars;
+                    %chars{$_}++ for $x.comb;
+                    return %chars;
+                }
+                my %expected = f => 1, l => 1, e => 3, c => 1 ;
+                is-deeply count-chars('fleece'), %expected, 'count-chars works on "fleece"';
+
+
+        Here's a better example that shows one sub that passes and another 
+        that does not, and clearly we're doing a deep compare here:
+                sub this-passes() {
+                    my %people = (
+                        jon     => { lname => 'Barton' },
+                        kermit  => { lname => 'Jackson' },
+                    );
+                    return %people;
+                }
+
+                sub this-won't() {
+                    my %people = (
+                        jon     => { lname => 'barton' },
+                        kermit  => { lname => 'Jackson' },
+                    );
+                    return %people;
+                }
+
+                my %expected = (
+                    jon     => { lname => 'Barton' },
+                    kermit  => { lname => 'Jackson' },
+                );
+
+                is-deeply this-passes(), %expected,  'This passes the test.';
+                is-deeply this-won't(),  %expected,  'This does not, because "barton" is not ucfirst.';
+
+
+    }#}}}
+    By arbitrary comparison (cmp-ok) {#{{{
+        Compare a value using any comparison operator you like.  The operator 
+        itself can be passed as a string.
+                cmp-ok( $value, $comparison-operator, $expected, $description );
+
+        Check by match:
+                cmp-ok( "I did this properly.", "~~", /perl/, "Contains 'perl'.");
+
+        Check by numeric equivalent:
+                cmp-ok( 5, "==", 2+3, "They're both 5.");
+
+        etc
+        
+    }#}}}
+    By object type (isa-ok) {#{{{
+        
+        Hey moron.  That's "isa-ok", not "is-ok".
+
+        Mnemonic:
+                "isa are you OK, are you OK, are you OK isa?"
+
+            Doesn't work with "is-ok".  Apologies for putting that song into 
+            your head.
+
+                class MyParent {}
+                class MyChild is MyParent {}
+
+                my $p = MyParent.new();
+                my $c = MyChild.new();
+
+                isa-ok $p, MyParent,    "p is a MyParent.";
+                isa-ok $c, MyChild,     "c is a MyChild.";
+                isa-ok $c, MyParent,    "c is also a MyParent.";
+
+    }#}}}
+    By regex (like, unlike) {#{{{
+        Test if a value matches or does not match a regex.
+
+                like   'foo', /fo/, 'foo looks like fo';
+                unlike 'bar', /fo/, 'bar does not look like fo';
+    }#}}}
+    Testing modules (use-ok) {#{{{
+        Test if we can successfully use a module.  The module name must be the 
+        fully-qualified name.
+
+        This passes:
+                use-ok( 'Test', "Use the Test module" );
+
+        This fails and includes an INC dump, since the reason it failed is 
+        because Blargle.pm could not be found:
+                use-ok( 'Blargle', "Use the Blargle module" );
+
+        This fails because DateTime is a builtin type, not a module:
+                use-ok( 'DateTime', "Use the DateTime module" );
+        
+    }#}}}
+    Testing exceptions (dies-ok, lives-ok, eval- versions of both, throws-like) {#{{{
+
+        Tests code that is supposed to die:
+                sub i_die() { die "foobar" }
+                dies-ok { i_die() }, "i_die always dies.";      # test passes
+
+        You can just pass a code block instead of calling a routine.  This 
+        test passes:
+                dies-ok { die "this should probably die" }, "die should die";
+
+        Note however that this does not create a passing test:
+                sub needs_string (Str $name) { say $name }
+                dies-ok { needs_string(34) }, "integer is not a string";
+
+            What happens there is that the _compiler_ picks up that you're 
+            trying to pass an Int to a sub whose signature requires a Str.  
+            Since the compiler picks up the error, the code never runs, and 
+            the test just produces a compile-time error.
+
+            Upshot - dies-ok() is _not_ able to test for and then ignore 
+            compile-time errors.
+
+
+
+        lives-ok works as you'd expect; this passes:
+                lives-ok { 1 }, '1 should live';
+
+
+
+        eval-lives-ok, eval-dies-ok both evaluate a string as code.  Both of 
+        these pass:
+                my $str1 = q{say "foobar"};
+                eval-lives-ok $str1, "A simple say should live";
+
+                my $str2 = q{die "this dies"};
+                eval-dies-ok $str2, "A die should die.";
+
+
+
+        throws-like passes if its code generates the expected exception:
+                sub married (Bool $i-do) {
+                    fail "But you must!" unless $i-do;
+                    say "I now pronounce you...";
+                }
+                throws-like { married(False) }, Exception, message => /you \s must/, "Marriage test";
+
+            That actually produces 3 sub-tests that together make up the full 
+            test.  The full output is:
+                    1..3
+                    ok 1 - code dies
+                    ok 2 - right exception type (Exception)
+                    ok 3 - .message matches /you \s must/
+                ok 1 - Marriage test
+                1..1
+
+            The "message => /.../" bit is optional; it's just checking for the 
+            matching exception message.  You can omit that if you like:
+                    throws-like { married(False) }, Exception, "Marriage test";
+
+            If you leave that out of the throws-like test, you get only two 
+            subtests:
+                        1..2
+                        ok 1 - code dies
+                        ok 2 - right exception type (Exception)
+                    ok 1 - Marriage test
+                    1..1
+    }#}}}
+
+}#}}}
+Grouping Tests {#{{{
+
+    The throws-ok test (see its section in "Testing retvals") is made up of 
+    several sub-tests.
+
+    You can also set up your own grouping.  A group of sub-tests form a single 
+    test; each of the sub-tests has to pass for the overall test to pass.
+
+
+    Here are two tests, each with four subtests.  The first test passes, the 
+    second one does not:
+
+                subtest {
+                    is      1+2,    3,      'Addition';
+                    is      5-2,    3,      'Subtraction';
+                    is      5*2,    10,     'Mult';
+                    is      50/2,   25,     'Div';
+                }, "Basic math; works";
+
+                subtest {
+                    is      1+2,    999,    'Addition';
+                    is      5-2,    3,      'Subtraction';
+                    is      5*2,    10,     'Mult';
+                    is      50/2,   25,     'Div';
+                }, "Basic math; broken";
+
+    
+    The output of running those is a little confused-looking:
+
+                ok 1 - Addition
+                ok 2 - Subtraction
+                ok 3 - Mult
+                ok 4 - Div
+                1..4
+            ok 1 - Basic math; works
+                not ok 1 - Addition
+                
+            # Failed test 'Addition'
+            # at test.p6 line 18
+                # expected: '999'
+                #      got: '3'
+                ok 2 - Subtraction
+                ok 3 - Mult
+                ok 4 - Div
+                1..4
+                # Looks like you failed 1 test of 4
+            not ok 2 - Basic math; broken
+
+            # Failed test 'Basic math; broken'
+            # at test.p6 line 17
+            1..2
+            # Looks like you failed 1 test of 2
+
+
+    If you look carefully enough, you'll see that the output has come to the 
+    correct conclusions.  But the Addition failure in the second test is being 
+    output near the output of the first test's passing, and it all looks a 
+    little gunky.  
+
+}#}}}
+Skipping Tests (todo, skip) {#{{{
+
+    Adding a todo line above tests will still display output from those tests, 
+    but will not register those tests as failures in a harness.
+
+    Here are two failing tests and a third passing test without a todo, 
+    followed by their output:
+            is      1+2,    123,    'Addition 1';
+            is      1+2,    999,    'Addition 2';
+            is      1+1,    2,      'Addition 3';
+
+        Output:
+            not ok 1 - Addition 1
+
+            # Failed test 'Addition 1'
+            # at test.p6 line 10
+            # expected: '123'
+            #      got: '3'
+            not ok 2 - Addition 2
+
+            # Failed test 'Addition 2'
+            # at test.p6 line 11
+            # expected: '999'
+            #      got: '3'
+            ok 3 - Addition 3
+            1..3
+            # Looks like you failed 2 tests of 3
+
+
+    But, if we add a todo line to skip the first two tests (the '2' arg says 
+    "skip the next two tests"):
+            todo "First 2 math tests are not yet ready for prime time.", 2;
+            is      1+2,    123,    'Addition 1';
+            is      1+2,    999,    'Addition 2';
+            is      1+1,    2,      'Addition 3';
+
+        Output:
+            not ok 1 - Addition 1# TODO First 2 math tests are not yet ready 
+            for prime time.
+
+            # Failed test 'Addition 1'
+            # at test.p6 line 10
+            # expected: '123'
+            #      got: '3'
+            not ok 2 - Addition 2# TODO First 2 math tests are not yet ready for prime time.
+
+            # Failed test 'Addition 2'
+            # at test.p6 line 11
+            # expected: '999'
+            #      got: '3'
+            ok 3 - Addition 3
+            1..3
+
+        So we still get the failure notes, but both of those failure notes 
+        include the TODO text.  And the concluding line just shows "1..3", 
+        with no note about having failed 2 of 3 tests.
+
+
+    SKIP
+    skip is meant to completely skip tests, not running them at all.  Good for 
+    not-ready-for-prime-time tests that would die on failure.
+
+    However, skip DOES NOT WORK LIKE TODO.  You can't just put a "skip" line 
+    above a test and have that test not run.  You basically have to skip the 
+    tests yourself in a block:
+
+        if False {
+            is      die 'foo',    123,    'Addition 1';
+            is      die 'bar',    999,    'Addition 2';
+        }
+        else {
+            skip "Those 2 math tests are not yet ready for prime time.", 2;
+        }
+
+    The only benefit I'm seeing here is that those two tests still get counted 
+    as having been run.  So if you'd planned for 2 tests, the above would 
+    work.
+
+    If you left out the 'skip' block, the two tests above would still not run, 
+    but the end result would be that zero tests had been counted as being run, 
+    and if your plan called for 2 tests to run, the end result would still be 
+    a failure.
+
+
+    SKIP-REST
+    You can also skip-rest if all of the rest of the tests in your test script 
+    would have died for whatever reason.  You do have to use a plan count to 
+    be able to use skip-rest:
+
+                plan 1;
+
+                if OS_is_Windows {
+                    skip-rest "Wrong OS";
+                    exit;
+                }
+                is  die "This will blow up under Win32", $expected, "Linux-only test";
+
+
+}#}}}
+Manual Control {#{{{
+
+    If all of the tests above don't quite fit the bill, you can force your own 
+    test results:
+
+            ### Pick one.
+            #sub some_complicated_test_conditions { True }
+            sub some_complicated_test_conditions { False }
+
+            ### If the sub returns True, this will pass, and if not, it'll
+            ### fail (flunk).
+            if some_complicated_test_conditions() {
+                pass("This should pass.");
+            }
+            else {
+                flunk("This will fail.");
+            }
+
+    Although this is possible, you'd have to have very complicated test 
+    conditions for none of the other available test types to apply.  So this 
+    manual control should be used "very, very sparingly" (Yes, two "very"s.)
+
+}#}}}
+
+Display diagnostic info {#{{{
+
+    Don't put 'print' or 'say' lines into your test.  They're not 
+    TAP-compatible.
+
+    Instead, use "diag":
+
+            diag "This is a line of TAP-compatible output.";
+
+}#}}}
 
