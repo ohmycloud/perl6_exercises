@@ -3,16 +3,11 @@ Docs home
     http://doc.perl6.org/
 
 
-I'm working through
+I've worked my way through
     http://doc.perl6.org/language.html
+For the most part, each section linked that page has its own subdirectory 
+under ./tutorials/
 
-...and I just now realized, because I'm a fucking moron, that the docs are 
-listed alphabetically, not in "you should follow them in this order" order.  
-I'm going throw them as listed anyway just so I can keep track.
-
-
-Left off at
-    Typesystem
 
 
 

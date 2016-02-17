@@ -1,6 +1,6 @@
 #!/home/jon/.rakudobrew/bin/perl6
 
-=begin Pod
+=begin Foobar
 
 http://doc.perl6.org/language/variables#The_^_Twigil
 http://doc.perl6.org/language/variables#The_%3A_Twigil
@@ -8,7 +8,17 @@ http://doc.perl6.org/language/variables#The_%3A_Twigil
 ^   formal positional parameter
 :   formal named parameter
 
-=end Pod
+=end Foobar
+
+
+say $=Foobar;
+exit;
+
+
+
+
+
+
 
 
 ### 
@@ -94,13 +104,13 @@ say_hello_legal('Jon');
 ### The following is not legal - the prototype specifies no args, so we can't 
 ### then use the first arg.
 ###
-### Uncommenting this produces:
-###     ===SORRY!=== Error while compiling /home/jon/work/rakudo/tutorials/twigils/params.p6
-###     Placeholder variable '$^name' cannot override existing signature
-###
 #sub say_hello_not_legal() {
 #    say "Hello, $^name.";
 #}
+    ### Uncommenting this produces:
+    ###     ===SORRY!=== Error while compiling 
+    ###     /home/jon/work/rakudo/tutorials/twigils/params.p6
+    ###     Placeholder variable '$^name' cannot override existing signature
 
 
 
@@ -110,8 +120,16 @@ say_hello_legal('Jon');
 ###
 
 ###
-### There's only one example for this, and it's all on one line, and I don't 
-### at all understand what's happening.  
+### There's only one example given for this.  I get what's supposed to be 
+### happening, but it looks stupid and IT DOES NOT WORK.
 ###
+### Produces a compile error.  Copy/paste from the tutorial.
+###
+# say { $:add ?? $^a + $^b !! $^a - $^b }( 4, 5 ) :!add
 
+
+
+
+
+say { $:add ?? $^a + $^b !! $^a - $^b }( 4, 5 ) :add
 

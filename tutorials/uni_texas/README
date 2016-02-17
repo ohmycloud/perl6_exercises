@@ -1,0 +1,49 @@
+
+http://doc.perl6.org/language/unicode_texas
+
+Unicode properties resources {#{{{
+
+    Full explanation of the properties.  Unfortunately, the way this info is 
+    laid out is pretty bad.  I'm not seeing any simple listing of properties 
+    such as Ll or Lu as mentioned in the p6 docu.
+        http://unicode.org/reports/tr44/#Properties
+
+    You'd think "unicode.org" would be a better resource that 
+    "fileformat.info", but this page has a much clearer listing of the 
+    properties as discussed in the p6 docs:
+        http://www.fileformat.info/info/unicode/category/index.htm
+
+    List of all unicode chars, in alpha order, as well as a search.  Each char 
+    gets its own page fully listing out that char's info, including its 
+    property/category:
+        http://www.fileformat.info/info/unicode/char/a.htm
+
+}#}}}
+Alphabetic characters {#{{{
+    Any Unicode character that has the Ll or Lu property can be used in p6 in 
+    the same way as any ASCII letter.
+
+}#}}}
+Unicode/Texas equivalents in p6 {#{{{
+    
+    Contains a table listing out character equivalencies in p6, eg « can be 
+    written as just << and ÷ can be written as / etc
+
+        http://doc.perl6.org/language/unicode_texas#Other_acceptable_codepoints
+
+    Some interesting ones:
+
+        - Any superscript from 0 to 9 can be written as either:
+                say 2² == 2**2;         # True
+                say 2⁹ == 2**9;         # True
+
+            <Ctrl-K> 2 S
+            <Ctrl-K> 9 S
+
+            ...lower-case "s" gives you a subscript (eg ₂) instead of a 
+            superscript. 
+
+    Otherwise, see the table.
+
+}#}}}
+

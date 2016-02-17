@@ -1,28 +1,215 @@
 
 http://doc.perl6.org/language/variables#Twigils
 
-- dynamic.p6
-    *   dynamic
+Dynamic * {#{{{
 
-- specvar.p6
-    ?   are compile-time variables ($?FILE, $?LINE)
-    *   are dynamic, but some are available in your program.  I assume these
-            dynamic variables are run-time, not compile-time.
+    dynamic.p6
+    specvar.p6
 
-- class.p6
-    !   attribute (private to the class)
-    .   method (not really a variable)
-        $.foo creates $!foo, a private attribute, as well as $.foo(), an 
-        accessor method that returns the value of $!foo.  $.foo() is an 
-        accessor only at this point, not a mutator.
+    Pulls the value of the variable by this name from the perspective of the 
+    caller.  The variable does not need to appear in the signature.
 
-- params.p6
-    ^   positional parameter
-    :   named parameter
+            sub greet() {
+                say "Hi, $*name.";
+            }
+            {
+                my $*name = "jon";
+                greet();
+            }
+            {
+                my $*name = "kermit";
+                greet();
+            }
+            exit;
+
+    Outputs:
+        Hi, jon.
+        Hi, kermit.
+
+
+    Why would you not just do
+            sub greet($name) { say "Hi, $name." }
+            greet('jon');
+            greet('kermit');
+
+        which is far less confusing?  You got me.
 
 
 
-<   index into match object (not really a variable)
-=   POD variables (don't care for now)
-~   sublanguage (basically unimplemented at this point)
+    Some of these dynamic vars are known to your program at runtime, like
+            $*CWD
+            $*ARGS
+            $*PROGRAM
+
+        Do go look at ./specvar.p6 for more info.
+
+}#}}}
+Attribute ! {#{{{
+
+    class.p6
+
+    Refers to the value of an attribute in a class.  Only accessible within 
+    the class itself.
+
+            class Jontest {
+                has $!var = 42;
+                method stuff() {
+                    say $!var;
+                }
+            }
+
+            my $j = Jontest.new();
+
+        We can call this method, which itself accesses its own internal $!var:
+            $j.stuff();                 # 42
+
+        But we can't access $!var directly from the outside:
+            say $j!var;                 # compile error
+            say $j.var;                 # runtime error (method not found)
+
+    See also the Method twigil (.) which allows us to access this value from 
+    the outside.
+    
+}#}}}
+Compile-time ? {#{{{
+
+    ./specvar.p6
+
+    http://doc.perl6.org/language/variables#Compile-time_variables
+            Lists all of these types of variables.  Vaguely interesting, but 
+            $?FILE and $?LINE are probably the ones you'll use most (and 
+            you'll probably use those very infrequently).
+    
+    These are known to the compiler and cannot be modified.
+
+            say $?FILE;         # /full/path/to/file.p6
+            say $?LINE;         # 19
+
+    The docs say that these cannot be changed at runtime, but can be 
+    redefined:
+            constant $?TABSTOP = 4;
+
+        I assume that "constant" declarations are handled at compile time 
+        rather than runtime, which is the distinction here.
+
+        This also DOES NOT WORK as of 6.c.  The error tells me that doing this 
+        is not yet implemented.
+        
+        No big deal.
+
+}#}}}
+Method . {#{{{
+    
+    class.p6
+
+    When you define a variable in a class using a . what you're really doing 
+    is defining a $! variable by the same name, and also defining a simple 
+    accessor:
+            
+            class Jontest {
+                has $.var = 42;
+
+                method stuff() {
+                    "My var is set to $!var.";
+                }
+            }
+
+            my $j = Jontest.new();
+
+        So even though we never specifically declared $!var, calling this 
+        method, which accesses $!var, shows that it does exist:
+            say stuff();
+
+        But now, since we declared it using $., we have an accessor method 
+        that we can use from the outside:
+            say $j.var;
+
+
+    This is an ACCESSOR-ONLY method.
+            $j.var = 3;         # GONNNG!  Cannot modify an immutable...
+
+
+    If we wanted Jontest::var() to also be a Mutator, we would have had to 
+    declare it as having the rw trait:
+
+            class Jontest {
+                has $.var is rw = 42;
+            }
+
+            my $j = Jontest.new();
+            say $j.var;                 # 42
+            $j.var = 3;                 # No problem, it's rw
+            say $j.var;                 # 3
+
+}#}}}
+Match < {#{{{
+    
+    The tut says this is just an alias for $/<...> where $/ is the match 
+    variable, and then links off to the Match type docu:
+        doc.perl6.org/type/Match
+
+    There's not much else said, so this is a little hazy.
+
+}#}}}
+Positional ^ (dumb) {#{{{
+    
+    This is a little goofy.
+
+    It can be used in both routines and blocks, but there are better ways to 
+    take arguments in routines, so it's probably only going to be used in 
+    blocks.
+
+    See ./params.p6 which explains this better.
+
+}#}}}
+Named : (dumb, doesn't work) {#{{{
+    
+    Like the positional ^, this is a little goofy.  Also like ^, there are 
+    better ways than using this twigil when dealing with routines, so you'll 
+    likely only use this in blocks, if at all.
+
+    So we can do this:
+            sub greet {
+                say "Hi, $:name";
+            }
+            greet(name => 'jon');
+
+
+    But that's fucking stupid when you could have done this, explicitly 
+    stating the named variable in the signature:
+            sub greet(:$name) {
+                say "Hi, $name";
+            }
+            greet(name => 'jon');
+
+        Note that we are using the colon there, but it's not a twigil.
+
+
+    The single example given in the tut of using this in a block is dumb, and 
+    it doesn't work in 6.c.
+
+}#}}}
+POD = (doesn't work) {#{{{
+
+    Supposedly, this should work:
+
+            =begin Foobar
+
+            Some POD goes here.
+
+            =end Foobar
+
+            say $=Foobar;
+
+
+    NYI
+    However, that produces a "Not yet implemented" error.
+
+}#}}}
+Slang ~ (The tut states that this is NYI) {#{{{
+    
+    Slangs themselves are NYI yet, so no need for a lot of notes on this.  
+    Doesn't work.
+
+}#}}}
 

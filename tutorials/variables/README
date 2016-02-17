@@ -1,7 +1,4 @@
 
-left off at
-    http://doc.perl6.org/language/variables#Type_Constraints_and_Initialization
-
 
 see ../five-to-six/README for more notes on how variables work.
 
@@ -23,5 +20,280 @@ NOTES {#{{{
         variable.  Absolutely read and re-read this section:
             http://doc.perl6.org/language/variables#Twigils
     
+}#}}}
+
+Sigils {#{{{
+    
+    MorL as in p5.  $, @, %, & all mean mostly what you expect them to mean.
+
+}#}}}
+Item and List assignment {#{{{
+    
+    When assigning an item, the value on the RHS goes into the container 
+    (variable) on the LHS.  Exactly as expected, no mystery here.
+
+    With list assignment, the LHS determines exactly what happens.
+
+    Assign a list to a $ variable:
+            my $var = <1 2 3>;
+            say $var;               # (1 2 3)
+            say $var.WHAT;          # (List)
+
+        <1 2 3> is a list value.  When assigning it to a $ variable, p6 isn't 
+        given any extra info as to what it should do, so the $ variable gets 
+        set to that list.
+
+    Assign a list to a @ variable:
+            my @arr = <1 2 3>;
+            say @arr;               # [1 2 3]
+            say @arr.WHAT;          # (Array)
+
+        Again, <1 2 3> is a list value, but since our LHS has a @ sigil, we're 
+        telling p6 to translate that list value into an Array.
+
+
+
+    BUT THIS IS DIFFERENT FROM P5:
+        
+        The $ in p6 doesn't necessarily mean "scalar".  It's more a typehint 
+        to p6 as to what it should do in a situation like above.
+
+        But if we have a thing that's already defined as an Array, and we 
+        assign that thing to a $ variable, that thing is still an array:
+
+                my @arr = <1 2 3>
+                say @arr.WHAT;          # (Array)
+
+                my $var = @arr;
+                say $var.WHAT;          # (Array)
+
+        There's nothing ambiguous about what @arr is, so when we assign it to 
+        $var,
+                $var BECOMES AN ARRAY EVEN THOUGH IT USES A $ SIGIL.
+
+}#}}}
+Sigil-less Variables {#{{{
+    
+    These are sort of like constants.
+
+    A variable with a sigil is a "container".  A sigil-less variable is not a 
+    container; the variable is directly set to the value:
+            my \degrees = 180;
+            say degrees;            # 180
+
+            degrees = 120;          # GONNNG - Cannot modify an immutable...
+
+    Sigil-less variables do not enforce context; you can put whatever you want 
+    in them.
+
+
+    CHECK
+    Since p6 does have constants, I'm still a little confused as to what 
+    problem is being solved by these sigil-less variables -- they just seem 
+    like another form of constant.
+
+}#}}}
+Twigils {#{{{
+    
+    See ./twigils/ -- this section gets its own readme and sample programs.
+
+}#}}}
+Variable declarators and Scope {#{{{
+
+    declarators.p6
+
+    p6 uses these declarators:
+            my          lexically-scoped
+            our         package-scoped
+            has         attribute name
+            anon        private to the construct
+            state       lexically-scoped but persistent
+            augment     add definition to existing name
+            supersede   replace definition of existing name
+
+
+    The tut does not list this in its declarator table, but it now exists and 
+    works:
+            constant    Declare a constant value
+
+        Not sure if leaving it out is an oversight, or if it's just not 
+        technically considered a "declarator".
+
+
+    These look like declarators, but are called "prefixes", and only work on 
+    predefined variables:
+            temp        Restore variable value at end of scope
+            let         Restore variable value at end of scope IF THE BLOCK
+                        EXITS UNSUCCESSFULLY
+
+
+}#}}}
+Type Constraints {#{{{
+
+    Normally we use variables like this:
+            my $var1 = "foobar";
+            my $var2 = 3.4;
+
+    But we can now constrain those variables when we declare them:
+            my Str $var1 = 'foobar';
+            my Rat $var2 = 3.4;
+
+    Those variables are now constrained, and we can't assign other types to 
+    them:
+            $var2 = 3;      # GONNNG!  Compile error.
+                            "Cannot assign a literal Int to a variable of type 
+                            Rat..."
+
+
+
+    This takes us back to our sigils.  Using the @ sigil:
+            my @arr;
+
+    is very much like just using a $ sigil with a type constraint:
+            my Array $var;
+
+    In both cases, we've specifically declared our container to be an Array:
+            say @arr.WHAT;      # (Array)
+            say $var.WHAT;      # (Array)
+
+
+}#}}}
+Default Variable Values {#{{{
+    
+    When declaring a variable, we can assign it a default value.  Once a 
+    variable has had a default value declared, assigning Nil to that variable 
+    will reset it back to its default.
+
+            my Int $ans is default(42);
+            say $ans;                       # 42
+
+            $ans = 33;
+            say $ans;                       # 33
+
+            $ans = Nil;
+            say $ans;                       # 42
+
+
+    You do not have to set a type contraint to use "is default"; this would 
+    work as well:
+            my $ans is default(42);
+
+    ...but setting a type constraint is probably a good ides.
+
+
+}#}}}
+Special Variables $_, $/, $! {#{{{
+
+    These three variables are available to every block:
+            $_          Good ol' "it"
+            $/          Regex match
+            $!          Exceptions
+
+
+    $_
+            for <a b c> { say $_ }
+
+        We could also call "say" as a method on the default variable, but we 
+        have to specify that that's what we're doing; using "say" as a method:
+            for <a b c> { .say }
+
+
+    $/
+            'foobar baz' ~~ /(fo) o (ba) r/;
+
+        The .Str method gives us what part of our string matched out pattern:
+            say $/.Str;                         # foobar
+
+        We can get at the individual grouped bits, if our pattern had any:
+            say $/[0];                          # ｢ fo ｣
+            say $/[1];                          # ｢ ba ｣
+
+        But those are easier to get at with just the integer shortcuts:
+            say $0;                             # ｢ fo ｣
+            say $1;                             # ｢ ba ｣
+
+        We can get all of those grouped bits as a list.  All three of these 
+        are different ways of saying the same thing:
+            say $/.list;                        # (｢ foo ｣ ｢ ba ｣)
+            say @$/;                            # (｢ foo ｣ ｢ ba ｣)
+            say @();                            # (｢ foo ｣ ｢ ba ｣)
+
+        If your regex contained named capture groups, you could get at those 
+        using $/ as well, but I have never ever used named capture groups.
+
+
+    $!
+        If an exception is caught, that exception gets stored in $!.  If 
+        there's no exception in play, $! is an Any.
+
+            try { die 'foobar'; }
+            say "--$!--";               # --foobar--
+
+        See ../exceptions/README for more.
+
+
+
+}#}}}
+
+Compile-Time Variables {#{{{
+
+    http://doc.perl6.org/language/variables#Compile-time_variables
+
+    These get set at compile time and you cannot change them.  Elsewhere in 
+    the tut we're told we can re-define them at compile time (I think in the 
+    Sigils section of the Variables README), but attempting to do so results 
+    in p6 telling me that it's not implemented yet.
+
+    There are several of these, but these are the two you'll use most:
+            $?FILE
+            $?LINE
+    
+}#}}}
+Dynamic (Runtime?) Variables {#{{{
+
+    http://doc.perl6.org/language/variables#Dynamic_variables
+
+    Where the compile-time variables start with $?, these start with $* (or @* 
+    or %*).
+
+    See the URL for a full listing, but some common ones:
+            $*ARGFILES      List of files given on the command line
+                            $ ./file.p6 one.txt two.txt three.txt
+            @*ARGS          CLI args.  Array.
+
+            %*ENV           Env vars hash
+            
+            $*IN            STDIN
+            $*OUT           STDOUT
+            $*ERR           STDERR
+            $*TZ            Local timezone, given as seconds offset (-18000 here)
+            $*CWD           Three guesses.
+            $*PID           Three more.
+
+            $*KERNEL        linux (kernel version)
+            $*DISTRO        ubuntu (dist version)
+            $*VM            moar (vm version)
+            $*PERL          Perl 6 (p6 version)
+                In each case above, the actual version is given in parens, in 
+                whatever format is used.  Ubuntu gives 14.4.3.LTS.Trusty.Tahr, 
+                where Perl gives 6.c.  Don't assume just "dotted decimal".
+
+            $*PROGRAM-NAME  Depends on how we were invoked
+                            If invoked as "perl test.p6", we get "test.p6".
+                            If invoked as "./test.p6", we get "./test.p6".
+            $*PROGRAM       IO Object
+                            "/full/path/to/test.p6".IO
+            $*EXECUTABLE    IO Object
+                            "/full/path/to/perl6".IO
+            $*HOME          IO Object
+                            "/home/jon".IO
+
+            $*USER          jon (1000)
+            $*GROUP         jon (1000)
+                I happen to use the same name and ID for both my user and 
+                primary group.
+            $*SPEC          (Unix)
+                
+
 }#}}}
 

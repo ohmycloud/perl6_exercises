@@ -1,0 +1,314 @@
+
+Links to all built-in types:
+    http://doc.perl6.org/type.html
+
+
+NOTE ON TYPE GRAPHS {#{{{
+
+    There's a pretty little inheritance graph on the page for each type, and 
+    it's slightly confusing.
+
+    For the AST type, we get:
+
+            +------+
+            |  Mu  |
+            +------+
+                ^
+                |
+            +-------+
+            |  Any  |
+            +-------+
+                ^
+                |
+            +-------+
+            |  AST  |
+            +-------+
+
+    So Mu is listed up top, but the arrows connecting those types are pointing 
+    up.
+
+    DO NOT BE CONFUSED BY THE GOOFY-ASS UP ARROWS.  They're trying to indicate 
+    "from here, we move up to our parent, above".
+
+    Where every other inheritance graph in the history of humanity has used 
+    down arrows to indicate "This is the ancestor, and from here we move down 
+    to our children".
+
+    Just read from top to bottom and ignore the arrows.
+
+
+    So AST inherits from Any, which inherits from Mu.
+
+}#}}}
+
+
+There are lots of types, they're all linked at that URL up top, and each type 
+has lots of methods.  I'm not going to repeat all that crap here, but do want 
+to go over some of the higher-level types that everything else inherits from
+
+Mu (root) {#{{{
+
+    http://doc.perl6.org/type/Mu
+
+    The "Most Undefined" value, and root of the entire p6 type system.  Every 
+    object in p6 isa Mu.
+
+
+    A few notable methods:
+        Str
+                Machine-readable string representation
+        gist
+                Human-readable string representation
+        perl
+                Perlish representation, can "usually" be run through EVAL, 
+                implementation-specific.
+                That reads to me like "Use 'Str' or 'gist'.  'perl' is 
+                unpredictable."
+
+        put
+                Output to STDOUT using the Str representation.  Add a newline.
+        say
+                Output to STDOUT using the gist representation.  Add a 
+                newline.
+
+        WHY
+                Return the attached POD value.
+                        sub greet (Str $name) {
+                            #= say hello to whomever.
+                            say "Hello, $name";
+                        }
+                        say &greet.WHY;     # say hello to whomever.
+
+        so      Boolean evaluation
+        not     ! Boolean evaluation
+                my $var = 34;
+                say $var.so;        # True
+                say $var.not;       # False
+
+                my $var = 0;
+                say $var.so;        # False
+                say $var.not;       # True
+
+
+}#}}}
+Any {#{{{
+    Immediately descended from Mu.
+
+    All new (user-defined) classes, and most built-in classes, inherit from 
+    Any.
+    
+}#}}}
+Cool {#{{{
+    
+    A value that can be treated as a string or a number interchangeably.
+    
+        "Cool" == "Conventional Object Oriented Loop"
+
+    Str and Int (along with a bunch of others, but those are the easiest to 
+    play with) inherit from Cool.
+
+
+    Perl6 - brought to you by the Acronym Association of America.  Whose motto 
+    is, "why did we spell out our name?".
+
+}#}}}
+Date, Datetime {#{{{
+
+    http://doc.perl6.org/type/Date
+    http://doc.perl6.org/type/DateTime
+
+    See ../Dates_Times/ for more info.
+
+    Ugh.  Remember that p6 warns when you use numbers with leading zeroes.
+    I often left-pad single digits with zeroes out of habit.  Stahp:
+            my $d = Date.new(2016, 02, 17);
+                                   ^-----------> p6 is going to bitch about this.
+
+
+
+    Output differences:
+            say Date.today;         # 2016-02-17
+            say DateTime.now;       # 2016-02-17T13:55:21.611115-05:00
+
+
+
+
+    Date has no "now" method, but DateTime does.  "now" implies momentary 
+    resolution, which Date can't provide, so Date offers "today" instead of 
+    "now":
+            my $now     = DateTime.now();
+            my $today   = Date.today();
+
+    If you really want to use "now" with Date, you can pass a call to now() as 
+    a constructor arg:
+            my $date_now    = Date.new( now );
+
+        But that just returns the same thing as Date.today(), so better to 
+        stay with that.
+
+        now() is a routine from DateTime that returns an Instant object 
+        representing the current time.  It feels like a builtin, since 
+        DateTime is always available, but it does come from DateTime.
+
+
+
+    DATE MATH
+        Both Date and DateTime offer earlier() and later() methods, which 
+        accept a delta.  See the docs for details.
+
+
+}#}}}
+Instant, Duration {#{{{
+
+    See ../Dates_Times/ for more info.
+
+    An Instant is a moment in time, expressed in seconds, and a Duration is a 
+    length of time, expressed in seconds.
+    
+    A DateTime object can return an Instant object:
+            my $dt1 = DateTime.new( :year(1969), :month(9), :day(5) );
+            say $dt1.Instant;
+
+    Subtracting one Instant from another produces a Duration:
+            my $dt1 = DateTime.new( :year(1969) );
+            my $dt2 = DateTime.new( :year(1972) );
+
+            my $dur = $dt2.Instant - $dt1.Instant;
+            say $dur.WHAT;          # (Duration)
+
+    Durations can be subtracted from, or added to, Instants, to produce a new 
+    Instant:
+            my $new_instant = $dt1.Instant + $dur;
+
+}#}}}
+IO {#{{{
+    
+    IO by itself is a role, and doesn't provide any functionality.  You'll 
+    actually use one of its classes (IO::Handle, IO::Path, IO::Socket, etc).
+
+            my $fh = open 'filename';
+            say $fh.WHAT;
+
+            my $fh1 = open 'non-existent filename';
+            say $fh1.WHAT;                  # (Failure)
+
+            my $fh2 = open 'new filename', :w;
+            say $fh2.WHAT;                  # (Handle)
+            $fh2.say("foobar");
+
+    IO::Path {#{{{
+            my $p1 = IO::Path.new('../README');
+            say $p1;                # "/home/jon/work/rakudo/Types/../README".IO
+            say $p1.basename;       # README
+            say $p1.abspath;        # /home/jon/work/rakudo/Types/../README
+
+    }#}}}
+
+}#}}}
+Junction {#{{{
+
+    "An unordered composite value of zero or more values".
+
+
+    This is one that's easier to show than to explain:
+            my $j = 1|2;
+            if 3 == $j + 1 {
+                say "yes";          # hits
+            }
+
+        ...one of the elements of our junction, when summed with 1, _does_ 
+        equal 3, so the conditional evaluates to True.
+
+
+        Get only the booleans and ints from a list:
+            my @list = (True, False, 1, 3.14);
+            my @bool_or_int = grep Bool|Int, @list;
+            say @bool_or_int;       # [True False 1] 
+
+        Whoops, we wanted only the booleans and ints that evaluated to True:
+            my @list = (True, False, 1, 3.14);
+            #my @bool_or_int = grep *.so, grep Bool|Int, @list;
+            say @bool_or_int;       # [True 1] 
+
+
+
+    There are 4 types of junctions:
+        Constructor     Operator        True if...
+        all             &               No value is False
+        any             |               At least one value is True
+        one             ^               Exactly one value is True
+        none                            No value is True (no operator for this)
+
+
+    So, going back to our first example:
+            my $j1 = 1|2;
+            if 3 == $j1 + 1 { say "This hits" }
+
+            my $j2 = 1^2;
+            if 3 == $j2 + 1 { say "So does this"; }
+
+            my $j3 = 1&2;
+            if 3 == $j3 + 1 { say "This does not hit"; }
+
+
+    Here's a reasonable use case using the "any" constructor rather than an operator:
+            my $expected_resp = "Yes";
+            my @allowed_resps = <yes Yes y Y yeah ya OK>;
+
+            my $actual_resp = 'y';
+
+            if $actual_resp eq any @allowed_resps {
+                say "The user agreed.";
+            }
+
+
+}#}}}
+Label {#{{{
+
+    Much like the p5 label.
+
+    COLORS is our label here:
+            COLORS:
+            for @candidate_colors -> $c {
+                next COLORS if $c.clashes( $carpet_color );
+                paint_wall($c);
+            }
+
+            say COLORS.WHAT;    # (Label)
+
+}#}}}
+Macros {#{{{
+
+
+    Upshot:
+        These things might end up being important, but as of 6.c they're 
+        experimental and are doing things other than what the tut I'm 
+        following says they'll do.
+
+        Come back to this later.  NYI
+
+
+    
+    I've seen a few blog posts extolling the virtues of Macros, but not being 
+    a Lisp programmer, it's hard to get _why_.
+
+    This Advent Calendar exercise is all about Macros, by the guy who 
+    implemented them in Rakudo:
+        https://perl6advent.wordpress.com/2012/12/23/day-23-macros/
+
+    His favorite definition of what Macros are:
+        Macros are functions that are called by the compiler during 
+        compilation.  Within these functions the programmer has access to 
+        compiler APIs. For example, it is possible to generate, analyze and 
+        typecheck code.
+
+
+    ./macros.p6 does produce the output that the Advent Calendar exercise says 
+    it will.  However:
+        - I need "use experimental :macros" at the top of the script to use 
+          them at all.
+        - The code throws some warnings about "Weird node visited: ..."
+
+}#}}}
+
+

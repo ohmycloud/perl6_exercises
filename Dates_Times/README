@@ -1,0 +1,117 @@
+
+Classes {#{{{
+
+    Date
+            my $d = Date.today()
+
+    DateTime
+            my $dt = DateTime.now()
+            my $dt = DateTime.new(
+                :year(1969), :month(9), :day(5),
+                :hour(7), :minute(33)
+            );
+
+            Only the year arg is required by new().  Anything else omitted 
+            defaults early (January 1, etc).
+
+    Instant
+        A single moment in time.  The routine now() returns an Instant.
+
+    Duration
+        A span of time.  Subtracting one Instant from another produces a 
+        Duration.
+
+}#}}}
+Routines, Terms {#{{{
+
+    now() (routine)
+        Returns an Instant object representing "right now".
+
+    time() (term)
+        Returns an Int representing "right now".
+
+}#}}}
+DateTime Timezones {#{{{
+
+    DT represents timezones as seconds offset from UTC.
+
+
+    DateTime understands that now() means "now, here, respect my local TZ".
+            my $dt = DateTime.now()
+            say $dt.timezone;           # -18000
+
+    But when specifying args, it defaults to UTC:
+            my $dt = DateTime.new(
+                :year(1969), :month(9), :day(5)
+            );
+            say $dt.timezone;           # 0
+
+    Another TZ can be provided if desired.
+            my $dt = DateTime.new(
+                :year(1969), :month(9), :day(5),
+                :hour(7), :minute(33),
+                :timezone(-18000)
+            );
+            say $dt.timezone;           # -18000
+
+    You can also send an ISO 8601 time string to new() -- that will include 
+    the timezone:
+            my $dt = DateTime.new("1963-11-23T17:15:00Z");
+            say $dt.timezone;           # 0
+
+            my $dt = DateTime.new("1963-11-23T17:15:00-0500");
+            say $dt.timezone;           # -18000
+
+        That timezone spec is "+hhmm" or "-hhmm".  "Z" (Zulu) is a shortcut 
+        for UTC.
+
+        ***
+        This might get a little confusing.  In p6, expressing an integer with 
+        a leading zero almost always produces a warning:
+                say 05;         # Prints out "5" but bitches about it.
+
+        But when specifying a TZ offset in ISO 8601, that offset does have to 
+        use 4 digits, in "hhmm".  So for EST, it's "-0500".  That leading zero 
+        before the 5 is required by ISO 8601.
+        ***
+
+    
+}#}}}
+
+Math {#{{{
+
+    Looks like most math will be handled by later() and earlier():
+            my $xmas_2010 = DateTime.new( :year(2010), :month(12), :day(25) );
+            my $nye_2010 = $xmas_2010.later( :day(6) );
+
+            say $nye_2010;      # 2010-12-31T00:00:00Z
+
+        earlier() works the same way in the other direction.
+    
+
+    
+    DateTime provides an Instant() method (yes, capped).  We can perform 
+    simple math using the returned Instant objects:
+            my $dt1 = DateTime.new( :year(1969), :month(9), :day(5) );
+            my $dt2 = DateTime.new( :year(1972), :month(6), :day(2) );
+
+            my $delta =  $dt2.Instant - $dt1.Instant;
+            say $delta;         # 86486400
+            say $delta.WHAT;    # (Duration)
+            
+
+    Given that delta, we could apply it to the first DateTime using later():
+            say $dt1.later( :seconds($delta) );
+
+        ...and that hands back the same date that's held in $dt2.
+
+
+
+    There's also a DateTime::Math module available, but it hasn't been touched 
+    in 3 months, and the tests fail.  There's a single issue filed by Zoffix, 
+    titled "tests fail".  That issue is 2 months old and hasn't been responded 
+    to by the author.  My guess is this module is DOA.
+        https://github.com/supernovus/perl6-datetime-math/
+            
+}#}}}
+

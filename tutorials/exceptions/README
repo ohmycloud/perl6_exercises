@@ -12,7 +12,7 @@ ad-hoc exceptions {#{{{
     That's almost certainly the way I'll be using it, out of habit, but that 
     _is_ creating an exception object.
 
-    This next line is identical to the "die" line above:
+    This is identical to the "die" line above:
         X::AdHoc.new(:payload<crapola, something broke>).throw;
 
 }#}}}
@@ -37,36 +37,151 @@ Typed exceptions {#{{{
             die X::Blargle::Broke.new();
 
 }#}}}
-Catching exceptions {#{{{
+Try blocks {#{{{
+
+    If you've got something fishy going on, you can wrap it in a try block and 
+    then inspect $! afterwards:
+            try { die "foobar" };
+            say "--$!--";               # --foobar--
+
+}#}}}
+When does an exception get thrown (Important) {#{{{
+    
+    This is unexpected:
+            my $var = 10 / 0;
+            say "foobar";
+
+
+    Dividing by zero certainly causes an exception.  But what happened is that 
+    an invalid value was assigned to $var, but we never actually tried to use 
+    $var.  So NO EXCEPTION WAS THROWN!
+
+    It's only the attempted use of the invalid value that throws the 
+    exception.
+
+    So the code above happily displays "foobar" with no errors.
+
+
+    However, this _would_ produce an error:
+            my $var = 10 / 0;
+            say "foobar";
+            say $var;               # actually try to use $var and BOOM
+
+        Output:
+            foobar
+            Attempt to divide by zero...
+
+        So the exception still is not thrown until we try to access $var.
+
+
+    This means that you could have broken-ass code outside a try block, and 
+    only include the _use_ of the resulting variable inside the try block:
+            my $var = 10 / 0;
+            try { say $var };
+            say "I caught --$!--" if $!;
+
+        Output:
+            I caught --Attempt to divide 10 by zero using div--
+
+
+
+    This is unfortunate.  I generally don't go around dividing by zero, so 
+    usually $var will be a valid value.  I don't want to just go around 
+    printing out valid values as the code above would do.
+
+    But I'm not seeing other ways of "using" that $var that will trigger the 
+    exception to be thrown.  None of these try blocks trigger the exception:
+
+            my $var = 10 / 0;
+            try { $var };
+            try { $var++ };
+            try { my $foo = $var * 3 };
+            say "I caught --$!--" if $!;
+
+
+    CHECK
+    So how do I go about checking whether I just divided by zero or not 
+    without printing that value out?  I dunno.
+
+}#}}}
+CATCH blocks {#{{{
 
     CATCH does need to be fully capped.  "catch" does not work.
 
+    While $! is the default exception-containing variable elsewhere, inside a 
+    CATCH block, the exception gets assigned to $_
 
-    For a basic catch, you don't even need a try:
-            die X::IO::DoesNotExist.new(:path("foo/bar"), :trying("zombie copy"));
+
+
+
+    CATCH is no longer an answer to a try block -- it's not a rewrite of p5's 
+    Try::Tiny et al.
+    
+    Instead, the CATCH block catches an exception that occurred in its 
+    containing block
+    
+    But that exception does still occur for the purposes of that containing 
+    block, so this doesn't work as you'd expect:
+            die "foobar";
             CATCH {
-                when X::IO {
-                    say "We got an IO exception.";
+                default {
+                    say "I caught $_"
                 }
             }
+            say "still here";           # never hits
 
-            say "after the exception";
+        ...that whole mess is in the outermost lexical scope.  The "die" runs 
+        for the purposes of its lexical scope, so the upshot is that our 
+        program dies and we never get to that last 'say'.
 
-        Output of that is just:
+
+    You'd need to wrap that die in its own scope:
+            {
+                say "This will display since we haven't died yet."
+                die "foobar";
+                say "This won't display because this block already died.";
+
+                CATCH {
+                    ### Catch any exceptions that happened in the same scope
+                    ### As the CATCH block itself.
+                    default {
+                        say "I caught $_"
+                    }
+                }
+            }
+            say "Still here outside the block";     # hits.
+
+
+
+
+    Throw and catch a specific exception:
+            {
+                die X::IO::DoesNotExist.new(:path("foo/bar"), :trying("zombie copy"));
+                CATCH {
+                    when X::IO {
+                        say "We got an IO exception.";
+                    }
+                }
+            }
+            say "back to main"
+
+        Output:
             We got an IO exception.
+            back to main
 
-        So the "say" after the CATCH block does _not_ fire.
 
 
 
     You could add a default block to the above to catch all exceptions:
-            die X::IO::DoesNotExist.new(:path("foo/bar"), :trying("zombie copy"));
-            CATCH {
-                when X::IO::Copy {
-                    say "We got a copy exception.";
-                }
-                default {
-                    say "We got some exception we weren't expecting."
+            {
+                die X::IO::DoesNotExist.new(:path("foo/bar"), :trying("zombie copy"));
+                CATCH {
+                    when X::IO::Copy {
+                        say "We got a copy exception.";
+                    }
+                    default {
+                        say "We got some exception we weren't expecting."
+                    }
                 }
             }
 
@@ -96,43 +211,45 @@ Catching exceptions {#{{{
                 X::IO::DoesNotExist(gen/moar/m-CORE.setting 19466 throw)
 
 
-
-    CATCH blocks appear to apply lexically:
-            die "first error here";
-            CATCH {
-                when X::AdHoc {
-                    say "--" ~ $_.Str ~ "--";
-                    .resume;
-                }
-            }
-            die "another error here."
-
-        Output of that is:
-            --first error here--
-            --another error here.--
-
-
-    So, if you want your CATCH to only apply to a specific die, wrap the whole 
-    mess in braces.
+    Normally, a block like this will die on the first fatal error, and that's 
+    all that will be caught:
             {
-                die "first error here";
+                die "one";
+                die "two";
+                die "three";
                 CATCH {
-                    when X::AdHoc {
-                        say "--" ~ $_.Str ~ "--";
-                        .resume;
+                    default {
+                        say "--$_--";
                     }
                 }
             }
-            die "another error here."
+            say "back to main"
 
-        The output now is:
-            --first error here--
-            another error here.
-                in block <unit> at ./test.p6:14
+        Output:
+            --one--
+            back to main
 
-        So only the first die got caught.  The second one, outside of CATCH's 
-        lexical scope, actually died.
-    
+
+    But we can use .resume to have our CATCH block ignore fatals:
+            {
+                die "one";
+                die "two";
+                die "three";
+                CATCH {
+                    default {
+                        say "--$_--";
+                        .resume;                # there it is
+                    }
+                }
+            }
+            say "back to main"
+
+        Output:
+            --one--
+            --two--
+            --three--
+            back to main
+
 }#}}}
 Resume after catching {#{{{
 

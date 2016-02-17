@@ -1,0 +1,36 @@
+
+Synopsis 26 - Documentation
+    http://design.perl6.org/S26.html
+
+
+
+
+Very much of the stuff in the Synopsis is simply not happening in practice.
+
+./test.p6 contains a bunch of different pod blocks and some output code at the 
+end to ensure the pod isn't interfering with code.
+
+See the commands in "Displaying POD".  Note the output, both CLI and HTML, 
+just doesn't match what the POD synopsis says should happen much of the time.
+
+
+
+
+Prereqs {#{{{
+    
+    OK, not really a prereq, but you're going to want it, so install:
+            $ panda install Pod::To::HTML
+
+}#}}}
+Displaying POD {#{{{
+
+    Stop typing "perldoc" you moron.  That's running my p5 perldoc, which is 
+    confused about the p6 version of POD.
+            $ perl6 --doc <script or module name>
+
+
+    As long as you have Pod::To::HTML installed, you can do:
+            $ perl6 --doc=HTML <script or module name> > output.html
+
+}#}}}
+
