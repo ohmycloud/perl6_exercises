@@ -6,8 +6,11 @@ Docs home
 I've worked my way through
     http://doc.perl6.org/language.html
 For the most part, each section linked that page has its own subdirectory 
-under ./tutorials/
+under ./tutorials/perl6/
 
+
+Currently working on Grammars/.  It's giving me fits.  Pound on through till 
+you understand it.
 
 
 
@@ -148,9 +151,18 @@ BLOGS, IRC, etc {{{{
     Damian
         http://blogs.perl.org/users/damian_conway
 
+    Morito Lenz
+        http://perlgeek.de/blog-en/perl-5-to-6/
+        Perl6 and 5-to-6 tutorials
+
     IRC
         #perl6 on irc.freenode.org
         There's also a #perl6 on irc.perl.org.
+
+    Gabor
+        'Tutorial' - http://perl6maven.com/tutorial/
+            but it looks like it was last worked on 4 years ago, and there's 
+            just not much here.
 
 }}}}
 FAQ, Glossary ***CHECK*** {#{{{

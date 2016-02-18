@@ -1,6 +1,11 @@
 
+http://doc.perl6.org/language/grammars
+
 "Grammars are a powerful tool used to destructure text and often to return 
 data structures that have been created by interpreting that text."
+
+..."Grammars allow you to group regexes, just as classes allow you to group 
+methods of regular code."
 
 p6 has its own grammar (fine), but it's also using a grammar for the 
 JSON::Tiny module (that's the example given by the tut).  The point is that, 
@@ -27,13 +32,6 @@ Named Regexes {#{{{
             say "foo 123 bar" ~~ &number;   # ｢123｣
 
 
-        At this point, the tut starts using "say so ..." which I haven't run 
-        into before.  This is what it does:
-                say    "123" ~~ &number;        # ｢123｣
-                say so "123" ~~ &number;        # True
-                    ^^
-
-
     You can also use a named regex as part of a larger regex.
             my $str = "123 foo 456";
             say $str ~~ /<number> \s* \w+ \s* <number>/;
@@ -49,8 +47,7 @@ Named Regexes {#{{{
     ***
 
     Regex Delcarator
-        This creates regexes that behave as you're used to (except that they 
-        apparently all act as if //x is on): 
+        This creates regexes that behave as you're used to
         
             my regex this-matches {
                 .+ q
@@ -107,6 +104,14 @@ Named Regexes {#{{{
         So that's saying "match this pattern against our string, ignoring 
         unquoted whitespace".  
 
+
+        FWIW, I'm quoting the strings in all of the examples in this section.  
+        That's not necessary; it's being done to be more explicit about the 
+        usage of the spaces.  These two are identical:
+            my token non-space-y        { .nce 'upon' 'a' 'time' }
+            my token non-space-y        { .nce upon a time }
+
+
         The string that contains no spaces does exactly match the pattern.
 
         The string that _does_ contain spaces does _not_ match our token, 
@@ -139,7 +144,7 @@ Named Regexes {#{{{
 
     
 
-        So the rules, as best I can figure out here:
+        So the rules:
             - token
                 - behaves as if //x is in effect.
                 - bare whitespace in the pattern is ignored.
@@ -159,7 +164,7 @@ Named Regexes {#{{{
 
             
 }#}}}
-Regex Substitutions {#{{{
+Substitutions {#{{{
 
     This is not covered on this tutorial page, but I keep grepping these files 
     for "regex" and ending up back here, so I figured I'd add this info here.
@@ -199,7 +204,19 @@ Regex Substitutions {#{{{
                 ^^
 
 }#}}}
-Creating Grammars, Action Objects {#{{{
+Action Objects {#{{{
+
+    http://doc.perl6.org/language/grammars#Action_Objects
+
+
+    The more I read through this section, the more I don't understand wtf is 
+    happening.  I need to find another tutorial on this.
+
+    I'm creating ROOT/Grammars/ to include more info on these things, not just 
+    from this tutorial.
+
+
+
     
     A grammar is used only to parse text, and is declared with the "grammar" 
     keyword instead of "class".
@@ -237,14 +254,16 @@ Creating Grammars, Action Objects {#{{{
                 }
             }
 
-        parse() is accepting an argument named "actions", so we can pass that 
-        argument in using either p6's named argument indicator (:), like this:
+        parse() accepts an argument named "actions":
             my $actions = TestActions.new;
             my $match   = TestGrammar.parse('40', :$actions);
 
-        ...or we can do it the old-fashioned way:
-            my $foo     = TestActions.new;
-            my $match   = TestGrammar.parse('40', actions => $foo);
+            ...or be explicit about the name we're passing in:
+                my $foo     = TestActions.new;
+                my $match   = TestGrammar.parse('40', actions => $foo);
+
+            ...or even:
+                my $match   = TestGrammar.parse('40', actions => TestActions.new);
 
         ...either way:
             say $match;             # ｢40｣
@@ -260,6 +279,10 @@ Creating Grammars, Action Objects {#{{{
             - In this case, that TOP method adds 2 to the passed-in argument.
 
 
+    I don't really understand the calls to .make and .made.  They're poorly 
+    explained, both on this tut page and on the Match class page.
+
+
     In the example given in the tut, the TOP() method in TestActions does not 
     use $match as I've used.  Instead, it uses "$/", which indicates that the 
     argument is a match argument.  So sayeth the tut, but I don't yet 
@@ -267,6 +290,7 @@ Creating Grammars, Action Objects {#{{{
     understand.  See the tut link to re-read on what that $/ is doing and what 
     it gets you.
         http://doc.perl6.org/language/grammars#Action_Objects
+
 
 }#}}}
 Final example on this tut (READ please) {#{{{
@@ -280,10 +304,33 @@ Final example on this tut (READ please) {#{{{
     follows:") -- this block of code does work, and does produce what the tut 
     says it will.
 
-    However, that example is just using too many symbols I don't yet 
-    understand for me to fully grok the example.  I mostly get what's 
-    happening, but am definitely not yet to the point where I could write that 
-    example on my own.
+    
+    But it's heavily relying on calls to .make and .made, and I don't really 
+    grok what those are doing yet.
+
+    
+    The other part of that example that I don't get is this:
+        - The TOP token is matching
+                [<pair> \n+]*
+          
+          There's a "pair" rule later in the code, and I can see what that's 
+          doing - that's not the problem.  That TOP token specifies that the 
+          pair be followed by one or more newline characters (\n+).
+
+        - However, there's also this token:
+                token ws { \h* }
+          
+          which is matching zero or more horizontal whitespaces.  Removing 
+          this token breaks the code, so it is needed.
+
+          But the TOP token is already matching the newline after the pair.  
+          Why do we need this separate token to match horizontal whitespace?
+
+
+        - And that "ws" token isn't being called or mentioned anywhere else.  
+          How is it doing anything?  Is our string run through the listed 
+          tokens in lexical order?  I dunno what's going on.
+
     
 }#}}}
 

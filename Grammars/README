@@ -1,0 +1,79 @@
+
+I've been getting a little lost on how Grammars work, and I think it's due to 
+me not understanding the Actions aspect.
+
+
+    A Grammar is a set of rules to match a string.  A class for regexes.
+
+    A Grammar can also modify its matched string using Actions.
+
+
+
+The first part is understandable - I get what's happening.  The Actions part 
+is what's confusing me, but I don't want to ignore Grammars because I don't 
+understand that bit.
+
+So at least work on fully grokking the "class of regexes" bit for now.
+
+
+
+There's an advent calendar exercise on Grammars and Actions here:
+    https://perl6advent.wordpress.com/2009/12/21/day-21-grammars-and-actions/
+
+I've been avoiding it since it's from 2009, but I might have to end up coming 
+back to it.  Could possibly still be valid.
+
+
+
+DrForr has a (planned) 6-part blog on Grammars.  2 parts are up now, and the 
+dates are current, so this may well be the next place to look:
+    http://theperlfisher.blogspot.ro/2016/02/from-regular-expressions-to-grammars-pt.html
+
+
+
+
+Rules of Grammar {#{{{
+
+    This isn't being spelled out anywhere, it's the best I'm able to derive 
+    from observation.
+    
+    - The TOP rule runs automatically when we try to parse a string with the 
+      Grammar
+
+    - A rule is made up of other rules and tokens.
+        - Whitespace is important for rules.
+        - :sigspace is on.
+
+    - A token is meant to be more atomic than a rule, though a token can 
+      contain other tokens and rules.
+        - Whitespace is NOT important for tokens.
+        - :sigspace is off.
+    
+}#}}}
+url.p6 {#{{{
+
+    I got most of the code in here more or less from
+        https://en.wikibooks.org/wiki/Perl_6_Programming/Grammars
+
+    This contains three different grammars which all match the structure of a 
+    URL.
+
+    All three are variations on the same idea, matching a URL.
+
+    Note the "proto" token in ProtoURL.
+
+    Also note how I had to change the "subdomain" from a rule to a regex in 
+    OptionalSubdomainURL.
+    
+}#}}}
+url_rule.p6 {#{{{
+    
+    Still messing with the URL grammar from ./url.p6 but now I'm trying to 
+    modify the URL using an Actions class.
+
+    The URL _is_ getting modified, but not in the way I want it to.  See the 
+    comments in the code.
+
+}#}}}
+
+
