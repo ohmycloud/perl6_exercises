@@ -1,0 +1,42 @@
+
+https://perl6advent.wordpress.com/2009/12/21/day-21-grammars-and-actions/
+
+
+one.p6
+    Sets up the string we're dealing with, along with a grammar that matches 
+    it.
+
+    Includes some output lines to show that everything is working.
+
+    Note that variables are poorly named.  'question' should be 'entry', and 
+    'header' should be 'question'.  I didn't change them because the tut is 
+    using the goofy names and I'd have to continuously translate in my head 
+    and that'd cause confusion.
+
+
+two.p6
+    Copied from one.p6, with additional debug-y output removed.
+
+    Adds a Question class and a Question::Answer class.
+
+    After parsing the questions and answers out of our string using the 
+    Grammar from one.p6, this version then creates Question objects, each of 
+    which contains several Question::Answer objects.
+
+    This script works and it's easy to see what it's doing, but the way it's 
+    doing what it's doing isn't "right" (I mean it works, but it's not 
+    perl6-y.)
+
+three.p6
+    Copied from two.p6.
+
+    Does the same job as two.p6, but instead of iterating over our match 
+    object, this adds an Action class to the Grammar itself.
+
+    ***
+    This part of the tutorial is the first tut I've seen yet that actually 
+    tries to explain what make() is doing.
+    Re-read and understand this.
+    ***
+
+

@@ -2,7 +2,6 @@
 I've been getting a little lost on how Grammars work, and I think it's due to 
 me not understanding the Actions aspect.
 
-
     A Grammar is a set of rules to match a string.  A class for regexes.
 
     A Grammar can also modify its matched string using Actions.
@@ -17,20 +16,23 @@ So at least work on fully grokking the "class of regexes" bit for now.
 
 
 
-There's an advent calendar exercise on Grammars and Actions here:
-    https://perl6advent.wordpress.com/2009/12/21/day-21-grammars-and-actions/
+Tutorials {#{{{
 
-I've been avoiding it since it's from 2009, but I might have to end up coming 
-back to it.  Could possibly still be valid.
+    There's an advent calendar exercise on Grammars and Actions here:
+        https://perl6advent.wordpress.com/2009/12/21/day-21-grammars-and-actions/   
 
-
-
-DrForr has a (planned) 6-part blog on Grammars.  2 parts are up now, and the 
-dates are current, so this may well be the next place to look:
-    http://theperlfisher.blogspot.ro/2016/02/from-regular-expressions-to-grammars-pt.html
+        I'd been avoiding it since it's from 2009, but so far it's the best 
+        walkthrough of Grammars and actions I've seen.
 
 
 
+    dr_forr/
+        DrForr has a (planned) 6-part blog on Grammars.
+        I've gone through parts 1 and 2 as of 02/19.  Come back and go through 
+        the rest as he writes them.
+        http://theperlfisher.blogspot.ro/2016/02/from-regular-expressions-to-grammars-pt.html
+
+}#}}}
 
 Rules of Grammar {#{{{
 

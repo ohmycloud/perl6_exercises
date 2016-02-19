@@ -1,0 +1,21 @@
+
+http://theperlfisher.blogspot.ro/2016/02/from-regular-expressions-to-grammars-pt.html
+
+This is a blog series on Grammars.  There are only two parts written at this 
+point, but I'm hoping he keeps with it and plan to come back here to follow 
+along.
+
+
+part1
+    Blah.  This is not a tutorial on Grammars in p6 aimed at p5 programmers.  
+    The entirety of part1 is "this is what a regular expression is, for those 
+    who have never seen one before", and goes on to write some p6 regexen to 
+    match an ISO 8601 timestamp.
+    Not helpful at all so far.
+
+part2
+    Just a continuation of part1.  He hasn't touched on grammars yet, and is 
+    still trying to explain how regexen work.
+    Still not helpful.
+    
+

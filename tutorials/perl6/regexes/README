@@ -391,16 +391,16 @@ Alternation {#{{{
     very rarely.
 
 }#}}}
-Anchors {#{{{
+Anchors ( ^, ^^, $, $$ ) {#{{{
 
     Again, p5-y.
 
-    Front anchor:
+    String front anchor:
             say so 'perl'       ~~ / ^ perl /;      # True
             say so 'perly'      ~~ / ^ perl /;      # True
             say so 'properly'   ~~ / ^ perl /;      # False
 
-    Rear anchor:
+    String rear anchor:
             say so 'perl'       ~~ / perl $ /;      # True
             say so 'perly'      ~~ / perl $ /;      # False
             say so 'pro-perl'   ~~ / perl $ /;      # True
@@ -430,7 +430,7 @@ Anchors {#{{{
             say so $str ~~ /^^ three .* three$$ /;      # True
 
 }#}}}
-Word Boundaries {#{{{
+Word Boundaries (<< and >>) {#{{{
 
     No more \b.  Now we can specify left- or right- word boundaries.
             my $str = "The quick brown fox";
@@ -500,12 +500,12 @@ Grouping, Capturing {# {{{
             }
 
 
-    I've never bothered with named captures, but they're here if you want 
-    them:
+    Named captures:
             my $str = 'bar';
             if $str ~~ / $<mystr> = (foo || bar) / {
                 say $<mystr>;                   # ｢bar｣
             }
+
 
         Named captures don't always need the parens, if there's no grouping to 
         worry about:
@@ -513,6 +513,15 @@ Grouping, Capturing {# {{{
             if $str ~~ / $<mystr> = bar / {
                 say $<mystr>;                   # ｢bar｣
             }
+
+        I've never been a big fan of named captures in p5 -- the default 
+        numbered captures have always been fine.
+
+        But with p6's Grammars, I'm definitely going to want to get used to 
+        using named captures.
+
+
+
 
 }# }}}
 Substitution {# {{{
