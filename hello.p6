@@ -1,4 +1,4 @@
-#!/home/jon/.rakudobrew/bin/perl6
+#!/home/jon/.rakudo/install/bin/perl6
 
 if True {
     my $greet = "Hello, World!";
