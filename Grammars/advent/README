@@ -33,10 +33,54 @@ three.p6
     Does the same job as two.p6, but instead of iterating over our match 
     object, this adds an Action class to the Grammar itself.
 
-    ***
     This part of the tutorial is the first tut I've seen yet that actually 
     tries to explain what make() is doing.
     Re-read and understand this.
-    ***
+
+    THE VARIABLE NAMES IN THIS PART OF THE TUTORIAL ARE FUCKING STUPID.  {#{{{
+        
+        In the tut, the Question class has an array attribute @.answers.  And 
+        when the tut asks the user for his answers to a question, those 
+        user-supplied answers are stored in the array @answers.
+
+        So we have:
+            @answers
+            @.answers
+        Which are two completely different variables.  Seriously, have we 
+        learned nothing after tens of thousands of years of civilization?  You 
+        don't name your variables like that, you fucking moron.
+
+        In my version (three.p6) of this exercise, I have changed the array 
+        holding the user's responses to "@responses".  Which makes way more 
+        sense, but could be confusing if you go back to the actual tut page 
+        and try to follow along.
+
+        FWIW, the tut also uses these names in the Grammar
+                - question
+                    This is an entire question and its complete set of answers.
+                - header
+                    This is the actual text of the question
+                - answer
+                    This is one of the answers to the question
+
+            If the author didn't have his head up his ass, he'd have named 
+            them as:
+                - entry (or some such)
+                - question
+                - answer
+
+            Calling an entry a question, and calling a question a header, is 
+            just moronic, and will cause the reader to have to re-check what's 
+            actually happening.
+
+            I did _not_ change these in my three.p6, since I'm trying to 
+            maintain as much consistency with the tut's code, and if I change 
+            the variables to names that make sense but that don't match the 
+            tut, I'd just be adding a whole different set of confusion to the 
+            mix.
+
+    }#}}}
+
+
 
 

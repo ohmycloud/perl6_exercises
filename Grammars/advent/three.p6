@@ -18,29 +18,68 @@ class Question {
     has $.type is rw;
     has Question::Answer @.answers is rw;
 
-    ### This method is new, but there's nothing mysterious about it.
+
+    ### This method is new from two.p6
     method ask {
         my %hints = (
             pickmany    => 'Choose all that are true',
             pickone     => 'Choose the one item that is correct'
         );
         say %hints{$.type};
-        say '';
         say $.text;
 
+        ### 
+        ### There are a lot of comments in this method.  Skip them on your 
+        ### first re-read-through.  It's mostly bitching.
+        ###
+
         for @.answers.kv -> $i, $a {
-            say "{$i+1}) {$a.text}";
+            ### Yes, this is going to number the responses starting at 0) on 
+            ### output, which is not very user-friendly.  Leave it alone for 
+            ### now.
+            ###
+            ### IRL I would add 1 to $i here, so the answers as displayed to 
+            ### the user start at 1) instead of 0).  But then I'd have to 
+            ### re-modify the user's answers after reading them, and we'd be 
+            ### drifting further from the point of this example.
+            say "{$i}) {$a.text}";
         }
         print '> ';
 
         ### Read the user's response(s)
         my $line = $*IN.get();
         my @responses = $line.comb( /<digit>+/)».Int.sort;
+
+        ### Create an array of the subscripts of all of the correct answers to 
+        ### this question.
+        my @correct = @.answers.kv.map({ $^v.correct ?? $^k !! Empty });
+
+
+        ### Now just compare the array of user responses to the array of 
+        ### correct answers.  This is why we had to leave the answers numbered 
+        ### starting with "0".
+        ###
+        ### Also, the tuto has these blocks returning either 0 or 1, which I 
+        ### hate.  I changed it to return True or False, which makes more 
+        ### sense.  I also changed the method of asking the questions at the 
+        ### bottom of this script.
+        if @responses ~~ @correct {
+            say "You got it right!";
+            ''.say;
+            #return 1;
+            return True;
+        }
+        else {
+            say "Whoopsie, you got it wrong.";
+            ''.say;
+            #return 0;
+            return False;
+        }
     }
 }
 
 
-### But now we're instantiating the objects using a new Actions class
+### Now we're instantiating the objects using a new Actions class
 class Question::Actions {
     method TOP ($/) {
         make $<question>».ast;
@@ -89,13 +128,23 @@ my $str = q:to/EOT/;
 my @questions = Question::Grammar.parse( $str, actions => Question::Actions.new() ).ast;
 
 
-### works.
-for @questions -> $q {
-    say $q.text;
 
-    for $q.answers.kv -> $i, $a {
-        say "   {$i+1}) {$a.text}";
-    }
-}
 
+### Ask each question, and collect the number of correct results.
+
+### This is the code from the tut.  It's trying too hard for brevity and 
+### cleverness.  It requires that our ask() method return either 0 or 1, which 
+### I don't like, and it doesn't display the total number of questions asked, 
+### which I don't like.
+#my @results = @questions.map(*.ask);
+#say "Your final score: " ~ [+] @results;
+
+
+### This looks less brief and clever, but it works whether ask() is returning 
+### a 1 and 0 or True and False, it's easier to read, and it displays the 
+### total number of questions asked.
+my Int $total = 0;
+my Int $correct = 0;
+@questions.values.map({ $total++; $^v.ask ?? $correct++ !! Empty });
+say "Your final score:  $correct out of $total";
 

@@ -11,19 +11,23 @@ http://doc.perl6.org/language/variables#The_%3A_Twigil
 =end Foobar
 
 
-say $=Foobar;
-exit;
-
-
-
-
-
-
 
 
 ### 
-### ^   (Positional)
+### ^   (Positional or Range)
 ###
+
+
+### As a range:
+my $range = ^4;
+for $range.list -> $i {
+    say "-$i-";
+}
+
+my @arr = <a b c d e f g h i j k l>;
+my @subset = @arr[^3];
+say @subset;                # [a b c]  -- remember that ^3 means "from 0 up to but NOT INCLUDING 3", or "the first 3".
+
 
 ### ^ applies to both blocks and subroutines.  Here it is on a block.
 for ^4 {

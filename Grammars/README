@@ -15,7 +15,6 @@ understand that bit.
 So at least work on fully grokking the "class of regexes" bit for now.
 
 
-
 Tutorials {#{{{
 
     There's an advent calendar exercise on Grammars and Actions here:
@@ -25,12 +24,13 @@ Tutorials {#{{{
         walkthrough of Grammars and actions I've seen.
 
 
-
     dr_forr/
-        DrForr has a (planned) 6-part blog on Grammars.
+        DrForr (Jeff Goff) has a (planned) 6-part blog on Grammars.
         I've gone through parts 1 and 2 as of 02/19.  Come back and go through 
         the rest as he writes them.
         http://theperlfisher.blogspot.ro/2016/02/from-regular-expressions-to-grammars-pt.html
+
+        I haven't read part 3 yet, and it's up.
 
 }#}}}
 

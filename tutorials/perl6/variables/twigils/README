@@ -151,14 +151,102 @@ Match < {#{{{
     There's not much else said, so this is a little hazy.
 
 }#}}}
-Positional ^ (dumb) {#{{{
-    
-    This is a little goofy.
+Positional ^ {#{{{
 
-    It can be used in both routines and blocks, but there are better ways to 
-    take arguments in routines, so it's probably only going to be used in 
-    blocks.
+    The caret can be used in two ways.
 
+
+    RANGE {#{{{
+        http://doc.perl6.org/type/Range
+
+        It can be used to create a range from 0 up to (but not including) N.
+
+        Or, put another way, it can be used to create a range starting at 0 
+        and of length N.
+
+                my $var = ^4;
+                say $var.WHAT;          # (Range)
+                say $var.min;           # 0
+                say $var.max;           # 4
+                say $var;               # ^4
+
+                ### It stringifies to a list
+                say "-$var-";           # -0 1 2 3-
+
+                for $var -> $a {
+                    ### A range is NOT iterable.  It just returns itself in
+                    ### this for loop which runs only one time.
+                    say $a;             # ^4
+                }
+
+                for $var.list -> $a {
+                    say "-$a-";
+
+                    ### There we go - turn that range into a list first, then
+                    ### iterate _that_.
+                    ###
+                    ### Output is as expected:
+                    ### -0-
+                    ### -1-
+                    ### -2-
+                    ### -3-
+                }
+
+
+    }#}}}
+    POSITIONAL {#{{{
+
+        Here's where it gets a little goofy.  
+
+        In a block or routine, a caret twigil indicates an incoming positional 
+        parameter.  The name portion of the variable (the alpha chars after 
+        the sigil and twigil) determine which variable holds which value.
+
+        These can be used in routines, but since routines have signatures, 
+        we'll generally use those rather than these positional parameters.  So 
+        you _can_ use these caret variables in routines, but "can" does not 
+        imply "should", and you generally won't.
+
+
+        This is usually used when we're iterating over a hash or array.
+                my %hash = (
+                    jon => 'barton',
+                    kermit => 'jackson',
+                );
+                %hash.kv.map({ say "$^b, $^a" });
+
+                # Outputs:
+                # barton, jon
+                # jackson, kermit
+
+
+        The "goofiness" is here -- "a" comes before "b" in a sort, so $^a is 
+        the first positional parameter, and $^b is the second.  That's it.
+
+
+        It's not uncommon to see code like this:
+                %hash.kv.map({ say "$^v, $^k" });
+
+            or:
+                %hash.kv.map({ say "$^value, $^key" });
+
+            We used "k" and "v" (or "key" and "value") to indicate the key and 
+            value coming out of the .kv method.
+
+            But the only reason that works is that .kv returns its values in 
+            the order (key, value), and "k" just happens to come before "v" in 
+            English.
+            
+            So it works, but not because there's anything special about the 
+            "k" or the "v".  Any of these would have returned the same thing:
+                %hash.kv.map({ say "$^b, $^a" });
+                %hash.kv.map({ say "$^z, $^q" });
+                %hash.kv.map({ say "$^r, $^e" });
+                %hash.kv.map({ say "$^stuff, $^cake" });
+
+            
+    }#}}}
+                
     See ./params.p6 which explains this better.
 
 }#}}}

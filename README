@@ -33,10 +33,7 @@ INSTALLING {#{{{
     http://rakudo.org/how-to-get-rakudo/
 
     I didn't want to go with the Ubuntu package, figuring it'd probably be 
-    out-of-date.  I do like perlbrew, and one of the options for perl6 is 
-    "rakudobrew", so figured I'd go with that instead of doing a full manual 
-    build.
-
+    out-of-date (most Rakudo docs seem to support that idea).
 
     Rakudobrew {#{{{
 
@@ -98,7 +95,7 @@ INSTALLING {#{{{
             Yay!
 
     }#}}}
-    Star {
+    Star {#{{{
 
         - Download the latest from
                 http://rakudo.org/downloads/star/
@@ -106,31 +103,29 @@ INSTALLING {#{{{
               there.
         - If ~/.rakudo exists, back it up.
         - Move the un-tarred rakudo-star-yyyy.mm dir to ~/.rakudo/
-        - My config.fish file has that ~/.rakudo/ dir in its PATH
-            - There are actually 2 subdirs that need to be in the PATH; 
-              they're both there.
 
         - Do the following:
             $ cd ~/.rakudo/
             $ perl Configure.pl --backend=moar --gen-moar
-                - Took 1-2 minutes on samwise
+                - Took 1-2 minutes on samwise, 1 minute on gandalf
                 - Some warnings/errors will probably occur.  That's OK, let it 
                   go.
             $ make
-                - ~4 minutes on samwise
+                - ~4 minutes on samwise, 1:30 on gandalf
             $ make install
                 - This doesn't just install, it also goes on to (presumably, 
                   download first, and then) compile a bunch of modules (p6 
                   core, maybe?).
-                    - Anyway, it took under 15 minutes on samwise.  I lost 
-                      focus and stopped watching it and didn't look back until 
-                      fifteen minutes had passed, and it was finished by then.  
-                      So it probably took well under 15 minutes.
-
-        
+                - ~5 minutes on gandalf
 
 
-    }
+        - My config.fish file has that ~/.rakudo/ dir in its PATH
+            - There are actually 2 subdirs that need to be in the PATH; 
+              they're both there.
+            - Make sure you've got my latest fish config setup pulled from 
+              github, and your terminal should be able to find perl6.
+
+    }#}}}
 
 
 }#}}}
