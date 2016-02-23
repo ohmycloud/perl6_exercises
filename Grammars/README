@@ -8,20 +8,10 @@ me not understanding the Actions aspect.
 
 
 
-The first part is understandable - I get what's happening.  The Actions part 
-is what's confusing me, but I don't want to ignore Grammars because I don't 
-understand that bit.
-
-So at least work on fully grokking the "class of regexes" bit for now.
-
-
 Tutorials {#{{{
 
     There's an advent calendar exercise on Grammars and Actions here:
         https://perl6advent.wordpress.com/2009/12/21/day-21-grammars-and-actions/   
-
-        I'd been avoiding it since it's from 2009, but so far it's the best 
-        walkthrough of Grammars and actions I've seen.
 
 
     dr_forr/
@@ -30,10 +20,9 @@ Tutorials {#{{{
         the rest as he writes them.
         http://theperlfisher.blogspot.ro/2016/02/from-regular-expressions-to-grammars-pt.html
 
-        I haven't read part 3 yet, and it's up.
+        Working through part 3.
 
 }#}}}
-
 Rules of Grammar {#{{{
 
     This isn't being spelled out anywhere, it's the best I'm able to derive 
@@ -52,6 +41,17 @@ Rules of Grammar {#{{{
         - :sigspace is off.
     
 }#}}}
+
+
+tut_example.p6 {#{{{
+    http://doc.perl6.org/language/grammars#Action_Objects
+
+    This works, and I now more or less understand it, but I didn't understand 
+    it until I managed to get url_rule.p6 working.
+
+    So run this if you want, but you're better off checking url_rule.p6 for 
+    enlightenment before trying to understand this.
+}#}}}
 url.p6 {#{{{
 
     I got most of the code in here more or less from
@@ -68,13 +68,13 @@ url.p6 {#{{{
     OptionalSubdomainURL.
     
 }#}}}
-url_rule.p6 {#{{{
+url_rule.p6 (THIS IS THE IMPORTANT ONE) {#{{{
     
-    Still messing with the URL grammar from ./url.p6 but now I'm trying to 
-    modify the URL using an Actions class.
+    Still messing with the URL grammar from ./url.p6 but now I'm actually 
+    modifying the parsed string using an Actions class.
 
-    The URL _is_ getting modified, but not in the way I want it to.  See the 
-    comments in the code.
+    This now works.  The script has some extensive comments at the bottom 
+    explaining what's happening.
 
 }#}}}
 

@@ -21,5 +21,9 @@ part2
 part3
     http://theperlfisher.blogspot.nl/2016/02/from-regular-expressions-to-grammars-pt_20.html
 
-    Have not read yet
+    The exercise being worked on through all of these blog posts is to parse 
+    and create a JIT interpreter for this line of JavaScript:
+        var a = 3; console.log( "Hey, did you know a = " + a + "?" );
+
+    Left off at "Structure and Form".
 

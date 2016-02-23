@@ -1,6 +1,10 @@
 #!/home/jon/.rakudobrew/bin/perl6
 
 
+### This is taken from
+###     http://doc.perl6.org/language/grammars#Action_Objects
+
+
 use v6;
 
 grammar KeyValuePairs {
@@ -17,10 +21,18 @@ grammar KeyValuePairs {
     }
 }
 
+
+### The commented lines are the code as it appears in the tut.
+###
+### The uncommented lines are my modifications.  They do the same thing, but 
+### mine are less noisy.
 class KeyValuePairsActions {
     method identifier($/) { $/.make: ~$/                          }
-    method pair      ($/) { $/.make: $<key>.made => $<value>.made }
-    method TOP       ($/) { $<pair>».made.say; $/.make: $<pair>».made                }
+    method pair      ($/) { make $<key>.made => $<value>.made }
+    method TOP       ($/) { make $<pair>».made                }
+
+    #method pair      ($/) { $/.make: $<key>.made => $<value>.made }
+    #method TOP       ($/) { $/.make: $<pair>».made                }
 }
 
 my  $res = KeyValuePairs.parse(q:to/EOI/, :actions(KeyValuePairsActions)).made;

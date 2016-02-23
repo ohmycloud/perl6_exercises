@@ -42,29 +42,32 @@ Named Regexes {#{{{
             number => ｢456｣
 
 
-    ***
-    *** The following is wordy but the tut thinks it's important so read ***
-    ***
-
-    Regex Delcarator
-        This creates regexes that behave as you're used to
-        
-            my regex this-matches {
-                .+ q
-            }
-            my $str = "this is a longish string that contains the letter q inside it.";
-            say so $str ~~ &this-matches;     # True
-
-        What's happening is the ".+" consumes the WHOLE string, and does not 
-        find a "q" following it.  Then, the regex starts to backtrack until it 
-        does find the "q".  This works, and the regex ends up matching.  But 
-        all that backtracking is slow.
 
 
 
-    The tut says that you won't actually use "regex" as your declarator that 
-    often, because of the slow backtracking.  Instead, you'll use either 
-    "token" or "rule".
+
+            
+}#}}}
+Regex Delcarator {#{{{
+    
+    This creates regexes that behave as you're used to
+    
+        my regex this-matches {
+            .+ q
+        }
+        my $str = "this is a longish string that contains the letter q inside it.";
+        say so $str ~~ &this-matches;     # True
+
+    What's happening is the ".+" consumes the WHOLE string, and does not 
+    find a "q" following it.  Then, the regex starts to backtrack until it 
+    does find the "q".  This works, and the regex ends up matching.  But 
+    all that backtracking is slow.
+
+
+
+    The tut says that you won't actually use "regex" as your declarator 
+    that often, because of the slow backtracking.  Instead, you'll use 
+    either "token" or "rule".
 
     BE CAREFUL OF VERBIAGE.  "regex" is a declarator, different from "token" 
     and "rule".  But "regex" is also widely used as the term in Perl whenever 
@@ -72,97 +75,143 @@ Named Regexes {#{{{
     life on the idea that, at some point, we're going to run into somebody 
     saying "regex" when they really mean "token" or "rule".
 
+}#}}}
+Token and Rule Declarators {#{{{
+    This is the same code as above, except we're using "token" instead of 
+    "regex":
 
-
-    Token and Rule Declarators
-        This is the same code as above, except we're using "token" instead of 
-        "regex":
-
-            my token this-does-not-match {
-                .+ q
-            }
-            my $str = "this is a longish string that contains the letter q inside it.";
-            say so $str ~~ &this-does-not-match;     # False
-        
-        tokens do NOT backtrack, where regexes do.  So above, once the ".+" 
-        matches the whole string and fails to find a "q" following, it stops 
-        there and fails.
-
-
-        The "rule" declarator is very similar to the "token" declarator.  The 
-        difference is how they handle spaces (the "rule" declarator causes 
-        :sigspace to go into effect.)
-
-
-        To see the difference, here is another token declarator dealing with 
-        spaces (:sigspace NOT in effect):
-
-            my token non-space-y        { .nce 'upon' 'a' 'time' }
-            say so 'onceuponatime'      ~~ &non-space-y;              # True
-            say so 'once upon a time'   ~~ &non-space-y;              # False
-
-        So that's saying "match this pattern against our string, ignoring 
-        unquoted whitespace".  
-
-
-        FWIW, I'm quoting the strings in all of the examples in this section.  
-        That's not necessary; it's being done to be more explicit about the 
-        usage of the spaces.  These two are identical:
-            my token non-space-y        { .nce 'upon' 'a' 'time' }
-            my token non-space-y        { .nce upon a time }
-
-
-        The string that contains no spaces does exactly match the pattern.
-
-        The string that _does_ contain spaces does _not_ match our token, 
-        because our pattern does not explicitly include spaces.
-
-        If I wanted to use a "token" to match a string containing whitespace, 
-        I'd need my token to be explicit about that whitespace:
-            my token space-y            { .nce ' ' 'upon' ' ' 'a' ' ' 'time' }
-            say so 'onceuponatime'      ~~ &space-y;              # False
-            say so 'once upon a time'   ~~ &space-y;              # True
-
-        Or, a bit more sanely:
-            my token space-y            { .nce' upon a time' }
-            say so 'onceuponatime'      ~~ &space-y;              # False
-            say so 'once upon a time'   ~~ &space-y;              # True
-
-
-
-        Here's the same thing with a rule declarator (:sigspace IS in effect):
-            my rule space-y                 { .nce 'upon' 'a' 'time' }
-            say so 'onceuponatime'          ~~ &space-y;                # False
-            say so 'once upon      a time'  ~~ &space-y;                # True
-
-        So here we have the opposite as with "token".
-
-        Here's one last example, with "rule" again:
-            my rule space-y                 { .nce'upon''a''time' }
-            say so 'onceuponatime'          ~~ &space-y;                # True
-            say so 'once upon      a time'  ~~ &space-y;                # False
-
+        my token this-does-not-match {
+            .+ q
+        }
+        my $str = "this is a longish string that contains the letter q inside it.";
+        say so $str ~~ &this-does-not-match;     # False
     
-
-        So the rules:
-            - token
-                - behaves as if //x is in effect.
-                - bare whitespace in the pattern is ignored.
-
-            - rule
-                - behaves as if //x is NOT in effect.
-                - A bare (unquoted) whitespace character in the pattern is 
-                  treated the same as "\w+"
+    tokens do NOT backtrack, where regexes do.  So above, once the ".+" 
+    matches the whole string and fails to find a "q" following, it stops 
+    there and fails.
 
 
-    CONCLUSION
-        I'm leaning towards "token", since I've used //x before and understand 
-        about being explicit with my whitespace.
+    The "rule" declarator is very similar to the "token" declarator.  The 
+    difference is how they handle spaces (the "rule" declarator causes 
+    :sigspace to go into effect.)
 
-        The fact that "rule" matches any typed whitespace character to "\w+" 
-        is twiddly and weird and is going to cause confusion and heartache.
 
-            
+    To see the difference, here is another token declarator dealing with 
+    spaces (:sigspace NOT in effect):
+
+        my token non-space-y        { .nce 'upon' 'a' 'time' }
+        say so 'onceuponatime'      ~~ &non-space-y;              # True
+        say so 'once upon a time'   ~~ &non-space-y;              # False
+
+    So that's saying "match this pattern against our string, ignoring 
+    unquoted whitespace".  
+
+
+    FWIW, I'm quoting the strings in all of the examples in this section.  
+    That's not necessary; it's being done to be more explicit about the 
+    usage of the spaces.  These two are identical:
+        my token non-space-y        { .nce 'upon' 'a' 'time' }
+        my token non-space-y        { .nce upon a time }
+
+
+    The string that contains no spaces does exactly match the pattern.
+
+    The string that _does_ contain spaces does _not_ match our token, 
+    because our pattern does not explicitly include spaces.
+
+    If I wanted to use a "token" to match a string containing whitespace, 
+    I'd need my token to be explicit about that whitespace:
+        my token space-y            { .nce ' ' 'upon' ' ' 'a' ' ' 'time' }
+        say so 'onceuponatime'      ~~ &space-y;              # False
+        say so 'once upon a time'   ~~ &space-y;              # True
+
+    Or, a bit more sanely:
+        my token space-y            { .nce' upon a time' }
+        say so 'onceuponatime'      ~~ &space-y;              # False
+        say so 'once upon a time'   ~~ &space-y;              # True
+
+
+
+
+
+    Here's the same thing with a rule declarator (:sigspace IS in effect):
+        my rule space-y                 { .nce 'upon' 'a' 'time' }
+        say so 'onceuponatime'          ~~ &space-y;                # False
+        say so 'once upon      a time'  ~~ &space-y;                # True
+
+    That rule example above is confusing.  Here are some better examples:
+            say so 'a3'             ~~ rule { a 3 };            # False
+            say so 'a 3'            ~~ rule { a 3 };            # True
+            say so 'a         3'    ~~ rule { a 3 };            # True
+            say so 'a 3'            ~~ rule { a     3 };        # True
+
+            say so 'a 3'            ~~ rule { a3 };             # False
+            say so 'a3'             ~~ rule { a3 };             # True
+
+
+
+    So the rules:
+        - Neither rules nor tokens backtrack.
+
+        - token
+            - behaves as if //x is in effect.
+            - bare whitespace in the pattern is ignored.
+
+        - rule
+            - behaves as if //x is NOT in effect.
+            - A bare (unquoted) whitespace character in the pattern is 
+                treated the same as <.ws>
+                - See the further explanation of :sigspace below.
+
+
+
+More explanation of :sigspace
+    http://doc.perl6.org/language/regexes#Sigspace'
+
+    The <.ws> that gets turned on when :sigspace is enabled (eg in rules)  
+    is weird and magical and hard to pin down.  
+
+    The tut says this:
+        "Where whitespace in a regex turns into <.ws> depends on what 
+        comes before the whitespace."
+
+    In all of my rule examples above, my rules have both leading and 
+    trailing whitespace, but my strings do not, and the rules still match 
+    in some cases, so that leading and trailing whitespace in the rule 
+    declarations are clearly not significant, so we can see that:
+        <.ws> is NOT the same as a flat-out \w+.
+
+    OK, we know what <.ws> is not.  What _is_ it?  Who the fuck knows?  
+    The tutorial gives us some examples and some handwaving, but no clear 
+    and hard definition, so I'm left to guess.
+
+    I have found these two cases:
+            say so 'foo a3'  ~~ rule { foo a 3 };       # False
+            say so 'foo a=3' ~~ rule { foo a '=' 3 };   # True
+
+        So in the first line, the whitespace in the rule between the 'a' 
+        and the '3' is significant.
+        However, in the second line, the whitespace both after the 'a' and 
+        after the '=' is being treated as not significant.
+
+    Synopsis 05 tells me that, the second rule above translates to:
+            m/foo <.ws> a <.ws> = <.ws> 3/;
+
+    ...which it then tells me is further translated to this:
+            m/foo \s+ a \s* = \s* 3/
+                    ^     ^     ^
+        https://design.perl6.org/S05.html
+
+
+    The fact that <.ws> changes what it means in different circumstances 
+    scares the shit out of me.  The tut assures me that it usually does 
+    the right thing, and I believe it.
+    
+    But since we're allowed to override what <.ws> means, the p6 
+    developers knew damn well that <.ws> will not _always_ DTRT.  It seems 
+    to me like this is sure to lead to a bug that's going to be hard to 
+    track down.
+        
 }#}}}
 Substitutions {#{{{
 

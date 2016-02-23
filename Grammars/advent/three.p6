@@ -18,9 +18,8 @@ class Question {
     has $.type is rw;
     has Question::Answer @.answers is rw;
 
-
     ### This method is new from two.p6
-    method ask {
+    method ask {# {{{
         my %hints = (
             pickmany    => 'Choose all that are true',
             pickone     => 'Choose the one item that is correct'
@@ -75,7 +74,7 @@ class Question {
             #return 0;
             return False;
         }
-    }
+    }# }}}
 }
 
 
