@@ -21,9 +21,10 @@ part2
 part3
     http://theperlfisher.blogspot.nl/2016/02/from-regular-expressions-to-grammars-pt_20.html
 
-    The exercise being worked on through all of these blog posts is to parse 
-    and create a JIT interpreter for this line of JavaScript:
-        var a = 3; console.log( "Hey, did you know a = " + a + "?" );
+    He still hasn't used the word "Grammar" anywhere in this post.  
 
-    Left off at "Structure and Form".
+    This post is more than just a regex refresher, though.  It's a very good 
+    handheld walkthrough on building up some complex parsing rules 
 
+part4
+    Hasn't been posted yet.

@@ -76,7 +76,25 @@ Regex Delcarator {#{{{
     saying "regex" when they really mean "token" or "rule".
 
 }#}}}
-Token and Rule Declarators {#{{{
+Token and Rule Declarators (and ranting about <.ws> ) {#{{{
+
+
+    It's a little difficult right now for me to figure out when to use a Token 
+    and when to use a Rule.  In one of his blog posts, dr_forr gives this, 
+    which I like:
+        Generally, if you can put whitespace around something without changing 
+        its semantics, you've found a token like <Number> or <String>. Figure 
+        out where those breaks are, and you're already halfway to decoding the 
+        language in question.
+
+    This set of blog posts involves parsing some JavaScript, which is why he 
+    says "decoding the language in question", but the point about tokens vs 
+    rules applies to any grammar, not just to language parsers.
+        http://theperlfisher.blogspot.nl/2016/02/from-regular-expressions-to-grammars-pt_20.html
+
+
+
+
     This is the same code as above, except we're using "token" instead of 
     "regex":
 
@@ -211,6 +229,32 @@ More explanation of :sigspace
     developers knew damn well that <.ws> will not _always_ DTRT.  It seems 
     to me like this is sure to lead to a bug that's going to be hard to 
     track down.
+
+
+
+    Here's an example of that <.ws> rule catching me napping:
+            my $str = "foobar baz";
+            my $rule_1 = rule { foobar };
+            say so $str ~~ $rule_1;             # True
+
+        OK, fine, that's what you'd expect.  But what if our rule is just to 
+        match "foo"?
+            my $str = "foobar baz";
+            my $rule_2 = rule { foo };
+            say so $str ~~ $rule_2;             # False (wtf?)
+
+        We're being caught by the spaces between "foo" and the braces, that 
+        just look like a readable programming style.  But those spaces are 
+        being treated as <.ws> and, in this case, there's no space after the 
+        "foo" in our string.  We could fix this by removing the spaces in our 
+        rule:
+            my $str = "foobar baz";
+            my $rule_3 = rule {foo};
+            say so $str ~~ $rule_3;             # True
+
+        ...or we could have just used a token instead of a rule.
+
+
         
 }#}}}
 Substitutions {#{{{
