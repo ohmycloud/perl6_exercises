@@ -28,13 +28,16 @@ grammar SimpleURL {
 class SimpleURLActions {
     method TOP ($/)         { make "{$<protocol>}://{$<address>.made}" }
     method address ($/)     { make "{$<subdomain>}.{$<domain>}.{$<tld>.made}" }
+
+    ### Just an example of changing a string to something else and allowing 
+    ### that change to bubble up.
     method tld ($/)         { make 'TLD' }
 }
 
 my $match = SimpleURL.parse( 'http://www.google.com', actions => SimpleURLActions.new() );
 say "============START";
+say "orig matched string: $match";
 say "modified URL: {$match.made}";
-say "orig matched string: {~$match}";
 say "============END";
 
 
@@ -92,8 +95,6 @@ say "============END";
 ###         those bits if using any variable other than just $/.
 ###         I would like to figure it out just for argument's sake, but the RL 
 ###         answer is "use $/ in those signatures".
-###
-###
 ###
 
 

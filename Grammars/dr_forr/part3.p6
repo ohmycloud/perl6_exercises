@@ -100,7 +100,7 @@ if False {  ### Matching the console.log() # {{{
     say so $str ~~ $rule;
     
 }# }}}
-if True {  ### Polishing that console.log() match # {{{
+if True {   ### Polishing that console.log() match # {{{
 
     ###
     ### The match in the previous section works, but it's hideous.

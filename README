@@ -9,9 +9,12 @@ For the most part, each section linked that page has its own subdirectory
 under ./tutorials/perl6/
 
 
+
 Check back frequently on Grammars/dr_forr/
     It's a 6-part blog series.  He's gone through 3 parts so far
         I'm caught up through part 3
+
+While waiting for dr_forr, I'm starting to go through mfriedman's blog.
 
 
 
@@ -162,6 +165,7 @@ This is rakudo version 2015.11-357-g587f700 built on MoarVM version 2015.11-34-g
 
 }#}}}
 TUTORIALS, DOCS {#{{{
+
     http://doc.perl6.org/language.html
         This page is a list of links to different perl6 tutorials and docs 
         sites.  Looks pretty useful.
@@ -172,7 +176,6 @@ TUTORIALS, DOCS {#{{{
         CHECK
         A nice-looking intro tutorial that I want to go through after 
         finishing going through the main docs.
-
 
 }#}}}
 BLOGS, IRC, etc {{{{
