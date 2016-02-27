@@ -52,6 +52,22 @@ Blocks {#{{{
     If you changed the range there to 1..5, your block would throw an 
     exception, as the third time through, $b would be undefined.
 
+
+    The "thingy" on the right of the -> in the blocks above isn't just a loop 
+    variable.  It's a signature.
+            my @nums = <1 2 3 4 5>;
+            for @nums -> Int $n {
+                say $n;                     # fine.
+            }
+
+
+            my @stuff = <1 2 3 'blargle' 4 5>;
+            for @stuff -> Int $n {
+                say $n;                     # Prints out 1, 2, and 3, but then
+                                            # explodes when it gets to 
+                                            # 'blargle'.
+            }
+
 }#}}}
 Signatures {#{{{
     A sub signature is also its own class:
@@ -77,113 +93,226 @@ Methods {#{{{
     }
 
 }#}}}
+
+General parameter info {#{{{
+    
+    Parameters in p6 are read-only by default.
+
+            sub add (Int $num) {
+                $num += 1;              # GONNNNG!
+            }
+
+
+    Sometimes you do want your argument to be fully modifiable:
+            sub inc_by_two (Int $num is rw) {
+                $num += 2;
+            }
+            my $var = 3;
+            inc_by_two($var);
+            say $var;               # 5
+
+
+    Sometimes you want to modify it inside the routine but not affect the 
+    outside world:
+            sub add_two (Int $num is copy) {
+                $num += 2;
+                say "I now have -$num-";
+            }
+
+            my $var = 3;
+            add_two($var);      # I now have -5-
+            say $var;           # 3
+
+
+}#}}}
+
 Type constraints {#{{{
     sub foo( Int $age, Str $name ) {
         say "$name is $age years old";
     }
 }#}}}
-Slurpy (Variadic) Parameters {#{{{
-    A list (array or hash) parameter can be made slurpy by appending a splat.  
-    This obviously had to be the final parameter.
-
-    sub greet ($greeting, *@names) {
-        for @names -> $a {
-            say "$greeting, $a!"';
-        }
-    }
-
-    So we're passing an array of names, then jamming another scalar on at the 
-    end.  That extra scalar (Alison) gets slurped up:
-        my @arr = <jon john kermit>;
-        greet("Hello", @arr, "Alison");
-    
-}#}}}
 Positional Parameters {#{{{
 
-    Normally, parameters are positional.
-        sub greet ($greeting, $name) {
-            say "$greeting, $name!"
-        }
-        greet( "Howdy", "Jon" );
+    Without any other mucking about, parameters are positional.
+            sub greet ($greeting, $name) {
+                say "$greeting, $name!"
+            }
+            greet( "Howdy", "Jon" );
 
 
     Positional parameters are required by default.  We can make them optional 
     in two ways. 
 
     First, we can provide a default value:
-        sub the_answer( Int $ans = 42 ) {
-            say "The answer is $ans.";
-        }
-        the_answer(11);     # The answer is 11.
-        the_answer();       # The answer is 42.
+            sub the_answer( Int $ans = 42 ) {
+                say "The answer is $ans.";
+            }
+            the_answer(11);     # The answer is 11.
+            the_answer();       # The answer is 42.
 
     Second, we can make the parameter optional with no default by appending a 
     question mark:
-        sub the_answer( Int $ans? ) {
-            if $ans {
-                say "The answer is $ans.";
+            sub the_answer( Int $ans? ) {
+                if $ans {
+                    say "The answer is $ans.";
+                }
+                else {
+                    say "I dunno the answer.";
+                }
             }
-            else {
-                say "I dunno the answer.";
-            }
-        }
-        the_answer(11);     # The answer is 11.
-        the_answer();       # I dunno the answer.
+            the_answer(11);     # The answer is 11.
+            the_answer();       # I dunno the answer.
+
+
+
+    But, if you make a parameter optional, you're going to have to check if it 
+    was passed in or not, which is going to result in the very p5-y looking 
+    code you see above.
+
+    Instead of messing with optional parameters, use multi routines instead:
+            sub the_answer()         { say "I dunno the answer." }
+            sub the_answer(Int $ans) { say "The answer is $ans." }
+
+
+
 
 }#}}}
 Named Parameters {#{{{
+
     We get named parameters by preceding them with a colon in the signature:
-        sub greet( :$greeting, :$name ) {
-            say "$greeting, $name!"
-        }
 
-    To pass in strings, you have to tell the routine which string applies to 
-    which parameter.  Both of these styles works:
-        greet( name => 'Steve', greeting => 'Hola' );
-        greet( :name<Jon>, :greeting<Blarg> );
+            sub greet( :$greeting, :$name ) {
+                say "$greeting, $name!"
+            }
 
-    Passing in variables is more or less the same thing.  But if you use the 
-    second style, remember that <> does not interpolate but <<>> does:
-        my $name = 'Fred';
-        my $greeting = 'Hello';
-        greet( name => $name, greeting => $greeting );
-        greet( :name<<$name>>, :greeting<<$greeting>> );
+        To give our named params default values:
+            sub greet( :$greeting = 'Hello', :$name = 'Joe' ) {
+                say "$greeting, $name!"
+            }
 
 
 
-    You can use a different variable name for the named parameter.  This 
-    allows you to be explicit from the caller's POV but still save typing 
-    inside the sub.
-    Note that when we do this, the arg name is preceded by the colon, but no 
-    longer contains the $ sigil, as it's not our variable name.
+    *********************************************
+
+                        Named parameters are optional by default!
+
+    
+            sub greet( :$greeting, :$name ) {
+                say "This is the greeting routine.";
+                say "$greeting, $name!" if $greeting and $name;
+            }
+            greet();        # This is the greeting routine
+
+
+    So these two signatures are identical:
+            sub greet( :$greeting, :$name ) { }
+            sub greet( :$greeting?, :$name? ) { }
+
+    If you want to make your named parameters required, add bangs:
+            sub greet( :$greeting!, :$name! ) { }
+
+    Or, remember to add default values:
+            sub greet( :$greeting = 'Hello', :$name = 'Joe' ) { }
+
+
+    THAT'S IMPORTANT READ IT AGAIN!
+        It's going to be really nice in p6 to not have to constantly check if 
+        a passed variable is set or not anymore, since our signatures have 
+        already done that for us.  We won't be doing a lot of this anymore:
+
+            if( $arg1 and $arg1 + 0 == $arg1 ) {
+                if( $arg2 and $arg2 + 0 == $arg2 ) {
+                    $rslt = $arg1 + $arg2;
+                    return $rslt;
+                }
+                else { die $arg2 was not passed or is not a number }
+            }
+            else { die $arg1 was not passed or is not a number }
+
+        Because our signature already ensured that $arg1 and $arg2 already 
+        exist, and are Ints, and whatever else we need.
+
+        But with default named parameters, those args may not be set!
+
+
+    If your routine is expecting your named params to always be set, always 
+    include those bangs, or (even better) provide defaults of your own!
+
+    *********************************************
+
+
+    Calling a function that has named parameters
+        There are a bunch of different ways to do this. 
+
+        Passing in strings:
+            greet( name => 'Steve', greeting => 'Hola' );
+            greet( :name<Jon>, :greeting<Blarg> );
+            greet( :name('Jon'), :greeting('Blarg') );
+
+        Passing in variables instead of strings:
+            my $name     = 'Fred';
+            my $greeting = 'Hello';
+            greet( name => $name, greeting => $greeting );
+            greet( :name($name), :greeting($greeting) );
+            greet( :name<<$name>>, :greeting<<$greeting>> );
+
+        Remember that <> is a non-interpolating quote construct, and <<>> is 
+        the same except it does interpolate.
+
+        
+
+
+    If the name of the variable you're passing in is the same name as the 
+    variable specified in the signature, you can just prefix your variable 
+    with a colon.
+            my $name     = 'Fred';          # same as in the signature
+            my $greeting = 'Hello';`        # same as in the signature
+            greet( :$greeting, :$name );
+
+    Because of this, you should use names in your signature that really make 
+    sense.  However, you still might want to use short variable names in the 
+    routine's code because Laziness.
+
+    So in our signature, we can specify a meaningful incoming name along with 
+    a conveniently short variable:
         sub greet( :greeting($g), :name($n) ) {
             say "$g, $n!"
         }
 
+        greet( :greeting('Hi'), :name('Jon') );
+            
+}#}}}
+Slurpy (Variadic) Parameters {#{{{
 
-    Named parameters are optional by default.  That means the sub call won't 
-    blow up if you omit a named parameter, but the code inside the sub still 
-    might well blow up.
-
-    Our greet() sub assumes $g and $n are being passed.  This call won't blow 
-    up, but the "say" inside the sub will throw a warning (but only a warning; 
-    it's not fatal):
-        greet( name => 'Steve' );
-        # Use of uninitialized value $greeting of type Any in string context
+    This allows your parameter list (or even just part of it) to behave more 
+    like p5's @_.
 
 
-    We can change that by adding a bang after the named param in the 
-    signature:
-        sub greet( :greeting($g)!, :name($n)! ) {
-            say "$g, $n!"
-        }
+    A list (array or hash) parameter can be made slurpy by appending a splat.  
+    This obviously has to be the final parameter.
+            sub greet ($greeting, *@names) {
+                for @names -> $a {
+                    say "$greeting, $a!";
+                }
+            }
+            greet('Hi', 'Jon', 'Kermit');
 
-    So with those named args required, this code now throws a fatal exception:
-        greet( name => 'Steve' );
 
-        Required named parameter 'greeting' not passed
-          in sub greet_named at ./subs.p6:36
-          in block <unit> at ./subs.p6:46
+
+    If we're passing an array of names, then jamming another scalar on at the 
+    end.  That extra scalar gets slurped up:
+            my @arr = <jon john kermit>;
+            greet("Hello", @arr, "Alison");
+
+
+
+    But these slurpy parameters aren't totall like p5's.  You can have both 
+    Listlike and Associative slurpys:
+            sub foo( $one, *@arr, *%hash ) {
+                say $one;
+                say @arr;
+                say %hash;
+            }
 
 }#}}}
 Combining named and positional parameters {#{{{
@@ -256,6 +385,47 @@ Parameter traits and modifiers {#{{{
         say $foo;
 
         set_var( 'blargle' );   # this does not.
+
+}#}}}
+Interspersing Arguments {#{{{
+
+    This can all get a little confusing:
+
+            sub mysub( $one, *@arr, :$foo, *%hash ) {
+                say $one;
+                say $foo;
+                say @arr;
+                say %hash;
+            }
+
+            mysub('one', 'two', :foo('FOO'), 'three', 'four', jon => 'barton', kermit => 'jackson', 'five');
+
+
+    When eyeballing through code like that, remember that named parameters can 
+    be passed in any order.  The signature is specifically looking for 'foo' 
+    as a named parameter, so accept that's been satisfied and remove it from 
+    the list:
+            sub mysub( $one, *@arr, *%hash ) { }
+            mysub('one', 'two', 'three', 'four', jon => 'barton', kermit => 'jackson', 'five');
+
+
+        Next, the sub is specifically looking for a single positional 
+        parameter to go into $one.  It's been satisfied, take it out:
+            sub mysub( *@arr, *%hash ) { }
+            mysub('two', 'three', 'four', jon => 'barton', kermit => 'jackson', 'five');
+
+
+        We're down to just our slurpy params.  Again, named params, even 
+        slurpy ones, can go in any order.  They've been satisfied, so take 
+        them out:
+            sub mysub( *@arr ) { }
+            mysub('two', 'three', 'four', 'five');
+
+
+        ...and what's left goes into @arr.
+
+
+
 
 }#}}}
 Methods called on parameters {#{{{

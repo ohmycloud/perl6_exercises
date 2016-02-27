@@ -1,6 +1,15 @@
 
 http://friedo.com/blog/
 
+He has a bunch of articles starting with "Exploring Perl 6: ....".  I scrolled 
+down till I found the first one and worked my way up.
+
+
+
+Next step, Signatures, Part 2
+
+
+
 
 Numeric Types {#{{{
 
@@ -159,5 +168,173 @@ Hyperoperators {#{{{
     }#}}}
 
 }#}}}
+Meta Operators {#{{{
+
+    Reduction ( [] ) {#{{{
+        
+        Wrapping any infix operator in square brackets will reduce the list on 
+        the RHS using that operator:
+                say [+] 2, 3, 4, 5;                 # 14
+                say [*] 2, 3, 4, 5;                 # 120
+
+                my $rslt = [*] 2, 3, 4, 5;
+                say $rslt;                          # 120
+
+
+        Infinite Reductions (lazy)
+
+        This reduction operator is not lazy by default, but it can be made 
+        lazy by escaping the infix operator it contains, which means you can 
+        then use it on infinite lists:
+                my @infinite = 1..*;                # infinite list
+                my @new_infinite = [\+] @infinite;
+
+                for @new_infinite -> $n {
+                    say $n;
+                    last if $n > 20;
+                }
+
+            Output:
+                1
+                3
+                6
+                10
+                15
+                21
+
+            So each iteration through the for() loop, the @new_infinite array 
+            only contains as many elements as we've currently looped through.  
+            On the first iteration, it contains only (1), on the second, it 
+            contains (1, 2), on the third (1, 2, 3), etc.
+
+
+
+    }#}}}
+    Zip (Z) {#{{{
+        
+        This applies an infix operator to successive pairs of two lists.
+
+        Here we're doing a simple string concat between the two lists:
+                my @l1 = <a b c d e>;
+                my @l2 = <1 2 3 4 5>;
+                say @l1 Z~ @l2;             # (a1 b2 c3 d4 e5)
+
+
+        If the two lists are of different lengths, the Zip operator stops when 
+        it reaches the end of the shorter.
+                my @l1 = <a b c>;
+                my @l2 = <1 2 3 4 5 6 7 8 9>;
+                say @l1 Z~ @l2;             # (a1 b2 c3)
+
+                my @l1 = <a b c d e f g h i>;
+                my @l2 = <1 2 3>;
+                say @l1 Z~ @l2;             # (a1 b2 c3)
+
+
+        The * argument will apply all elements in the second list to each 
+        element of the first list:
+                my @l1 = <a b c d e>;
+                my @l2 = <1 2 3>;
+                say @l1 Z~ @l2, *;          # (a1 2 3 b1 2 3 c1 2 3 d1 2 3 e1 2 3)
+
+                my @l1 = <a b c>;
+                my @l2 = <1 2 3 4 5>;
+                say @l1 Z~ @l2, *;          # (a1 2 3 4 5 b1 2 3 4 5 c1 2 3 4 5)
+
+
+        That seems fairly useless, but it allows us to do this:
+                my @l2 = <1 2 3>;
+                say @l2 Z* 2, *;            # (2 4 6)
+
+            The single-element list on the right (the '2') gets repeated as 
+            many times as necessary.
+
+            But that's just 'map':
+                say map { $_ * 2 }, @l2;    (2 4 6)
+
+            So I'm still not real sure what benefit this provides.  I guess 
+            the meta operator is a bit shorter to write than the map.
+
+
+    }#}}}
+    Cross (X) {#{{{
+        
+        Applies the infix operator across all elements of both lists.
+                my @l1 = <a b c>;
+                my @l2 = <1 2 3>;
+                say @l1 X~ @l2;             # (a1 a2 a3 b1 b2 b3 c1 c2 c3)
+
+            There's no issue if one list is shorter than the other.
+
+        
+        When no operator is specified, it returns pairs:
+                my @l1 = <a b c>;
+                my @l2 = <1 2 3>;
+                say @l1 X @l2;             # ((a 1) (a 2) (a 3) (b 1) (b 2) (b 3) (c 1) (c 2) (c 3))
+                #       ^^ - no operator
+
+
+                for @l1 X @l2 -> $pair {
+                    say "$pair.join(':')";
+                    ### I'm a little surprised I can call that method inside 
+                    ### the quotes without wrapping the call in curlies.
+
+                }
+            Outputs:
+                a:1
+                a:2
+                a:3
+                b:1
+                b:2
+                b:3
+                c:1
+                c:2
+                c:3
+
+    }#}}}
+    Reversing (R) {#{{{
+        
+        This is getting silly.
+
+        Reverses the sides of an infix operator.  Has no effect on operators 
+        with commutative properties (+ * etc).
+                say 4 / 12;         # 0.3333333
+                say 4 R/ 12;        # 3
+
+        The blog gives the above ridiculous example, but gives no clues on why 
+        anybody would ever want this.
+
+    }#}}}
+    Combining meta operators {#{{{
+        
+        Ack.
+
+        Here we're combining the Reverse operator with the Reduction braces:
+                my @nums = <2 4 32 256>;
+                say [R/] @nums;                 # 1
+
+        This is starting to give me a headache.
+
+    }#}}}
+    
+}#}}}
+Signatures {
+    
+    Part 1 {#{{{
+
+        http://friedo.com/blog/2016/01/exploring-perl-6-signatures-part-1
+
+        
+        I've already got a README with most of the information from this blog 
+        post.  I updated that README instead of having two spots where I keep 
+        signature info.
+
+                ../perl6/functions/README
+
+    }#}}}
+    Part 2 {#{{{
+    }#}}}
+
+}
 
 
