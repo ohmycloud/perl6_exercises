@@ -126,10 +126,139 @@ General parameter info {#{{{
 
 }#}}}
 
-Type constraints {#{{{
-    sub foo( Int $age, Str $name ) {
-        say "$name is $age years old";
-    }
+Type Constraints, defined {#{{{
+    
+    So this makes perfect sense:
+            sub sayit (Str $foo) {
+                say "--$foo--";
+            }
+
+            sayit('blarg');         # fine
+            sayit('1');             # fine
+
+        But:
+            sayit(1)                # GONNNG!
+
+        "Calling sayit(Int) will never work with declared signature (Str $foo)"
+
+
+    But along with using the builtin types like Str and Int, you can also use 
+    your own types.
+            class Jontest { has $.foo = 'bar'; }
+
+            sub sayit (Jontest $jon) {
+                say "--{$jon.foo}--";
+            }
+
+            my $j = Jontest.new();
+            sayit($j);                      # fine
+            sayit("blarg");                 # GONNNG, obviously.
+
+
+
+    This sub appears to be perfectly cromulent:
+            sub greet (Str $name) {
+                say "Hello, $name!";
+            }
+
+    But what happens when we do this:
+            my Str $name;
+            greet($name);
+            say "Still here!"
+
+    Whoopsie.  We declared $name as a string but didn't define it.  greet() 
+    can't complain about the type, since we _are_ passing in a Str type as 
+    required.
+
+    But then greet() tries to 'say' that Str $name.  Since it's undefined, we 
+    end up with a warning.  Our program runs to the end, but the output is 
+    ugly:
+            Use of uninitialized value of type Str in string context
+            Any of .^name, .perl, .gist, or .say can stringify undefined things, if needed.  in sub greet at ./test.p6 line 4
+            Hello, !
+            Still here!
+
+
+    So the fix here is to declare the parameter as "must be defined":
+            sub greet (Str:D $name) {
+                say "Hello, $name!";
+            }
+            my Str $name;
+            greet($name);
+            say "Still here!"
+
+        So now, instead of a warning, we get a fatal:
+                Parameter '$name' requires an instance of type Str, but a type 
+                object was passed.  Did you forget a .new?
+            Not the most clearly-worded error perhaps, but it'll do.
+
+
+        You can defined-constrain a variable in these ways:
+            - :D    variable must be defined (as above)
+            - :U    variable must be undefined
+            - :_    variable is explicitly allowed to be either defined or
+                    undefined
+
+}#}}}
+Where block, subsets {#{{{
+    
+    Along with being able to constrain the variable type (Int, Str, etc), you 
+    can also add more specific constraints:
+            
+            sub num_fingers (Int $num where {$num > 0} ) {
+                say "After the accident, you have $num fingers.";
+
+                if $num == 10   { say "Congratulations!"; }
+                else            { say "Sorry to hear about that."; }
+            }
+
+            num_fingers(10);        # fine
+            num_fingers(8);         # fine
+            num_fingers(-8);        # GONNNG!  Runtime error.
+
+
+    Got coords?
+            sub lower-right (Int $x where {$x > 0}, Int $y where {$y < 0} ) {
+                say "Your point is located at ($x, $y).";
+            }
+
+    That's getting a bit noisy, and we've only got two params.  Let's break it 
+    up a bit:
+            sub lower-right (
+                Int $x where {$x > 0}, 
+                Int $y where {$y < 0}
+            ) {
+                say "Your point is located at ($x, $y).";
+            }
+
+        That's fine.
+
+
+    Hell, if your where clause is unwieldy, and especially if you're using the 
+    same where clause more than once:
+            sub gt_zero (Int $a where {$a > 0}) { True }
+            sub lt_zero (Int $a where {$a < 0}) { True }
+
+            sub lower-right (
+                Int $x where gt_zero($x),
+                Int $y where lt_zero($y)
+            ) {
+                say "Your point is located at ($x, $y).";
+            }
+
+
+    While that works, p6 gives us subsets for doing exactly that.
+            subset gt_zero of Int where * > 0;
+            subset lt_zero of Int where * < 0;
+
+            sub lower-right ( gt_zero $x, lt_zero $y ) {
+                say "Your point is located at ($x, $y).";
+            }
+
+
+    See "more on subsets" below for some other examples I pulled from a 
+    youtube video.
+
 }#}}}
 Positional Parameters {#{{{
 
@@ -441,11 +570,15 @@ Methods called on parameters {#{{{
     what have you).
 
     However, when I add code like this to any of the subs:
-        if $name.rw {
-            say "name is read/write";
-        }
+            sub foo(Str $foo is rw) {
+                say $foo;
+                say $foo.rw;
+            }
+            my $var = 'blarg';
+            foo( $var );
 
-    I'm being told that "the method 'rw' not found"
+        I'm being told that "the method 'rw' not found".  If you comment out 
+        the call to .rw, the rest of the code works.
 
 }#}}}
 Type Coercisons {#{{{
@@ -467,6 +600,8 @@ Type Coercisons {#{{{
         say_string( "1" );
 
 
+
+
     But really, what if we wanted to say "fuck it" and let them send an int.  
     We'll just convert it and print it, since that's surely what the user 
     wants here.  
@@ -481,6 +616,45 @@ Type Coercisons {#{{{
     fine:
         say_string_better( 1 );
     
+}#}}}
+Return types {#{{{
+
+    Specify the return type:
+            sub lower-right ( gt_zero $x, lt_zero $y ) returns Str {
+                "Your point is located at ($x, $y).";
+            }
+            say lower-right(3, -9);
+
+    If we'd written that this way:
+            sub lower-right ( gt_zero $x, lt_zero $y ) returns Str {
+                1;
+            }
+            say lower-right(3, -9);
+
+        The call would result in this runtime error:
+            "Type check failed for return value; expected Str but got Int"
+
+
+
+    Shortcut
+            sub lower-right ( gt_zero $x, lt_zero $y --> Str ) {
+                "Your point is located at ($x, $y).";
+            }
+            say lower-right(3, -9);
+
+        CAREFUL WITH THAT!  We're not just replacing the word "returns" with 
+        that long arrow.  Note that the long arrow and the return type it's 
+        pointing to are both now INSIDE the signature.
+
+        "returns $type" appears OUTSIDE the signature.
+
+        Location aside, there's no practical difference between a sub declared 
+        with "returns" and one declared with "-->".  Use what you prefer.
+
+
+    "It's been at least two tutorial pages since we've needlessly tripped 
+    somebody up.  Let's fuck with them with the 'returns' shortcut."
+
 }#}}}
 Multi-Dispatch (overloading) {#{{{
     Yay this now exists in p6.  Just declare a routine with the keyword 
@@ -736,7 +910,7 @@ Traits (X _is_ Y) {#{{{
         sub square($x) is doubles { $x * $x }
         say square 3;   # 18
 }#}}}
-Re-Dispatching {#{{{
+Re-Dispatching (callwith/same, nextwith/same) {#{{{
 
     Re-Dispatching uses the keywords:
         callwith
@@ -877,7 +1051,7 @@ Coercion Types (Type Casting) {#{{{
 }#}}}
 
 ### Stuff not from the tut, but which I've picked up from videos etc.
-User-Defined Types (subsets) {#{{{
+More on subsets {#{{{
 
     Ovid video:
         https://www.youtube.com/watch?v=lpu-3UF_b48
@@ -983,21 +1157,52 @@ Caching (currying) functions {#{{{
 
 }#}}}
 Introspection {#{{{
+
+    Full docs on the Signature class that we're poking at here:
+        http://doc.perl6.org/type/Signature
+
+
     
     Query a routine to figure out its signature:
 
-            sub jontest(Str $foo, Int $bar, Str $baz) { ... }
-            &jontest.signature.perl.say;
+            sub lower-right ( $x where {$x > 0}, $y where {$y < 0} --> Str ) {
+                "Your point is located at ($x, $y).";
+            }
 
-        or...
-            my $jt = sub jontest(Str $foo, Int $bar, Str $baz) { }
-            $jt.signature.perl.say;
+            say &lower-right.signature;             # ($x where { ... }, $y where { ... } --> Str)
+            say &lower-right.signature.perl;        # :($x where { ... }, $y where { ... } --> Str)
+            say &lower-right.signature.arity;       # 2
+            say &lower-right.signature.returns;     # (Str)
+            say &lower-right.signature.params;      # ($x where { ... } $y where { ... })
 
-        either way, this is output:
-            :(Str $foo, Int $bar, Str $baz)
+    "arity" is the count of _required_ params.  For a sub like this:
+                sub foo ( $x, $foo = 'bar' ) { ... }
+        ...the arity is 1.  $foo has a default value, so you don't have to 
+        pass it in.
+
+    I'm not sure of the exact reason why ".signature" and ".signature.perl" 
+    differ (the colon on output), but it's not upsetting me too much.
 
 
-    Nice.
+
+    .params actually returns a list, from which you can get info specific to 
+    the various params.
+                say &lower-right.signature.params;          # see above
+                say &lower-right.signature.params[0].sigil; # $
+                say &lower-right.signature.params[0].name;  # $x
+                say &lower-right.signature.params[0].type;  # (Any)
+
+        That'd be easier to read if we did this:
+                my @p = &lower-right.signature.params;
+                say @p[0].sigil;    # $
+                say @p[0].name;     # $x
+                say @p[0].type;     # (Any)
+
+
+
+    Note that we prefixed the sub name with "&" in all cases above.  We don't 
+    want to call the sub, which is what would happen if we left that sigil 
+    off.  We want to address the container holding the sub.
 
 }#}}}
 

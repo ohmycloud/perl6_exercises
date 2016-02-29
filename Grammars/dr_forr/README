@@ -23,8 +23,15 @@ part3
 
     He still hasn't used the word "Grammar" anywhere in this post.  
 
-    This post is more than just a regex refresher, though.  It's a very good 
-    handheld walkthrough on building up some complex parsing rules 
+    However, his post is more than just a regex refresher.  It's a very good 
+    handheld walkthrough on building up some complex parsing rules, and is 
+    absolutely worth re-visiting the code in ./part3.p6.
 
 part4
-    Hasn't been posted yet.
+    http://theperlfisher.blogspot.ro/2016/02/from-regular-expressions-to-grammars-pt_28.html
+
+    At this point, we're still working with the same JavaScript line as in 
+    previous exercises, but now we're going to try to turn it into p6 code.
+
+
+

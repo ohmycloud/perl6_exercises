@@ -318,7 +318,7 @@ Meta Operators {#{{{
     }#}}}
     
 }#}}}
-Signatures {
+Signatures {#{{{
     
     Part 1 {#{{{
 
@@ -333,8 +333,16 @@ Signatures {
 
     }#}}}
     Part 2 {#{{{
+
+        http://friedo.com/blog/2016/02/exploring-perl-6-signatures-part-2
+
+        Same deal as part 1.  Good information in here, but I just expanded on 
+        my existing readme:
+
+                ../perl6/functions/README
+
     }#}}}
 
-}
+}#}}}
 
 
