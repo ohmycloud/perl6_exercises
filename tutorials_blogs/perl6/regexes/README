@@ -2,10 +2,6 @@
 http://doc.perl6.org/language/regexes
 
 
-Grammars are mentioned on this tut page several times in conjunction with 
-regexen.  Grammars have their own tut page, which I think I mostly skipped.  
-I'm not covering them here, but I definitely need to get back to them again.
-
 
 Lexical Conventions {#{{{
 

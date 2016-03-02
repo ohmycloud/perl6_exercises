@@ -6,6 +6,30 @@ point, but I'm hoping he keeps with it and plan to come back here to follow
 along.
 
 
+rule_as_variable.p6 {#{{{
+    This is not part of the blog, but something I've found that could easily 
+    bite me in the ass.
+
+            my $str = 'foo 3';
+
+    When I match that string against a literal rule, the result is a Match.
+
+    But when I first put that rule into a variable and match my string against 
+    that variablized rule, the result is a Bool.
+
+            my $rslt = $str ~~ rule { \w+ \d+ };
+            ### $rslt is now a Match.
+
+            my $r = rule { \w+ \d+ };
+            my $rslt = $str ~~ $r;
+            ### $rslt is now a Bool.
+
+
+    In that second form, the Match variable is accessible in $/.
+
+}#}}}
+
+
 part1
     Blah.  This is not a tutorial on Grammars in p6 aimed at p5 programmers.  
     The entirety of part1 is "this is what a regular expression is, for those 
@@ -23,15 +47,17 @@ part3
 
     He still hasn't used the word "Grammar" anywhere in this post.  
 
-    However, his post is more than just a regex refresher.  It's a very good 
-    handheld walkthrough on building up some complex parsing rules, and is 
-    absolutely worth re-visiting the code in ./part3.p6.
+    However, this post is more than just a regex refresher.  It's a 
+    walkthrough on building a parser for a couple lines of JavaScript.
+    
+    Worth reviewing - see part3.p6.
 
 part4
     http://theperlfisher.blogspot.ro/2016/02/from-regular-expressions-to-grammars-pt_28.html
 
-    At this point, we're still working with the same JavaScript line as in 
-    previous exercises, but now we're going to try to turn it into p6 code.
+    Here we're still working with the same JavaScript line as in previous 
+    exercises, but now we're going to try to turn it into p6 code.
 
+    Left off at "Objectification", about halfway down the page.
 
 
