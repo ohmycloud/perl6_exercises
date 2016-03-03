@@ -1,9 +1,11 @@
 
 http://theperlfisher.blogspot.ro/2016/02/from-regular-expressions-to-grammars-pt.html
 
-This is a blog series on Grammars.  There are only two parts written at this 
-point, but I'm hoping he keeps with it and plan to come back here to follow 
-along.
+This is a blog series on Grammars.  It's really quite well-done.
+
+
+If you're looking for a quick reference-type refresher with a working Grammar 
+and Actions class, jump right to the final block in part4.p6.
 
 
 rule_as_variable.p6 {#{{{
@@ -55,9 +57,19 @@ part3
 part4
     http://theperlfisher.blogspot.ro/2016/02/from-regular-expressions-to-grammars-pt_28.html
 
+    part4.p6
+
     Here we're still working with the same JavaScript line as in previous 
     exercises, but now we're going to try to turn it into p6 code.
 
-    Left off at "Objectification", about halfway down the page.
+    And we finally start using "Grammar".
+
+    The last block ("Final Grammarfication") contains a working grammar and 
+    actions class, so read that if you're in TL;DR mode.  The script should 
+    run that block as-is, producing the correct p6 output string.
+
+    But if you're looking for a full refresher, read through starting with the 
+    first block.  Each successive block is a copy and modification of the 
+    previous, with lots of comments on exactly what's going on.
 
 

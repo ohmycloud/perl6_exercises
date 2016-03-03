@@ -1,14 +1,12 @@
 #!/home/jon/.rakudo/install/bin/perl6
 
 
-### This is the string we're trying to parse out.
+### This is the JavaScript string we're going to parse.
 my $js_str = 'var a = 3; console.log( "Hey, did you know a = " + a + "?" );';
 
 ### And this is the perl6 string we're wanting to end up with.
-my $p6_str_goal = Q:to/EOP6/;
-my $a = 3;
-say "Hey, did you know a = " ~ $a ~ "?";
-EOP6
+my $p6_str_goal = Q|my $a = 3; say "Hey, did you know a = " ~ $a ~ "?";|;
+
 
 if False {# {{{ ### Our rules as we built them up in part 3
 
@@ -69,11 +67,14 @@ if False {# {{{ ### A note on pseudo-casting
     ''.say;
 
     ### The match object $/ has implicit string, number, and boolean values 
-    ### inside it that get used depending on context:
+    ### inside it that get used depending on context.
+    ###
+    ### Remember that the word "Integer" as used in the code below is just 
+    ### what I named my rule.  It could be called "Charlie" --- it is not part 
+    ### of the casting point I'm trying to make here.
     say $/<Assignment-Expression><Integer> + 2;             # 5
     say "Here: $/<Assignment-Expression><Integer>";         # Here: 3
     say "Bool! " if $/<Assignment-Expression><Integer>;     # Bool!
-
 
 }# }}}
 if False {# {{{ ### Start to turn the JS into Perl
@@ -154,7 +155,7 @@ if False {# {{{ ### Start to turn the JS into Perl
         ### in between the two.
 
 }# }}}
-if True {# {{{ ### Refactoring
+if False {# {{{ ### Refactoring
 
     my token QuotedString { '"' <-["]>+ '"' }
     my rule Integer { \d+ };
@@ -240,6 +241,190 @@ if True {# {{{ ### Refactoring
     ### Now, the backwhacks on the $ sigils we mean to output no longer 
     ### visually conflicts with the forwhacks in $/ and the whole mess is 
     ### pretty readable.
+
+}# }}}
+if False {# {{{ ### Objectification
+
+    my token QuotedString { '"' <-["]>+ '"' }
+    my rule Integer { \d+ };
+    my token Variable { \w+ };
+    my rule Assignment-Expression { var <Variable> '=' <Integer> };
+    my rule Func-Call { console '.' log '(' <QuotedString> '+' <Variable> '+' <QuotedString> ')' };
+    my $js-matching = rule { <Assignment-Expression> ';' <Func-Call> ';' };
+
+
+    sub assignment_expression ($/) {
+        "my \$$<Variable> = $<Integer>;"
+    }
+    sub func_call ($/) {
+        "say $<QuotedString>[0]  ~ \$$<Variable> ~ $<QuotedString>[1];";
+    }
+
+
+    ### Instead of making these two separate function calls:
+    ###     say assignment_expression( $<Assignment-Expression> );
+    ###     say func_call( $<Func-Call> );
+    ###
+    ### ...we'll put those calls into their own sub and call that.  This sub 
+    ### is our "top-level rule", so we'll call it "top":
+    sub top ($/) {
+        ### TUT BUG
+        ### The blog at this point just passes $/ as the argument to both of 
+        ### these function calls - that isn't going to work.  We either have 
+        ### to pass in the correct match here, or change both subs above to 
+        ### access the correct pieces from $/.
+        assignment_expression( $<Assignment-Expression> ) ~ func_call( $<Func-Call> );
+    }
+
+    $js_str ~~ $js-matching;
+    say top($/);
+
+
+}# }}}
+if False {# {{{ ### Grammarfication
+
+    ### Take all of our existing rules and wrap them up into a Grammar.
+    grammar JavaScript {
+        token   QuotedString { '"' <-["]>+ '"' }
+        rule    Integer { \d+ };
+        token   Variable { \w+ };
+        rule    Assignment-Expression { var <Variable> '=' <Integer> };
+        rule    Func-Call { console '.' log '(' <QuotedString> '+' <Variable> '+' <QuotedString> ')' };
+        rule    TOP { <Assignment-Expression> ';' <Func-Call> ';' };
+    }
+
+    ### Take all of our existing subs and wrap them up into an Actions class.
+    ###
+    ### In the previous blocks, I'd been using underscores and all lc() in the 
+    ### subroutine names.
+    ###
+    ### But now that we're gathering everything up, we want the names of the 
+    ### methods in the Actions class to exactly match the names of the rules 
+    ### in the Grammar.
+    class JSActions {
+        method Assignment-Expression ($/) {
+            "my \$$<Variable> = $<Integer>;"
+        }
+        method Func-Call ($/) {
+            "say $<QuotedString>[0]  ~ \$$<Variable> ~ $<QuotedString>[1];";
+        }
+        method TOP ($/) {
+            self.Assignment-Expression( $<Assignment-Expression> )
+            ~ self.Func-Call( $<Func-Call> );
+        }
+    }
+
+
+    ### This is perfectly legal.
+    ### We parse out our string first using the grammar, and then pass the 
+    ### match variable along to out Actions class.
+    ###
+    ### This works completely correctly as-is, but it's not where we want to 
+    ### end up.
+    if False {
+        my $js      = JavaScript.new;
+        $js.parse( $js_str );
+
+        my $actions = JSActions.new;
+        say $actions.TOP( $/ );
+    }
+
+
+    ### We can perform the same actions with less typing.
+    my $js      = JavaScript.new;
+    my $actions = JSActions.new;
+
+    ### All of these say() lines are identical.  Pick the one you like.
+    #say $js.parse( $js_str, :actions(JSActions.new) );
+    #say $js.parse( $js_str, actions => JSActions.new );
+    #say $js.parse( $js_str, :actions($actions) );
+    #say $js.parse( $js_str, actions => $actions );
+
+    ### HOWEVER, at this point, all of those say() lines are printing out the 
+    ### details of our match in Japanese quotes rather than just printing out 
+    ### our translated p6 line:
+        ### ｢var a = 3; console.log( "Hey, did you know a = " + a + "?" );｣
+        ###     Assignment-Expression => ｢var a = 3｣
+        ###      Variable => ｢a｣
+        ###      Integer => ｢3｣
+        ###     Func-Call => ｢console.log( "Hey, did you know a = " + a + "?" )｣
+        ###         QuotedString => ｢"Hey, did you know a = "｣
+        ###         Variable => ｢a｣
+        ###         QuotedString => ｢"?"｣
+
+
+    ### We're going to fix this problem in the next block.
+
+}# }}}
+if True {# {{{ ### Final Grammarfication
+
+
+    ### I'm renaming both the grammar and actions class so they don't conflict 
+    ### with the code used in the previous block.
+
+
+    grammar MyJavaScript {
+        token   QuotedString { '"' <-["]>+ '"' }
+        rule    Integer { \d+ };
+        token   Variable { \w+ };
+        rule    Assignment-Expression { var <Variable> '=' <Integer> };
+        rule    Func-Call { console '.' log '(' <QuotedString> '+' <Variable> '+' <QuotedString> ')' };
+        rule    TOP { <Assignment-Expression> ';' <Func-Call> ';' };
+    }
+
+    ### In the previous block, our action methods were just returning their 
+    ### strings, and p6 wasn't sure what to do with that.
+    ###
+    ### Instead of just returning a string, call "make" on the output.  This 
+    ### modifies the Abstract Syntax Tree.
+    class MyJSActions {
+        method Assignment-Expression ($/) {
+            make "my \$$<Variable> = $<Integer>;"
+        }
+        method Func-Call ($/) {
+            make "say $<QuotedString>[0]  ~ \$$<Variable> ~ $<QuotedString>[1];";
+        }
+
+        ### In the previous version of TOP, we were calling self.METHOD.
+        method TOP_OLD ($/) {
+            self.Assignment-Expression( $<Assignment-Expression> )
+                ~ self.Func-Call( $<Func-Call> );
+        }
+
+        ### But here, we're:
+        ###     - Doing away with "self" altogether
+        ###     - Catting together the previous rules' AST outputs
+        ###     - Calling our own "make" to modify TOP's AST.
+        method TOP ($/) {
+            make $<Assignment-Expression>.ast ~ $<Func-Call>.ast;
+        }
+    }
+
+
+
+    ### We're now printing the output of parse()'s .ast method.
+    my $js = MyJavaScript.new;
+    say $js.parse( $js_str, :actions(MyJSActions.new) ).ast;
+
+
+
+    ### The tutorial still does not explicitly talk about what TOP is, it just 
+    ### tells us to use it.
+    ###
+    ### I'm pretty sure that it's just the required name of the top-level rule 
+    ### in a grammar, which gets run automatically.
+
+
+
+
+    ### The blog does not cover this, but all of the ".ast" calls above can be 
+    ### changed to ".made", and the code will work identically.
+    ### 
+    ### I've seen ".made" being used instead of ".ast" in another tutorial 
+    ### somewhere, though it was never explained.
+    ###
+    ### I suspect that ".made" is just syntactical sugar that jibes better 
+    ### with "make".
 
 }# }}}
 
