@@ -1,0 +1,20 @@
+
+Supposed to be an in-browser editor of some sort, but 03/04/2016 it installs 
+but doesn't work (complains about not being able to find farabi.js).
+
+Based on this p5 module:
+    https://metacpan.org/pod/Farabi
+
+
+
+
+I did also install the p5 module in my 5.18 perlbrew.  Both p5 and p6 modules 
+install an exe named simply "farabi".
+
+So if 5.18 is active, "$ farabi" will fire off the p5 version.  If you want to 
+play with the p6 version, just have perlbrew use a p5 version other than 5.18.
+
+That 5.18 version of farabi does work.  It's interesting, but probably not 
+something I'd ever use in anger.
+
+

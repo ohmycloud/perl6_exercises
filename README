@@ -9,14 +9,23 @@ For the most part, each section linked that page has its own subdirectory
 under ./tutorials/perl6/
 
 
+Working through interesting-looking modules on
+    https://modules.perl6.org/
+Though LWP::Simple
+
+
 
 shebang {# {{{
+#!/usr/bin/env perl6
+#!/home/jon/.rakudo/install/bin/perl6
 
     All of the code written before 02/22/2016 will have the old rakudobrew 
     shebang, and won't work anymore once you switch to built-from-source 
-    rakudo.
+    rakudo.  Change those shebangs.
 
-    Change those shebangs.
+    I've been using explicit shebangs up till now, but it probably makes more 
+    sense to just use env:
+        #!/usr/bin/env perl6
 
     Current, building rakudo from source:
         #!/home/jon/.rakudo/install/bin/perl6
@@ -205,6 +214,9 @@ BLOGS, IRC, etc {{{{
         'Tutorial' - http://perl6maven.com/tutorial/
             but it looks like it was last worked on 4 years ago, and there's 
             just not much here.
+
+    2015 Advent Calendar
+        https://perl6advent.wordpress.com/
 
 }}}}
 FAQ, Glossary ***CHECK*** {#{{{
