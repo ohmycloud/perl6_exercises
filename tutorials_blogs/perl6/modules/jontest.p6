@@ -1,7 +1,7 @@
 #!/home/jon/.rakudobrew/bin/perl6
 
 use lib 'lib';
-use JonTest;
+use JonTest:<jdbarton>;
 say $var;
 say @array;
 say %hash;

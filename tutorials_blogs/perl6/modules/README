@@ -184,7 +184,106 @@ Module-Authoring Tools {#{{{
 }#}}}
 
 ### Info I've found somewhere other than the tut
+Class declaration extra info {#{{{
+    http://design.perl6.org/S11.html#Modules
 
+    I just found this declaration in LWP::Simple:
+        unit class LWP::Simple:auth<cosimo>:ver<0.090>;
+
+
+
+    The synopsis (scroll down to the Versioning section) states that a 
+    compilation unit (module, etc) can include the following tags:
+            auth    authority or author (ambiguous on purpose)
+            ver     version
+            api     "api indicator".  Nope, I dunno.
+
+        To be included in an official library, 'auth' and 'ver' are required, 
+        and 'api' is optional.
+
+
+    The synopsis also says that we should be able to specify an author or 
+    version or whatever when we import the module:
+            use MyAuth:auth<jdbarton>;
+            use MyAuth:ver<1.1>;
+
+    However, what I'm finding is that those tags do nothing at all.  All three 
+    of these work just fine to import my module:
+            use MyAuth;
+            use MyAuth:auth<jdbarton>;
+            use MyAuth:auth<blargleflurble>;
+
+    But, if I leave out the "auth" in my use statement, nothing works at all:
+            use MyAuth:<jdbarton>;              # GONNNG
+            use MyAuth:<blargleflurble>;        # GONNNG
+
+
+
+    NYI
+    I'm not sure what's going on here.  But I'm having the exact same problem 
+    when I try to restrict usage of that LWP::Simple module, and presumably 
+    the author of that module understands what he's doing.
+
+    So either there's something wrong with my understanding of how to "use" 
+    this stuff, or this feature hasn't been implemented yet.
+
+    Actually, the synopsis specifically tells me that I can do this to specify 
+    what version of perl I want:
+            use Perl:<6.0>;
+
+        I tried that exact line, and also
+            use Perl:<6.c>;
+
+        In both cases, I got "Could not find Perl:<6.0>" (or "<6.c>").  I'm 
+        strongly leaning towards "rakudo doesn't support this yet".
+
+
+    ...and I just found a comment by Zoffix on this blog page:
+        http://cupubox.net/l.pl/20/http/blogs.perl.org/users/enkidu/2016/02/perl6-module-namespace.html
+    stating that
+        "I don't think there's yet any decent support for the :auth adverb".
+    (02/26/2016).
+
+
+
+
+
+
+}#}}}
+META6.json {#{{{
+    Supposed to accompany your distribution.  I'm unclear where this would go 
+    for a top-level module.
+
+    Discussed in Synopsis 22:
+        http://cupubox.net/l.pl/20/http/design.perl6.org/S22.html#location
+
+}#}}}
+Importing {#{{{
+
+    http://design.perl6.org/S11.html
+
+    Generally you'll do:
+            use SomeModule;
+
+        Or, to specifically import certain symbols:
+            use SomeModule <&exported_sub @exported_array>;
+
+
+    "use" breaks down into:
+            need SomeModule;
+            import SomeModule;
+        or...
+            import SomeModule <&exported_sub @exported_array>;
+
+
+    If the module you're importing is a class module that doesn't export 
+    anything, you could just need the module instead of use:
+            need SomeModule;
+            my $sm = SomeModule.new();
+
+
+
+}#}}}
 use lib {#{{{
 
     In perl6maven's Bailador sample code, he uses this:

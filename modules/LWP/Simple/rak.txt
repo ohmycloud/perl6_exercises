@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8" />
+<title>rakudo.org | Rakudo Perl 6</title>
+<link rel="profile" href="http://gmpg.org/xfn/11" />
+<link rel="stylesheet" type="text/css" media="all" href="http://rakudo.org/wp/wp-content/themes/rakudo-1/style.css" />
+<link rel="pingback" href="http://rakudo.org/wp/xmlrpc.php" />
+<link rel="alternate" type="application/rss+xml" title="rakudo.org &raquo; Feed" href="http://rakudo.org/feed/" />
+<link rel="alternate" type="application/rss+xml" title="rakudo.org &raquo; Comments Feed" href="http://rakudo.org/comments/feed/" />
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://rakudo.org/wp/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://rakudo.org/wp/wp-includes/wlwmanifest.xml" /> 
+<meta name="generator" content="WordPress 3.8.13" />
+<link rel="stylesheet" type="text/css" href="http://rakudo.org/wp/wp-content/plugins/wp-recaptcha/recaptcha.css" /></head>
+
+<body class="home blog">
+<div id="wrapper" class="hfeed">
+	<div id="header">
+		<div id="masthead">
+			<div id="branding" role="banner">
+								<h1 id="site-title">
+					<span>
+						<a href="http://rakudo.org/" title="rakudo.org" rel="home">rakudo.org</a>
+					</span>
+				</h1>
+				<div id="site-description">Rakudo Perl 6</div>
+
+										<img src="http://rakudoperl.org/wp/wp-content/uploads/2011/04/rakudo-1001.png" width="100" height="100" alt="" />
+								</div><!-- #branding -->
+
+			<div id="access" role="navigation">
+			  				<div class="skip-link screen-reader-text"><a href="#content" title="Skip to content">Skip to content</a></div>
+								<div class="menu"><ul><li class="current_page_item"><a href="http://rakudo.org/">Home</a></li><li class="page_item page-item-2"><a href="http://rakudo.org/about/">About</a></li><li class="page_item page-item-79"><a href="http://rakudo.org/tickets/">Bug tracker</a></li><li class="page_item page-item-61"><a href="http://rakudo.org/community/">Community</a></li><li class="page_item page-item-58"><a href="http://rakudo.org/documentation/">Documentation</a></li><li class="page_item page-item-50"><a href="http://rakudo.org/how-to-get-rakudo/">How to get Rakudo Perl 6</a></li><li class="page_item page-item-63"><a href="http://rakudo.org/how-to-help/">How to help</a></li></ul></div>
+			</div><!-- #access -->
+		</div><!-- #masthead -->
+	</div><!-- #header -->
+
+	<div id="main">
+
+		<div id="container">
+			<div id="content" role="main">
+
+			
+	<div id="nav-above" class="navigation">
+		<div class="nav-previous"><a href="http://rakudo.org/page/2/" ><span class="meta-nav">&larr;</span> Older posts</a></div>
+		<div class="nav-next"></div>
+	</div><!-- #nav-above -->
+
+
+
+
+			<div id="post-460" class="post-460 post type-post status-publish format-standard hentry category-announce">
+			<h2 class="entry-title"><a href="http://rakudo.org/2016/02/12/announce-mac-os-x-installer-for-release-2016-01/" title="Permalink to Announce: Mac OS X Installer for release 2016.01" rel="bookmark">Announce: Mac OS X Installer for release 2016.01</a></h2>
+
+			<div class="entry-meta">
+				<span class="meta-prep meta-prep-author">Posted on</span> <a href="http://rakudo.org/2016/02/12/announce-mac-os-x-installer-for-release-2016-01/" title="12:27" rel="bookmark"><span class="entry-date">2016.02.12</span></a> <span class="meta-sep">by</span> <span class="author vcard"><a class="url fn n" href="http://rakudo.org/author/froggs/" title="View all posts by Tobias Leich">Tobias Leich</a></span>			</div><!-- .entry-meta -->
+
+				<div class="entry-content">
+				<p>Thanks to Steve Mynott a Mac OS X installer is now available.<br />
+This installer has the &#8220;.dmg&#8221; file extension and is available from <a href="http://rakudo.org/downloads/star/">http://rakudo.org/downloads/star/</a>.</p>
+							</div><!-- .entry-content -->
+	
+			<div class="entry-utility">
+									<span class="cat-links">
+						<span class="entry-utility-prep entry-utility-prep-cat-links">Posted in</span> <a href="http://rakudo.org/category/announce/" title="View all posts in announce" rel="category tag">announce</a>					</span>
+					<span class="meta-sep">|</span>
+												<span class="comments-link"><span>Comments Off</span></span>
+							</div><!-- .entry-utility -->
+		</div><!-- #post-## -->
+
+		
+	
+
+
+			<div id="post-454" class="post-454 post type-post status-publish format-standard hentry category-announce">
+			<h2 class="entry-title"><a href="http://rakudo.org/2016/02/04/announce-windows-msi-installers-for-release-2016-01/" title="Permalink to Announce: Windows MSI Installers for release 2016.01" rel="bookmark">Announce: Windows MSI Installers for release 2016.01</a></h2>
+
+			<div class="entry-meta">
+				<span class="meta-prep meta-prep-author">Posted on</span> <a href="http://rakudo.org/2016/02/04/announce-windows-msi-installers-for-release-2016-01/" title="21:48" rel="bookmark"><span class="entry-date">2016.02.04</span></a> <span class="meta-sep">by</span> <span class="author vcard"><a class="url fn n" href="http://rakudo.org/author/froggs/" title="View all posts by Tobias Leich">Tobias Leich</a></span>			</div><!-- .entry-meta -->
+
+				<div class="entry-content">
+				<p>The Windows MSI installers are now available, coming again in two versions. One installer targets x86 (32bit) platforms, and the other installer targets x86_64 (64bit) platforms (probably Windows 7 or better). Only the version for x86_64 comes with JIT enabled.<br />
+The two MSIs are available from <a href="http://rakudo.org/downloads/star/">http://rakudo.org/downloads/star/</a>.</p>
+							</div><!-- .entry-content -->
+	
+			<div class="entry-utility">
+									<span class="cat-links">
+						<span class="entry-utility-prep entry-utility-prep-cat-links">Posted in</span> <a href="http://rakudo.org/category/announce/" title="View all posts in announce" rel="category tag">announce</a>					</span>
+					<span class="meta-sep">|</span>
+												<span class="comments-link"><span>Comments Off</span></span>
+							</div><!-- .entry-utility -->
+		</div><!-- #post-## -->
+
+		
+	
+
+
+			<div id="post-448" class="post-448 post type-post status-publish format-standard hentry category-announce">
+			<h2 class="entry-title"><a href="http://rakudo.org/2016/02/03/announce-rakudo-star-release-2016-01/" title="Permalink to Announce: Rakudo Star Release 2016.01" rel="bookmark">Announce: Rakudo Star Release 2016.01</a></h2>
+
+			<div class="entry-meta">
+				<span class="meta-prep meta-prep-author">Posted on</span> <a href="http://rakudo.org/2016/02/03/announce-rakudo-star-release-2016-01/" title="22:47" rel="bookmark"><span class="entry-date">2016.02.03</span></a> <span class="meta-sep">by</span> <span class="author vcard"><a class="url fn n" href="http://rakudo.org/author/froggs/" title="View all posts by Tobias Leich">Tobias Leich</a></span>			</div><!-- .entry-meta -->
+
+				<div class="entry-content">
+				<p>On behalf of the Rakudo and Perl 6 development teams, I&#8217;m happy to announce<br />
+the January 2016 release of &#8220;Rakudo Star&#8221;, a useful and usable production<br />
+distribution of Perl 6. The tarball for the January 2016 release is available<br />
+from <a title="http://rakudo.org/downloads/star/" href="http://rakudo.org/downloads/star/" target="_blank">http://rakudo.org/downloads/star/</a>.</p>
+<p>This is the first post-Christmas (production) release of Rakudo Star and<br />
+implements Perl v6.c. It comes with support for the MoarVM backend (all module<br />
+tests pass on supported platforms).</p>
+<p>Please note that this release of Rakudo Star is not fully functional with the<br />
+JVM backend from the Rakudo compiler. Please use the MoarVM backend only.</p>
+<p>In the Perl 6 world, we make a distinction between the language (&#8220;Perl 6&#8243;) and<br />
+specific implementations of the language such as &#8220;Rakudo Perl&#8221;. This Star<br />
+release includes <a title="https://raw.githubusercontent.com/rakudo/rakudo/2016.01.1/docs/announce/2016.01.md" href="https://raw.githubusercontent.com/rakudo/rakudo/2016.01.1/docs/announce/2016.01.md" target="_blank">release 2016.01.1</a> of the <a title="http://github.com/rakudo/rakudo" href="http://github.com/rakudo/rakudo" target="_blank">Rakudo Perl 6 compiler</a>, version<br />
+2016.01 of <a title="http://moarvm.org/" href="http://moarvm.org/" target="_blank">MoarVM</a>, plus various modules, documentation, and other resources<br />
+collected from the Perl 6 community.</p>
+<p>Some of the new compiler features since the last Rakudo Star release include:</p>
+<ul>
+<li>Chained .grep calls on Supply fixed (RT #127297)</li>
+<li>Fixed interaction with perl6-debug and precompilation that resulted in an<br />
+endless loop</li>
+<li>re-enabled warning when smart-matching against a True or False literal</li>
+<li>Fixed internal error when reporting certain type errors (RT #127207)</li>
+<li>Fixed rare &#8220;duplicate definition of symbol&#8221; errors (RT #127107)</li>
+<li>Fixed interpolating of pairs with non-key strings into signatures</li>
+<li>Fixed error when smart-matching Seq against a Set (RT #127166)</li>
+<li>Improved error message when smart-matching against an S///-expression</li>
+<li>Fixed bad interaction between EXPORTHOW and multiple declarations (RT #126566)</li>
+<li>Fixed various issues regarding precompilation</li>
+<li>Improved accuracy of Complex.sqrt</li>
+<li>hyper now preserves order of results, as designed</li>
+<li>Range.sum on an empty, numeric Range is now 0</li>
+<li>Fixed Promise.allof() with an empty list of promises (RT #127101)</li>
+<li>Improved message on premature virtual method call (RT #127097)</li>
+<li>Better error message for module load failures of types that are part of the setting</li>
+<li>Support for Readline in addition to Linenoise</li>
+<li>Initial shaped array support</li>
+<li>\r\n (Carriage Return/LineFeed) is now a single (synthetic) grapheme</li>
+<li>Unicode support adheres to Unicode Annex #29</li>
+<li>Unicode quotes are now also allowed in regular expressions</li>
+<li>Improved newline support with &#8220;use newline&#8221; and updates to IO::Handle</li>
+<li>Added List.head, List.tail, List.repeated methods</li>
+<li>Str.encode now allows :replacement parameter for unencodable sequences</li>
+<li>Str.split now accepts multiple strings to split on</li>
+<li>New Range.int-bounds returns first/last value for integer ranges</li>
+<li>Auto-generated meta-ops vivified by referring to them, instead of executing</li>
+<li>Illegal assignment of different Numeric values now caught at compile time</li>
+<li>&amp;nextcallee implemented, which returns the routine that nextsame would invoke</li>
+<li>Many speedups</li>
+</ul>
+<p>Notable changes in modules shipped with Rakudo Star:</p>
+<ul>
+<li>Bailador: The PSGI module by default now sets p6sgi instead of psgi</li>
+<li>DBIish: Many fixes</li>
+<li>Digest::MD5: Updated to conform to new newline handling</li>
+<li>doc: p6doc -l added. p6doc now works for most non-core docs with pod</li>
+<li>LWP::Simple: Replace &#8220;as Int&#8221; with proper coercion type to fix build</li>
+<li>Linenoise: Many fixes</li>
+<li>MIME::Base64: Adjust to pack being made experimental</li>
+<li>panda: Large number of precomp and other bug fixes.  Now depends on 6.c</li>
+<li>Template::Mojo: use MONKEY-SEE-NO-EVAL</li>
+<li>Shell::Command: removed &#8220;as&#8221;</li>
+</ul>
+<p>There are some key features of Perl 6 that Rakudo Star does not yet<br />
+handle appropriately, although they will appear in upcoming releases.<br />
+Some of the not-quite-there features include:</p>
+<ul>
+<li>advanced macros</li>
+<li>non-blocking I/O (in progress)</li>
+<li>some bits of Synopsis 9 and 11</li>
+</ul>
+<p>There is an online resource at <a title="http://perl6.org/compilers/features" href="http://perl6.org/compilers/features" target="_blank">http://perl6.org/compilers/features</a><br />
+that lists the known implemented and missing features of Rakudo&#8217;s<br />
+backends and other Perl 6 implementations.</p>
+<p>In many places we&#8217;ve tried to make Rakudo smart enough to inform the<br />
+programmer that a given feature isn&#8217;t implemented, but there are many<br />
+that we&#8217;ve missed. Bug reports about missing and broken features are<br />
+welcomed at <a title="mailto:rakudobug@perl.org" href="mailto:rakudobug@perl.org" target="_blank">rakudobug@perl.org</a>.</p>
+<p>See <a title="http://perl6.org/" href="http://perl6.org/" target="_blank">http://perl6.org/</a> for links to much more information about<br />
+Perl 6, including documentation, example code, tutorials, reference<br />
+materials, specification documents, and other supporting resources.<br />
+Perl 6 tutorials are available under the &#8220;docs&#8221; directory in<br />
+the release tarball.</p>
+<p>The development team thanks all of the contributors and sponsors for<br />
+making Rakudo Star possible. If you would like to contribute, see <a title="http://rakudo.org/how-to-help" href="http://rakudo.org/how-to-help" target="_blank">http://rakudo.org/how-to-help</a>, ask on the <a title="mailto:perl6-compiler@perl.org" href="mailto:perl6-compiler@perl.org" target="_blank">perl6-compiler@perl.org</a><br />
+mailing list, or join us on IRC #perl6 on freenode.</p>
+							</div><!-- .entry-content -->
+	
+			<div class="entry-utility">
+									<span class="cat-links">
+						<span class="entry-utility-prep entry-utility-prep-cat-links">Posted in</span> <a href="http://rakudo.org/category/announce/" title="View all posts in announce" rel="category tag">announce</a>					</span>
+					<span class="meta-sep">|</span>
+												<span class="comments-link"><span>Comments Off</span></span>
+							</div><!-- .entry-utility -->
+		</div><!-- #post-## -->
+
+		
+	
+
+
+			<div id="post-422" class="post-422 post type-post status-publish format-standard hentry category-announce">
+			<h2 class="entry-title"><a href="http://rakudo.org/2015/11/28/announce-rakudo-star-release-2015-11-now-in-beta/" title="Permalink to Announce: Rakudo Star Release 2015.11 (now in beta!)" rel="bookmark">Announce: Rakudo Star Release 2015.11 (now in beta!)</a></h2>
+
+			<div class="entry-meta">
+				<span class="meta-prep meta-prep-author">Posted on</span> <a href="http://rakudo.org/2015/11/28/announce-rakudo-star-release-2015-11-now-in-beta/" title="18:35" rel="bookmark"><span class="entry-date">2015.11.28</span></a> <span class="meta-sep">by</span> <span class="author vcard"><a class="url fn n" href="http://rakudo.org/author/moritz/" title="View all posts by moritz">moritz</a></span>			</div><!-- .entry-meta -->
+
+				<div class="entry-content">
+				<p>On behalf of the Rakudo and Perl 6 development teams, I&#8217;m happy to announce the November 2015 release of &#8220;Rakudo Star&#8221;, a useful and usable distribution of Perl 6. The tarball for the November 2015 release is available from <a href="http://rakudo.org/downloads/star/">http://rakudo.org/downloads/star/</a>.</p>
+<p>This Rakudo Star release comes with support for the MoarVM backend (all module tests pass on supported platforms).</p>
+<p>In the Perl 6 world, we make a distinction between the language (&#8220;Perl 6&#8243;) and specific implementations of the language such as &#8220;Rakudo Perl&#8221;. This Star release includes <a href="https://github.com/rakudo/rakudo/blob/nom/docs/announce/2015.11.md">release 2015.11</a> of the <a href="http://github.com/rakudo/rakudo">Rakudo Perl 6 compiler</a>, version 2015.11 of <a href="http://moarvm.org/">MoarVM</a>, plus various modules, documentation, and other resources collected from the Perl 6 community.</p>
+<p>Some of the new compiler features since the ast Rakudo Star release include:</p>
+<ul>
+<li>There is now an <code>infix:&lt;.&gt;</code> operator that does method calls with slightly looser precedence than the postfix unary method call.</li>
+<li>New operator <code>infix o</code> for function composition</li>
+<li><code>fc</code> for Unicode-correct case folding implemented</li>
+<li>grep now accepts :k, :v, :kv, :p attributes</li>
+<li><code>Supply.throttle</code> for rate-limiting</li>
+<li>Array.push is now used for pushing one element (mostly); Array.append exists for pushing multiple values. Same for <code>unshift</code>/<code>prepend</code></li>
+<li>Basic arithmetic operations (<code>+</code>, <code>*</code>, <code>-</code>, <code>/</code>) on Range objects that shift or scale the end points while maintaining exclusions</li>
+<li>The v notation now allows alphabetic components: v1.2.beta. (Incompatible because method calls on a version must be protected by \ or () now.)</li>
+<li><code>use v6b+;</code> notation is now recognized and enforced</li>
+<li>Many built-in methods that return iterables are now much faster</li>
+<li>Better error messages when comparing version strings with numbers</li>
+<li>Several error messages that were lacking line numbers now include them</li>
+<li>Initial shaped array support</li>
+<li><code>\r\n</code> (Carriage Return/LineFeed) is now a single (synthetic) grapheme</li>
+<li>Unicode support adheres to Unicode Annex #29</li>
+<li>Unicode quotes are now also allowed in regular expressions</li>
+<li>Improved newline support with &#8220;use newline&#8221; and updates to IO::Handle</li>
+<li>Added List.head, List.tail, List.repeated methods</li>
+<li>Str.encode now allows :replacement parameter for unencodable sequences</li>
+<li>Str.split now accepts multiple strings to split on</li>
+<li>New Range.int-bounds returns first/last value for integer ranges</li>
+<li>Auto-generated meta-ops vivified by referring to them, instead of executing</li>
+<li>Illegal assignment of different Numeric values now caught at compile time</li>
+<li><code>&amp;nextcallee</code> implemented, which returns the routine that <code>nextsame</code> would invoke</li>
+<li>Many speedups</li>
+</ul>
+<p>The Rakudo Perl 6 compiler is now officially in beta for the upcoming production release around Christmas 2015.</p>
+<p>Please note that this release of Rakudo Star is not fully functional with the JVM backend from the Rakudo compiler. Please use the MoarVM backend only.</p>
+<p>Notable changes in modules shipped with Rakudo Star:</p>
+<ul>
+<li>Bailador: Add MIT License</li>
+<li>DBIish: Improved Windows support</li>
+<li>doc: More documentation; generated HTML is better searchable</li>
+<li>Template::Mustache: Switched from LGPL to Artistic License 2.0</li>
+<li>panda: Default action is no longer <code>install</code>; better help messages</li>
+<li>Digest::MD5: Now accepts non-ASCII input (internally encodes as Latin-1)</li>
+<li>LWP::Simple: Support for successful return codes besides 200</li>
+<li>Shell::Command: <code>which</code> routine for locating executables</li>
+<li>Updated docs/2015-spw-perl6-course.pdf from Nov 21</li>
+</ul>
+<p>There are some key features of Perl 6 that Rakudo Star does not yet handle appropriately, although they will appear in upcoming releases. Some of the not-quite-there features include:</p>
+<ul>
+<li>advanced macros</li>
+<li>non-blocking I/O (in progress)</li>
+<li>much of Synopsis 9 and 11</li>
+</ul>
+<p>There is an online resource at <a href="http://perl6.org/compilers/features">http://perl6.org/compilers/features</a> that lists the known implemented and missing features of Rakudo&#8217;s backends and other Perl 6 implementations.</p>
+<p>In many places we&#8217;ve tried to make Rakudo smart enough to inform the programmer that a given feature isn&#8217;t implemented, but there are many that we&#8217;ve missed. Bug reports about missing and broken features are welcomed at <a href="mailto:rakudobug@perl.org">rakudobug@perl.org</a>.</p>
+<p>See <a href="http://perl6.org/">http://perl6.org/</a> for links to much more information about Perl 6, including documentation, example code, tutorials, reference materials, specification documents, and other supporting resources. A Perl 6 tutorial is available as docs/2015-spw-perl6-course.pdf in the release tarball.</p>
+<p>The development team thanks all of the contributors and sponsors for making Rakudo Star possible. If you would like to contribute, see <a href="http://rakudo.org/how-to-help">http://rakudo.org/how-to-help</a>, ask on the <a href="mailto:perl6-compiler@perl.org">perl6-compiler@perl.org</a> mailing list, or join us on IRC #perl6 on freenode.</p>
+							</div><!-- .entry-content -->
+	
+			<div class="entry-utility">
+									<span class="cat-links">
+						<span class="entry-utility-prep entry-utility-prep-cat-links">Posted in</span> <a href="http://rakudo.org/category/announce/" title="View all posts in announce" rel="category tag">announce</a>					</span>
+					<span class="meta-sep">|</span>
+												<span class="comments-link"><span>Comments Off</span></span>
+							</div><!-- .entry-utility -->
+		</div><!-- #post-## -->
+
+		
+	
+
+
+			<div id="post-419" class="post-419 post type-post status-publish format-standard hentry category-announce">
+			<h2 class="entry-title"><a href="http://rakudo.org/2015/10/11/announce-windows-msi-installers-for-release-2015-09/" title="Permalink to Announce: Windows MSI Installers for release 2015.09" rel="bookmark">Announce: Windows MSI Installers for release 2015.09</a></h2>
+
+			<div class="entry-meta">
+				<span class="meta-prep meta-prep-author">Posted on</span> <a href="http://rakudo.org/2015/10/11/announce-windows-msi-installers-for-release-2015-09/" title="19:18" rel="bookmark"><span class="entry-date">2015.10.11</span></a> <span class="meta-sep">by</span> <span class="author vcard"><a class="url fn n" href="http://rakudo.org/author/froggs/" title="View all posts by Tobias Leich">Tobias Leich</a></span>			</div><!-- .entry-meta -->
+
+				<div class="entry-content">
+				<p>The Windows MSI installers are now available, coming again in two versions. One installer targets x86 (32bit) platforms, and the other installer targets x86_64 (64bit) platforms (probably Windows 7 or better). Only the version for x86_64 comes with JIT enabled.<br />
+The two MSIs are available from <a href="http://rakudo.org/downloads/star/">http://rakudo.org/downloads/star/</a>.</p>
+							</div><!-- .entry-content -->
+	
+			<div class="entry-utility">
+									<span class="cat-links">
+						<span class="entry-utility-prep entry-utility-prep-cat-links">Posted in</span> <a href="http://rakudo.org/category/announce/" title="View all posts in announce" rel="category tag">announce</a>					</span>
+					<span class="meta-sep">|</span>
+												<span class="comments-link"><span>Comments Off</span></span>
+							</div><!-- .entry-utility -->
+		</div><!-- #post-## -->
+
+		
+	
+
+
+			<div id="post-414" class="post-414 post type-post status-publish format-standard hentry category-announce">
+			<h2 class="entry-title"><a href="http://rakudo.org/2015/09/25/announce-rakudo-star-release-2015-09/" title="Permalink to Announce: Rakudo Star Release 2015.09" rel="bookmark">Announce: Rakudo Star Release 2015.09</a></h2>
+
+			<div class="entry-meta">
+				<span class="meta-prep meta-prep-author">Posted on</span> <a href="http://rakudo.org/2015/09/25/announce-rakudo-star-release-2015-09/" title="19:08" rel="bookmark"><span class="entry-date">2015.09.25</span></a> <span class="meta-sep">by</span> <span class="author vcard"><a class="url fn n" href="http://rakudo.org/author/moritz/" title="View all posts by moritz">moritz</a></span>			</div><!-- .entry-meta -->
+
+				<div class="entry-content">
+				<h2>A useful, usable, &#8220;early adopter&#8221; distribution of Perl 6</h2>
+<p>On behalf of the Rakudo and Perl 6 development teams, I&#8217;m happy to announce the September 2015 release of &#8220;Rakudo Star&#8221;, a useful and usable distribution of Perl 6. The tarball for the September 2015 release is available from <a href="http://rakudo.org/downloads/star/">http://rakudo.org/downloads/star/</a>.</p>
+<p>This Rakudo Star release comes with support for the MoarVM backend (all module tests pass on supported platforms).</p>
+<p>In the Perl 6 world, we make a distinction between the language (&#8220;Perl 6&#8243;) and specific implementations of the language such as &#8220;Rakudo Perl&#8221;. This Star release includes <a href="https://github.com/rakudo/rakudo/blob/nom/docs/announce/2015.09.md">release 2015.09</a> of the <a href="http://github.com/rakudo/rakudo">Rakudo Perl 6 compiler</a>, version 2015.09 of <a href="http://moarvm.org/">MoarVM</a>, plus various modules, documentation, and other resources collected from the Perl 6 community.</p>
+<p>Some of the new compiler features added to this release include:</p>
+<ul>
+<li>Great List Refactor (GLR) &#8211; See http://design.perl6.org/S07.html</li>
+<li>All Deprecations removed in preparation for Christmas release</li>
+<li>Added support for calling into C++ libraries and calling methods on C++ classes</li>
+<li>New slurpy parameter, +args or +@args, to allow for one-argument style binding</li>
+<li>New with/orwith/without conditionals allow you to check for .defined but topicalize to the actual value returned</li>
+<li>New <code>supply</code>, <code>whenever</code> and <code>react</code> blocks for easy reactive programming</li>
+<li>All Unicode digits can now be part of literal numbers</li>
+<li><code>val()</code> and allomorphic types implemented</li>
+<li>Most European quoting styles are now supported</li>
+<li>New $[...] and ${&#8230;} constructs allow prefix itemization</li>
+<li>The .gist and .perl methods can now deal with self-referential structures</li>
+</ul>
+<p>Please note that this release of Rakudo Star is not fully functional with the JVM backend from the Rakudo compiler. Support should be restored shortly.</p>
+<p>Notable changes in modules shipped with Rakudo Star:</p>
+<ul>
+<li>All modules fixed to work with GLR where needed</li>
+<li>Panda now includes JSON::Fast and no longer precompiles to byte code</li>
+<li>Terminal::ANSIColor replaces the deprecated Term::ANSIColor</li>
+<li>New Perl 6 tutorial replaces original perl6 book draft</li>
+</ul>
+<p>There are some key features of Perl 6 that Rakudo Star does not yet handle appropriately, although they will appear in upcoming releases.  Some of the not-quite-there features include:</p>
+<ul>
+<li>advanced macros</li>
+<li>non-blocking I/O (in progress)</li>
+<li>much of Synopsis 9 and 11</li>
+</ul>
+<p>There is an online resource at <a href="http://perl6.org/compilers/features">http://perl6.org/compilers/features</a> that lists the known implemented and missing features of Rakudo&#8217;s backends and other Perl 6 implementations.</p>
+<p>In many places we&#8217;ve tried to make Rakudo smart enough to inform the programmer that a given feature isn&#8217;t implemented, but there are many that we&#8217;ve missed. Bug reports about missing and broken features are welcomed at <a href="&#109;&#x61;i&#108;&#x74;&#111;:&#114;&#x61;k&#x75;&#100;&#x6F;bu&#103;&#64;&#x70;&#101;&#114;&#108;&#x2E;&#111;&#x72;&#103;">&#114;&#x61;k&#x75;&#100;&#x6F;bu&#103;&#64;&#x70;&#101;&#114;&#108;&#x2E;&#111;&#x72;&#103;</a>.</p>
+<p>See <a href="http://perl6.org/">http://perl6.org/</a> for links to much more information about Perl 6, including documentation, example code, tutorials, reference materials, specification documents, and other supporting resources. A Perl 6 tutorial is available as docs/2015-spw-perl6-course.pdf in the release tarball.</p>
+<p>The development team thanks all of the contributors and sponsors for making Rakudo Star possible. If you would like to contribute, see <a href="http://rakudo.org/how-to-help">http://rakudo.org/how-to-help</a>, ask on the <a href="&#109;&#x61;&#x69;&#108;&#x74;&#111;:&#112;&#101;&#x72;&#108;&#x36;&#x2D;&#99;&#111;&#109;&#112;i&#x6C;&#x65;&#114;&#64;&#x70;&#101;&#x72;&#108;&#x2E;&#x6F;&#114;&#103;">&#112;&#101;&#x72;&#108;&#x36;&#x2D;&#99;&#111;&#109;&#112;i&#x6C;&#x65;&#114;&#64;&#x70;&#101;&#x72;&#108;&#x2E;&#x6F;&#114;&#103;</a> mailing list, or join us on IRC #perl6 on freenode.</p>
+							</div><!-- .entry-content -->
+	
+			<div class="entry-utility">
+									<span class="cat-links">
+						<span class="entry-utility-prep entry-utility-prep-cat-links">Posted in</span> <a href="http://rakudo.org/category/announce/" title="View all posts in announce" rel="category tag">announce</a>					</span>
+					<span class="meta-sep">|</span>
+												<span class="comments-link"><span>Comments Off</span></span>
+							</div><!-- .entry-utility -->
+		</div><!-- #post-## -->
+
+		
+	
+
+
+			<div id="post-407" class="post-407 post type-post status-publish format-standard hentry category-announce">
+			<h2 class="entry-title"><a href="http://rakudo.org/2015/07/27/announce-rakudo-star-release-2015-07/" title="Permalink to Announce: Rakudo Star Release 2015.07" rel="bookmark">Announce: Rakudo Star Release 2015.07</a></h2>
+
+			<div class="entry-meta">
+				<span class="meta-prep meta-prep-author">Posted on</span> <a href="http://rakudo.org/2015/07/27/announce-rakudo-star-release-2015-07/" title="19:26" rel="bookmark"><span class="entry-date">2015.07.27</span></a> <span class="meta-sep">by</span> <span class="author vcard"><a class="url fn n" href="http://rakudo.org/author/moritz/" title="View all posts by moritz">moritz</a></span>			</div><!-- .entry-meta -->
+
+				<div class="entry-content">
+				<h2>A useful, usable, &#8220;early adopter&#8221; distribution of Perl 6</h2>
+<p>On behalf of the Rakudo and Perl 6 development teams, I&#8217;m happy to announce the July 2015 release of &#8220;Rakudo Star&#8221;, a useful and usable distribution of Perl 6. The tarball for the July 2015 release is available from <a href="http://rakudo.org/downloads/star/">http://rakudo.org/downloads/star/</a>.</p>
+<p>This Rakudo Star release comes with support for the MoarVM backend (all module tests pass on supported platforms).</p>
+<p>In the Perl 6 world, we make a distinction between the language (&#8220;Perl 6&#8243;) and specific implementations of the language such as &#8220;Rakudo Perl&#8221;. This Star release includes <a href="https://github.com/rakudo/rakudo/blob/nom/docs/announce/2015.07.md">release 2015.07.2</a> of the <a href="http://github.com/rakudo/rakudo">Rakudo Perl 6 compiler</a>, version 2015.07 of <a href="http://moarvm.org/">MoarVM</a>, plus various modules, documentation, and other resources collected from the Perl 6 community.</p>
+<p>Some of the new compiler features added to this release include:</p>
+<ul>
+<li>Cool.substr(-rw) and &amp;substr(-rw) now also accept a Range</li>
+<li>Added trait &#8220;is required&#8221; on class attributes</li>
+<li>&amp;?ROUTINE and &amp;?BLOCK</li>
+<li>&amp;words implemented (to completement .words)</li>
+<li>Numeric comparison ops (== > etc) for DateTimes</li>
+<li>samewith() now also works in subs</li>
+<li>Calling the .clone method with alternate values no longer changes original</li>
+<li>.grep and &amp;grep now consume multiple elements for many-param blocks</li>
+<li>ENTER phaser now can be used as an r-value</li>
+</ul>
+<p>Notable changes in modules shipped with Rakudo Star:</p>
+<ul>
+<li>Bailador: Add links to documentation</li>
+<li>DBIish: Use Postgres environment variables for test configuration</li>
+<li>doc: More documentation, mostly for IO-related classes and methods</li>
+</ul>
+<p>There are some key features of Perl 6 that Rakudo Star does not yet handle appropriately, although they will appear in upcoming releases.  Some of the not-quite-there features include:</p>
+<ul>
+<li>advanced macros</li>
+<li>non-blocking I/O (in progress)</li>
+<li>much of Synopsis 9 and 11</li>
+</ul>
+<p>There is an online resource at <a href="http://perl6.org/compilers/features">http://perl6.org/compilers/features</a> that lists the known implemented and missing features of Rakudo&#8217;s backends and other Perl 6 implementations.</p>
+<p>In many places we&#8217;ve tried to make Rakudo smart enough to inform the programmer that a given feature isn&#8217;t implemented, but there are many that we&#8217;ve missed. Bug reports about missing and broken features are welcomed at <a href="&#109;&#x61;&#105;&#108;&#116;&#111;:&#x72;&#97;&#x6B;&#x75;&#x64;&#111;&#98;&#117;&#103;&#64;&#112;&#101;&#x72;l&#x2E;o&#114;&#103;">&#x72;&#97;&#x6B;&#x75;&#x64;&#111;&#98;&#117;&#103;&#64;&#112;&#101;&#x72;l&#x2E;o&#114;&#103;</a>.</p>
+<p>See <a href="http://perl6.org/">http://perl6.org/</a> for links to much more information about Perl 6, including documentation, example code, tutorials, reference materials, specification documents, and other supporting resources. A draft of a Perl 6 book is available as docs/UsingPerl6-draft.pdf in the release tarball.</p>
+<p>The development team thanks all of the contributors and sponsors for making Rakudo Star possible. If you would like to contribute, see <a href="http://rakudo.org/how-to-help">http://rakudo.org/how-to-help</a>, ask on the <a href="&#x6D;&#x61;&#105;l&#x74;&#x6F;:&#x70;er&#108;&#54;&#45;&#x63;&#x6F;&#x6D;&#112;&#105;&#108;&#101;&#x72;&#64;&#112;&#x65;&#114;&#108;&#46;&#x6F;&#114;&#103;">&#x70;er&#108;&#54;&#45;&#x63;&#x6F;&#x6D;&#112;&#105;&#108;&#101;&#x72;&#64;&#112;&#x65;&#114;&#108;&#46;&#x6F;&#114;&#103;</a> mailing list, or join us on IRC #perl6 on freenode.</p>
+							</div><!-- .entry-content -->
+	
+			<div class="entry-utility">
+									<span class="cat-links">
+						<span class="entry-utility-prep entry-utility-prep-cat-links">Posted in</span> <a href="http://rakudo.org/category/announce/" title="View all posts in announce" rel="category tag">announce</a>					</span>
+					<span class="meta-sep">|</span>
+												<span class="comments-link"><span>Comments Off</span></span>
+							</div><!-- .entry-utility -->
+		</div><!-- #post-## -->
+
+		
+	
+
+
+			<div id="post-404" class="post-404 post type-post status-publish format-standard hentry category-announce">
+			<h2 class="entry-title"><a href="http://rakudo.org/2015/07/14/announce-windows-msi-installers-for-release-2015-06/" title="Permalink to Announce: Windows MSI Installers for release 2015.06" rel="bookmark">Announce: Windows MSI Installers for release 2015.06</a></h2>
+
+			<div class="entry-meta">
+				<span class="meta-prep meta-prep-author">Posted on</span> <a href="http://rakudo.org/2015/07/14/announce-windows-msi-installers-for-release-2015-06/" title="06:10" rel="bookmark"><span class="entry-date">2015.07.14</span></a> <span class="meta-sep">by</span> <span class="author vcard"><a class="url fn n" href="http://rakudo.org/author/froggs/" title="View all posts by Tobias Leich">Tobias Leich</a></span>			</div><!-- .entry-meta -->
+
+				<div class="entry-content">
+				<p>The Windows MSI installers are now available, coming again in two versions. One installer targets x86 (32bit) platforms, and the other installer targets x86_64 (64bit) platforms (probably Windows 7 or better). Only the version for x86_64 comes with JIT enabled.<br />
+The two MSIs are available from <a href="http://rakudo.org/downloads/star/">http://rakudo.org/downloads/star/</a>.</p>
+							</div><!-- .entry-content -->
+	
+			<div class="entry-utility">
+									<span class="cat-links">
+						<span class="entry-utility-prep entry-utility-prep-cat-links">Posted in</span> <a href="http://rakudo.org/category/announce/" title="View all posts in announce" rel="category tag">announce</a>					</span>
+					<span class="meta-sep">|</span>
+												<span class="comments-link"><span>Comments Off</span></span>
+							</div><!-- .entry-utility -->
+		</div><!-- #post-## -->
+
+		
+	
+
+
+			<div id="post-397" class="post-397 post type-post status-publish format-standard hentry category-announce">
+			<h2 class="entry-title"><a href="http://rakudo.org/2015/07/01/announce-rakudo-star-release-2015-06/" title="Permalink to Announce: Rakudo Star Release 2015.06" rel="bookmark">Announce: Rakudo Star Release 2015.06</a></h2>
+
+			<div class="entry-meta">
+				<span class="meta-prep meta-prep-author">Posted on</span> <a href="http://rakudo.org/2015/07/01/announce-rakudo-star-release-2015-06/" title="06:43" rel="bookmark"><span class="entry-date">2015.07.01</span></a> <span class="meta-sep">by</span> <span class="author vcard"><a class="url fn n" href="http://rakudo.org/author/froggs/" title="View all posts by Tobias Leich">Tobias Leich</a></span>			</div><!-- .entry-meta -->
+
+				<div class="entry-content">
+				<h2>A useful, usable, &#8220;early adopter&#8221; distribution of Perl 6</h2>
+<p>On behalf of the Rakudo and Perl 6 development teams, I&#8217;m happy to<br />
+announce the June 2015 release of &#8220;Rakudo Star&#8221;, a useful and usable<br />
+distribution of Perl 6. The tarball for the June 2015 release is<br />
+available from <a title="http://rakudo.org/downloads/star/" href="http://rakudo.org/downloads/star/" target="_blank">http://rakudo.org/downloads/star/</a>.</p>
+<p>This Rakudo Star release comes with support for the MoarVM<br />
+backend (all module tests pass on supported platforms).</p>
+<p>In the Perl 6 world, we make a distinction between the language<br />
+(&#8220;Perl 6&#8243;) and specific implementations of the language such as<br />
+&#8220;Rakudo Perl&#8221;. This Star release includes <a href=" https://github.com/rakudo/rakudo/blob/nom/docs/announce/2015.06.md" target="_blank">release 2015.06</a> of the<br />
+<a href="http://github.com/rakudo/rakudo" target="_blank">Rakudo Perl 6 compiler</a>, version 2015.06 of <a href="http://moarvm.org/" target="_blank">MoarVM</a>, plus various<br />
+modules, documentation, and other resources collected from the<br />
+Perl 6 community.</p>
+<p>Other Rakudo Perl 6 Comiler changes included in this release:<br />
+<a href=" https://github.com/rakudo/rakudo/blob/nom/docs/announce/2015.04.md" target="_blank"> https://github.com/rakudo/rakudo/blob/nom/docs/announce/2015.04.md</a><br />
+<a href=" https://github.com/rakudo/rakudo/blob/nom/docs/announce/2015.05.md" target="_blank"> https://github.com/rakudo/rakudo/blob/nom/docs/announce/2015.05.md</a><br />
+<a href=" https://github.com/rakudo/rakudo/blob/nom/docs/announce/2015.06.md" target="_blank"> https://github.com/rakudo/rakudo/blob/nom/docs/announce/2015.06.md</a></p>
+<p>Some of the new compiler features added to this release include:</p>
+<ul>
+<li>&#8220;0&#8243; (0 as a string) is now True, no special-casing anymore</li>
+<li>an Int() coercion type in a multi now creates two candidates: Any and Int</li>
+<li>native arrays</li>
+<li>starts-with/substr-eq/ends-with for comparing strings inside other strings</li>
+<li>where constraints on variable and attribute declarations</li>
+<li>&#8216;is rw&#8217; parameters implemented for native subs (they get passed as a pointer)</li>
+<li>use Foo:from&lt;Perl5&gt; and EVAL $code, :lang&lt;perl5&gt; are now supported as long as Inline::Perl5 is installed. Allows passing most of S01 spec tests.</li>
+<li>NFG, NFC, NFD, Uni</li>
+<li>&#8220;unit&#8221; declaration needed for blockless packages</li>
+<li>Various API changes for the Great List Refactor, such as&#8230;
+<ul>
+<li>  &#8216;for&#8217; loops not longer flatten; use &#8216;for flat&#8217; for that</li>
+<li>  .map no longer flattens, map as a listop does. Use .flatmap to get the old behavior</li>
+<li>  Likewise other methods that used to flatten their invocant no longer do: all, any, one, none, unique, squish, min, max, minmax, classify, and categorize</li>
+<li>  Nil no longer iterates like the empty List. Use () or Empty instead.</li>
+</ul>
+</li>
+<li>.pick($n)/roll($n) now always return lists, even when $n == 1</li>
+<li>The &#8220;is cached&#8221; trait no longer works on methods, throws a NYI instead</li>
+<li>Method .map should be used instead of .for</li>
+<li>The REPL is strict by default now, that leaves only &#8216;-e&#8217; lines to be lax</li>
+<li>Implement new @*INC handling (about 30% faster startup time) (bare startup time is now below 100 ms on some machines)</li>
+<li>Implemented CUnions which map to the union C type definition for NativeCall</li>
+<li>Implemented HAS declarator for attributes to mark it embedded into the CStruct or CUnion</li>
+<li>Lexical pragma &#8216;use trace&#8217; now outputs statements on STDERR</li>
+</ul>
+<p>There are some key features of Perl 6 that Rakudo Star does not yet<br />
+handle appropriately, although they will appear in upcoming releases.<br />
+Some of the not-quite-there features include:</p>
+<ul>
+<li> advanced macros</li>
+<li> non-blocking I/O (in progress)</li>
+<li> much of Synopsis 9 and 11</li>
+</ul>
+<p>There is an online resource at <a href="http://perl6.org/compilers/features" target="_blank">http://perl6.org/compilers/features</a><br />
+that lists the known implemented and missing features of Rakudo&#8217;s<br />
+backends and other Perl 6 implementations.</p>
+<p>In many places we&#8217;ve tried to make Rakudo smart enough to inform the<br />
+programmer that a given feature isn&#8217;t implemented, but there are many<br />
+that we&#8217;ve missed. Bug reports about missing and broken features are<br />
+welcomed at <a href="mailto://rakudobug@perl.org" target="_blank">rakudobug@perl.org</a>.</p>
+<p>See <a href="http://perl6.org/" target="_blank">http://perl6.org/</a> for links to much more information about<br />
+Perl 6, including documentation, example code, tutorials, reference<br />
+materials, specification documents, and other supporting resources. A<br />
+draft of a Perl 6 book is available as <a href="https://github.com/rakudo/star/raw/master/docs/UsingPerl6-draft.pdf" target="_blank">docs/UsingPerl6-draft.pdf</a> in<br />
+the release tarball.</p>
+<p>The development team thanks all of the contributors and sponsors for<br />
+making Rakudo Star possible. If you would like to contribute, see<br />
+<a href="http://rakudo.org/how-to-help" target="_blank">http://rakudo.org/how-to-help</a>, ask on the <a href="mailto://perl6-compiler@perl.org" target="_blank">perl6-compiler@perl.org</a><br />
+mailing list, or join us on <a href="http://webchat.freenode.net/?channels=%23perl6&amp;uio=d4" target="_blank">IRC #perl6 on freenode</a>.</p>
+							</div><!-- .entry-content -->
+	
+			<div class="entry-utility">
+									<span class="cat-links">
+						<span class="entry-utility-prep entry-utility-prep-cat-links">Posted in</span> <a href="http://rakudo.org/category/announce/" title="View all posts in announce" rel="category tag">announce</a>					</span>
+					<span class="meta-sep">|</span>
+												<span class="comments-link"><span>Comments Off</span></span>
+							</div><!-- .entry-utility -->
+		</div><!-- #post-## -->
+
+		
+	
+
+
+			<div id="post-391" class="post-391 post type-post status-publish format-standard hentry category-announce">
+			<h2 class="entry-title"><a href="http://rakudo.org/2015/03/23/announce-windows-msi-installers-for-release-2015-03/" title="Permalink to Announce: Windows MSI Installers for release 2015.03" rel="bookmark">Announce: Windows MSI Installers for release 2015.03</a></h2>
+
+			<div class="entry-meta">
+				<span class="meta-prep meta-prep-author">Posted on</span> <a href="http://rakudo.org/2015/03/23/announce-windows-msi-installers-for-release-2015-03/" title="21:09" rel="bookmark"><span class="entry-date">2015.03.23</span></a> <span class="meta-sep">by</span> <span class="author vcard"><a class="url fn n" href="http://rakudo.org/author/froggs/" title="View all posts by Tobias Leich">Tobias Leich</a></span>			</div><!-- .entry-meta -->
+
+				<div class="entry-content">
+				<h2>MSI installers now come in two versions.</h2>
+<p>In the past we had to build Rakudo on a x86 (32bit) platform to create an MSI installer package that is most portable. As of now we will also provide an x86_64 (64bit) installer package that additionally comes with JIT support.<br />
+If you have a 64bit system, probably Windows 7 or newer, the x86_64 version should give an extra performance boost compared to the 32bit version.<br />
+The two MSIs are available from <a href="http://rakudo.org/downloads/star/">http://rakudo.org/downloads/star/</a>.</p>
+							</div><!-- .entry-content -->
+	
+			<div class="entry-utility">
+									<span class="cat-links">
+						<span class="entry-utility-prep entry-utility-prep-cat-links">Posted in</span> <a href="http://rakudo.org/category/announce/" title="View all posts in announce" rel="category tag">announce</a>					</span>
+					<span class="meta-sep">|</span>
+												<span class="comments-link"><span>Comments Off</span></span>
+							</div><!-- .entry-utility -->
+		</div><!-- #post-## -->
+
+		
+	
+
+				<div id="nav-below" class="navigation">
+					<div class="nav-previous"><a href="http://rakudo.org/page/2/" ><span class="meta-nav">&larr;</span> Older posts</a></div>
+					<div class="nav-next"></div>
+				</div><!-- #nav-below -->
+			</div><!-- #content -->
+		</div><!-- #container -->
+
+
+		<div id="primary" class="widget-area" role="complementary">
+			<ul class="xoxo">
+
+<li id="search-2" class="widget-container widget_search"><form role="search" method="get" id="searchform" class="searchform" action="http://rakudo.org/">
+				<div>
+					<label class="screen-reader-text" for="s">Search for:</label>
+					<input type="text" value="" name="s" id="s" />
+					<input type="submit" id="searchsubmit" value="Search" />
+				</div>
+			</form></li>		<li id="recent-posts-2" class="widget-container widget_recent_entries">		<h3 class="widget-title">Recent Posts</h3>		<ul>
+					<li>
+				<a href="http://rakudo.org/2016/02/12/announce-mac-os-x-installer-for-release-2016-01/">Announce: Mac OS X Installer for release 2016.01</a>
+						</li>
+					<li>
+				<a href="http://rakudo.org/2016/02/04/announce-windows-msi-installers-for-release-2016-01/">Announce: Windows MSI Installers for release 2016.01</a>
+						</li>
+					<li>
+				<a href="http://rakudo.org/2016/02/03/announce-rakudo-star-release-2016-01/">Announce: Rakudo Star Release 2016.01</a>
+						</li>
+					<li>
+				<a href="http://rakudo.org/2015/11/28/announce-rakudo-star-release-2015-11-now-in-beta/">Announce: Rakudo Star Release 2015.11 (now in beta!)</a>
+						</li>
+					<li>
+				<a href="http://rakudo.org/2015/10/11/announce-windows-msi-installers-for-release-2015-09/">Announce: Windows MSI Installers for release 2015.09</a>
+						</li>
+				</ul>
+		</li><li id="nav_menu-3" class="widget-container widget_nav_menu"><h3 class="widget-title">Other sites</h3><div class="menu-other-sites-container"><ul id="menu-other-sites" class="menu"><li id="menu-item-201" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-201"><a href="http://perl6.org/">Perl 6</a></li>
+<li id="menu-item-207" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-207"><a href="http://blogs.perl.org/users/perl_6_reports/">#perl6 reports</a></li>
+<li id="menu-item-200" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-200"><a href="http://perlweekly.com/">Perl Weekly</a></li>
+<li id="menu-item-202" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-202"><a href="http://perl6maven.com/">Perl 6 Maven</a></li>
+<li id="menu-item-204" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-204"><a href="http://6guts.wordpress.com/">6guts</a></li>
+<li id="menu-item-203" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-203"><a href="http://strangelyconsistent.org/">Strangely Consistent</a></li>
+<li id="menu-item-205" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-205"><a href="http://perlgeek.de/blog-en/perl-6/">Perlgeek.de</a></li>
+<li id="menu-item-206" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-206"><a href="http://pmthium.com/">Pmthium</a></li>
+</ul></div></li><li id="recent-comments-2" class="widget-container widget_recent_comments"><h3 class="widget-title">Recent Comments</h3><ul id="recentcomments"><li class="recentcomments"><a href='http://p6weekly.wordpress.com/2014/09/01/2014-35-a-star-release-perl5-interop/' rel='external nofollow' class='url'>2014.35: A Star Release, perl5 interop, &#8230; | Weekly changes in and around Perl 6</a> on <a href="http://rakudo.org/2014/05/05/announce-rakudo-star-release-2014-04/#comment-937287">Announce: Rakudo Star Release 2014.04</a></li><li class="recentcomments">Emmanuel on <a href="http://rakudo.org/how-to-help/#comment-76757">How to help</a></li><li class="recentcomments">Simon on <a href="http://rakudo.org/how-to-help/#comment-6775">How to help</a></li><li class="recentcomments"><a href='https://plus.google.com/u/0/105092400598046607875/posts' rel='external nofollow' class='url'>Michael</a> on <a href="http://rakudo.org/2012/08/31/rakudo-star-2012-08-released/#comment-3945">Rakudo Star 2012.08 released</a></li><li class="recentcomments"><a href='http://www.lalaurette.com.ar' rel='external nofollow' class='url'>Sebastián Lalaurette</a> on <a href="http://rakudo.org/2012/07/30/windows-msi-available-for-rakudo-star-2012-07/#comment-1820">Windows .msi available for Rakudo Star 2012.07</a></li></ul></li><li id="archives-2" class="widget-container widget_archive"><h3 class="widget-title">Archives</h3>		<ul>
+			<li><a href='http://rakudo.org/2016/02/'>February 2016</a></li>
+	<li><a href='http://rakudo.org/2015/11/'>November 2015</a></li>
+	<li><a href='http://rakudo.org/2015/10/'>October 2015</a></li>
+	<li><a href='http://rakudo.org/2015/09/'>September 2015</a></li>
+	<li><a href='http://rakudo.org/2015/07/'>July 2015</a></li>
+	<li><a href='http://rakudo.org/2015/03/'>March 2015</a></li>
+	<li><a href='http://rakudo.org/2015/02/'>February 2015</a></li>
+	<li><a href='http://rakudo.org/2014/12/'>December 2014</a></li>
+	<li><a href='http://rakudo.org/2014/09/'>September 2014</a></li>
+	<li><a href='http://rakudo.org/2014/08/'>August 2014</a></li>
+	<li><a href='http://rakudo.org/2014/05/'>May 2014</a></li>
+	<li><a href='http://rakudo.org/2014/04/'>April 2014</a></li>
+	<li><a href='http://rakudo.org/2014/01/'>January 2014</a></li>
+	<li><a href='http://rakudo.org/2013/12/'>December 2013</a></li>
+	<li><a href='http://rakudo.org/2013/11/'>November 2013</a></li>
+	<li><a href='http://rakudo.org/2013/10/'>October 2013</a></li>
+	<li><a href='http://rakudo.org/2013/09/'>September 2013</a></li>
+	<li><a href='http://rakudo.org/2013/08/'>August 2013</a></li>
+	<li><a href='http://rakudo.org/2013/05/'>May 2013</a></li>
+	<li><a href='http://rakudo.org/2013/02/'>February 2013</a></li>
+	<li><a href='http://rakudo.org/2013/01/'>January 2013</a></li>
+	<li><a href='http://rakudo.org/2012/12/'>December 2012</a></li>
+	<li><a href='http://rakudo.org/2012/11/'>November 2012</a></li>
+	<li><a href='http://rakudo.org/2012/10/'>October 2012</a></li>
+	<li><a href='http://rakudo.org/2012/09/'>September 2012</a></li>
+	<li><a href='http://rakudo.org/2012/08/'>August 2012</a></li>
+	<li><a href='http://rakudo.org/2012/07/'>July 2012</a></li>
+	<li><a href='http://rakudo.org/2012/06/'>June 2012</a></li>
+	<li><a href='http://rakudo.org/2012/05/'>May 2012</a></li>
+	<li><a href='http://rakudo.org/2012/04/'>April 2012</a></li>
+	<li><a href='http://rakudo.org/2012/02/'>February 2012</a></li>
+	<li><a href='http://rakudo.org/2012/01/'>January 2012</a></li>
+	<li><a href='http://rakudo.org/2011/09/'>September 2011</a></li>
+	<li><a href='http://rakudo.org/2011/08/'>August 2011</a></li>
+	<li><a href='http://rakudo.org/2011/07/'>July 2011</a></li>
+	<li><a href='http://rakudo.org/2011/04/'>April 2011</a></li>
+	<li><a href='http://rakudo.org/2011/01/'>January 2011</a></li>
+	<li><a href='http://rakudo.org/2010/12/'>December 2010</a></li>
+	<li><a href='http://rakudo.org/2010/11/'>November 2010</a></li>
+	<li><a href='http://rakudo.org/2010/10/'>October 2010</a></li>
+	<li><a href='http://rakudo.org/2010/09/'>September 2010</a></li>
+	<li><a href='http://rakudo.org/2010/08/'>August 2010</a></li>
+	<li><a href='http://rakudo.org/2010/07/'>July 2010</a></li>
+	<li><a href='http://rakudo.org/2010/06/'>June 2010</a></li>
+	<li><a href='http://rakudo.org/2010/04/'>April 2010</a></li>
+	<li><a href='http://rakudo.org/2009/10/'>October 2009</a></li>
+		</ul>
+</li><li id="categories-2" class="widget-container widget_categories"><h3 class="widget-title">Categories</h3>		<ul>
+	<li class="cat-item cat-item-3"><a href="http://rakudo.org/category/announce/" title="View all posts filed under announce">announce</a>
+</li>
+	<li class="cat-item cat-item-1"><a href="http://rakudo.org/category/uncategorized/" title="View all posts filed under Uncategorized">Uncategorized</a>
+</li>
+		</ul>
+</li><li id="meta-2" class="widget-container widget_meta"><h3 class="widget-title">Meta</h3>			<ul>
+						<li><a href="http://rakudo.org/wp/wp-login.php">Log in</a></li>
+			<li><a href="http://rakudo.org/feed/" title="Syndicate this site using RSS 2.0">Entries <abbr title="Really Simple Syndication">RSS</abbr></a></li>
+			<li><a href="http://rakudo.org/comments/feed/" title="The latest comments to all posts in RSS">Comments <abbr title="Really Simple Syndication">RSS</abbr></a></li>
+			<li><a href="http://wordpress.org/" title="Powered by WordPress, state-of-the-art semantic personal publishing platform.">WordPress.org</a></li>						</ul>
+</li>			</ul>
+		</div><!-- #primary .widget-area -->
+
+	</div><!-- #main -->
+
+	<div id="footer" role="contentinfo">
+		<div id="colophon">
+
+
+
+			<div id="site-info">
+				<a href="http://rakudo.org/" title="rakudo.org" rel="home">
+					rakudo.org				</a>
+			</div><!-- #site-info -->
+
+			<div id="site-generator">
+								<a href="http://wordpress.org/" title="Semantic Personal Publishing Platform" rel="generator">Proudly powered by WordPress.</a>
+			</div><!-- #site-generator -->
+
+		</div><!-- #colophon -->
+	</div><!-- #footer -->
+
+</div><!-- #wrapper -->
+
+</body>
+</html>
