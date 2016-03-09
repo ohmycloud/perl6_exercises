@@ -9,9 +9,9 @@ For the most part, each section linked that page has its own subdirectory
 under ./tutorials/perl6/
 
 
-Working through interesting-looking modules on
-    https://modules.perl6.org/
-Though LWP::Simple
+
+Currently re-reading tutorials_blogs/perl6/concurrency/ to get promises and 
+supplies more firmly in my head.  Pick up on supplies.
 
 
 
@@ -233,18 +233,19 @@ FAQ, Glossary ***CHECK*** {#{{{
 
 }#}}}
 UNIMPLEMENTED *** {
+    Jan 16
+        This is Rakudo version 2016.01.1 built on MoarVM version 2016.01
+
     I'm starting to play with perl6 before the Xmas 2015 official production 
     release.
         This is rakudo version 2015.11-357-g587f700 built on MoarVM version 2015.11-34-gc3eea17 implementing Perl v6.b.
 
     I'm finding things that aren't doing what the docs tell me they should; 
-    I'm going to just assume those things will be fixed in v1.0.
+    I'm going to just assume those things will be fixed eventually
 
-    Ack for "NYI" for things that fit this bill.
+    Ack for "NYI" for things that fit this bill.  Hopefully as new rakudo 
+    versions come out, the number of NYI marks will decrease.
 
-    I started with p6 version 6.b and upgraded to 6.c on 01/07/2016.  Many of 
-    my NYI marks have not been checked since the upgrade.  Check and remove 
-    any that are now working.
 }
 CHEC.K {
     

@@ -51,15 +51,15 @@ When does an exception get thrown (Important) {#{{{
             my $var = 10 / 0;
             say "foobar";
 
-
     Dividing by zero certainly causes an exception.  But what happened is that 
     an invalid value was assigned to $var, but we never actually tried to use 
     $var.  So NO EXCEPTION WAS THROWN!
 
-    It's only the attempted use of the invalid value that throws the 
+    It's only the ATTEMPTED USE of the invalid value that throws the 
     exception.
 
     So the code above happily displays "foobar" with no errors.
+
 
 
     However, this _would_ produce an error:
@@ -71,7 +71,6 @@ When does an exception get thrown (Important) {#{{{
             foobar
             Attempt to divide by zero...
 
-        So the exception still is not thrown until we try to access $var.
 
 
     This means that you could have broken-ass code outside a try block, and 
