@@ -1,6 +1,6 @@
 #!/usr/bin/env perl6
 
-{ # Basics#{{{
+if False { # Basics#{{{
 
     my $channel = Channel.new;
     $channel.send("Channel One");
@@ -26,7 +26,7 @@
 
     ''.say;
 }#}}}
-{ # Combine a promise with a channel read (list method)#{{{
+if False { # Combine a promise with a channel read (list method)#{{{
     
     ### The channel.list method will return all messages currently on the 
     ### channel queue, and then will block, waiting for more messages, unless 
@@ -69,7 +69,7 @@
    
     ''.say;
 }#}}}
-{ # .poll(), .closed()#{{{
+if False { # .poll(), .closed()#{{{
 
     ### .poll() is a non-blocking method that returns Nil if the channel is 
     ### empty or even if it's already been closed.
@@ -109,7 +109,7 @@
 
     ''.say;
 }#}}}
-{ # Channel from a Supply#{{{
+if False { # Channel from a Supply#{{{
 
     ### You can also get a Channel from a Supply.
     ### 

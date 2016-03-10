@@ -24,24 +24,14 @@ Promise {#{{{
     Sometimes called a "future" in other languages.
 
     See ./promise.p6
-
-    trying a promise
-        This code appears in the sample script several times to see what 
-        happened to a broken promise:
-                try $p.result;
-                say $p.cause;
-        The cause() method is used in those cases with no checking, because 
-        it's an example script.  But that cause() method will itself throw an 
-        exception if the promise did not break.  So I expect we'd need to look 
-        at $p.cause inside a CATCH block.  However, we haven't gotten to 
-        exception handling yet, so I don't know how to do that yet.
-
-        So just keep in mind that you can't call $p.cause wherever you want.
 }#}}}
 Supplies {#{{{
     https://i.ytimg.com/vi/5AplRigbvtI/hqdefault.jpg
 
     A Supply is an "asynchronous data streaming mechanism".
+
+    In my own words (which may not be entirely accurate), a supply feels like 
+    a multi-consumer message queue.
 
     See also the Supplies section from JW's video, notes are below.
 
@@ -54,6 +44,8 @@ Channels {#{{{
 
     A channel is a fifo.  After a message has been read once, it's gone.  To 
     allow multiple readers to read a single message, use a Supply instead.
+
+    ./channels.p6
     
 }#}}}
 Proc::Async {#{{{

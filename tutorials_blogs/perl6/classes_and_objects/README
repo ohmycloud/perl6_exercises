@@ -1,7 +1,5 @@
 
-
-Left off at
-    Inheritance
+http://doc.perl6.org/language/classtut
 
 
 "Attributes give objects state, and methods give objects behavior"
@@ -9,7 +7,6 @@ Left off at
 
 
 
-http://doc.perl6.org/language/classtut
 
 SIMPLE OBJECT CREATION {#{{{
     
@@ -233,13 +230,11 @@ BUILD {#{{{
     So BUILD is responsible for initializing all attributes.
 
 }#}}}
-INHERITANCE {
+INHERITANCE {#{{{
 
     - Go through the scripts in this order:
         - inherit.p6
         - mult_inherit.p6
 
-
-
-}
+}#}}}
 

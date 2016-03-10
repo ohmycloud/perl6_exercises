@@ -1,5 +1,9 @@
 
-http://doc.perl6.org/language/modules
+The tutorial:
+    http://doc.perl6.org/language/modules
+
+The modules directory:
+    https://modules.perl6.org/
 
 .pm and .pl are acceptable extensions (and might be more common), but if you 
 want to make the point that you're using p6, you can use ".pm6" and ".p6" 
@@ -289,12 +293,18 @@ use lib {#{{{
     In perl6maven's Bailador sample code, he uses this:
             use lib callframe(0).file.IO.dirname ~ '/lib';
 
+        In a simple test script named "jon.p6", this:
+                say callframe();
+            produces:
+                ./jon.p6 at line 3
 
-    In a simple test script named "jon.p6", this:
-            say callframe();
+        So that more complicated 'use lib' looks like the more familiar 
+        p5-ism:
+                use lib "$FindBin::Bin/lib";
 
-        produces:
-            ./jon.p6 at line 3
+
+    But if you want to keep it simple, you can just do
+            use lib 'lib';
 
 }#}}}
 
