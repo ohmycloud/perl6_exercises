@@ -1015,6 +1015,69 @@ Re-Dispatching (callwith/same, nextwith/same) {#{{{
 
 
 }#}}}
+Re-Dispatching (multi routines with shared code) {
+    
+    https://doc.perl6.org/language/functions#proto
+
+
+    If you have multi routines that take different arguments, those routines 
+    are likely to share code between them that you don't want to repeat.
+
+    In this situation there's a lot of re-typed code:
+            class SomeClass {
+                has $.config_file;
+
+                multi sub make_config() {
+                    $!config_file = '/path/to/default/file.cfg';
+                    if path_does_not_exist($!config_file) {
+                        make_dir( $!config_file );
+                        touch_file( $!config_file );
+                    }
+                }
+                multi sub make_config(Str $path) {
+                    $!config_file = $path;
+                    if path_does_not_exist($!config_file) {
+                        make_dir( $!config_file );
+                        touch_file( $!config_file );
+                    }
+                }
+            }
+
+
+    A better way of doing that is to use a proto sub:
+            class SomeClass {
+                has $.config_file;
+
+                proto sub make_config(|) {
+                    {*};
+                    if path_does_not_exist($!config_file) {
+                        make_dir( $!config_file );
+                        touch_file( $!config_file );
+                    }
+                }
+                multi sub make_config() {
+                    $!config_file = '/path/to/default/file.cfg';
+                }
+                multi sub make_config(Str $path) {
+                    $!config_file = $path;
+                }
+            }
+
+
+    The | in the proto's signature is an unnamed capture.  It's going to 
+    accept any (or no) arguments and pass them along untouched.
+            proto sub make_config(|) {...}
+
+
+    The {*} re-dispatches to the next appropriate routine in the chain, 
+    passing along the args captured by (|).  After re-dispatching, we return 
+    back to the proto again.
+
+
+
+
+
+}
 Coercion Types (Type Casting) {#{{{
     From the docs:
         Coercion types can help you to have a specific type inside a routine, 

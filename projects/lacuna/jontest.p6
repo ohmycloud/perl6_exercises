@@ -1,7 +1,7 @@
 #!/usr/bin/env perl6
 
 
-if True {# {{{
+if False {# {{{
     
     class Jontest {# {{{
         has $.config_file;
@@ -34,12 +34,19 @@ if True {# {{{
     $j.config_file;
 
 }# }}}
+if True {
 
-if False {
-    my %h = ( jon => 'barton' );
-    say 'jon is there' if %h<jon>;
+    my %c;
+    %c<jon> = Nil;
+    say defined %c<kermit>;
+    say %c<kermit>;
+    say defined %c<jon>;
+    say %c<jon>;
 
-    say 'kermit is there' if %h<kermit>;
+    if %c<jon> {
+        say "true";
+    }
+
 }
 
 

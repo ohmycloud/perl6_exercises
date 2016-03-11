@@ -5,16 +5,38 @@ use Net::HTTP::GET;
 use Net::HTTP::POST;
 use URI;
 
+
+=for comment
+    Left off working on GL::Model
+
+
+
+
+
+
+
+
+
+
 =for comment
     When I try to dump this module out to html by
         perl6 --doc=HTML Lacuna.pm
     it's unable to find G::L::Exception without a 'use lib' to ../../lib/.
-    When I do add that in there, I'm getting a Pod compile error.  The 
-    bugtracker seems to indicate that this bug has been fixed, but for now, 
-    when you want to dump out the HTML, just comment out the use of 
-    GL::Exception.
+    When I do add that in there, I'm getting a Pod compile error.
+    The bugtracker seems to indicate that this bug has been fixed, but for 
+    now, when you want to dump out the HTML, just comment out all of the use 
+    lines below.
 
 use Games::Lacuna::Exception;
+
+
+=for comment
+    Structure
+    This file contains GL::Account, which hits the /empire endpoint.  But I'm 
+    considering the GL::Account class to be more bookkeeping-related than 
+    game-related.
+    The GL::Empire class also hits the /empire endpoint, but it doesn't manage 
+    logging in and session IDs, etc -- GL::Empire is game-related.
 
 
 #| Communicates with TLE servers.
@@ -92,9 +114,10 @@ class Games::Lacuna::Account is Games::Lacuna::Comms {#{{{
     has Str $.pass;
     has Str $.api_key           = 'perl6_test';
     has Str $.server            = 'us1';
-    has Str $.base_dir;
     has Str $.session_id;
 
+    has Str $.section is rw     = 'real';
+    has IO::Path $.base_dir;
     has IO::Path $.config_file;
 
 
@@ -104,16 +127,14 @@ class Games::Lacuna::Account is Games::Lacuna::Comms {#{{{
         creation is not possible.
 
         With no args passed, assumes that the config file should exist as 
-        $.base_dir/config/lacuna.cfg.  Both the file and the directory will be 
-        created if needed.
+        $.base_dir/config/lacuna.cfg.  Both the file and the config/ directory 
+        will be created if needed.
 
         Also accepts a full (Str) path.  Will create that path and file if 
         needed.
     }
     proto method config_file(|) {#{{{
-        say "proto";
         {*};
-        say "back to proto";
         my $dir = IO::Path.new( $!config_file.dirname );
         $dir.mkdir or die "$dir: Could not create directory.";
         if $!config_file !~~ :e {   # create the config file if it doesn't already exist.
@@ -133,15 +154,52 @@ class Games::Lacuna::Account is Games::Lacuna::Comms {#{{{
         return $!config_file;
     }#}}}
     multi method config_file() {#{{{
-        say "no args";
-        $!config_file   = IO::Path.new( $.base_dir ~ '/config/lacuna.cfg' );
+        $!config_file   = IO::Path.new( $.base_dir.Str ~ '/config/lacuna.cfg' );
     }#}}}
     multi method config_file(Str $path) {#{{{
         $!config_file    = IO::Path.new( $path );
     }#}}}
 
-    method load_config() {
+    method load_config() {#{{{
+        my $conf = Config::Simple.read($!config_file.Str, :f<ini>);
+        if $!section ne 'DEFAULT' {
+            ### Copy anything this section doesn't explicitly set from the 
+            ### DEFAULT section except for the session_id.
+            for <user pass api_key server> -> $a {
+                $conf{$!section}{$a} ||= $conf<DEFAULT>{$a};
+            }
+        }
+        $!user          = $conf{$!section}<user>;
+        $!pass          = $conf{$!section}<pass>;
+        $!server        = $conf{$!section}<server>;
+        $!api_key       = $conf{$!section}<api_key>;
+        $!session_id    = $conf{$!section}<session_id>;
+    }#}}}
+    method save_config() {#{{{
+        my $conf = Config::Simple.read($!config_file, :f<ini>);
+        $conf{$!section}<user> = $!user;
+        $conf{$!section}<pass> = $!pass;
+        $conf{$!section}<server> = $!server;
+        $conf{$!section}<api_key> = $!api_key;
+        $conf{$!section}<session_id> = $!session_id;
+        $conf.write;
+    }#}}}
+
+    method test_session() {
+        ### If we've got a $!session_id, make some call to the server.  If the 
+        ### call comes back, our session ID is good.  Otherwise we have to log 
+        ### in again.
+        ###
+        ### Might as well make a useful call (like view_profile) and do 
+        ### something with its retval if we get one.
+        return False unless $.session_id;
     }
+
+
+
+
+
+
 
     #|{
         Logs in to the server.
