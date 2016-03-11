@@ -17,7 +17,7 @@ use Games::Lacuna::Exception;
 
 #| Communicates with TLE servers.
 class Games::Lacuna::Comms {#{{{
-    has Str $.protocol      = 'http';
+    has Str $.protocol      = 'https';
     has URI $.endpoint_url; 
 
     #|{
