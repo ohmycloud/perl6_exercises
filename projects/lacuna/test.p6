@@ -4,21 +4,28 @@ use v6;
 use lib 'lib';
 use Games::Lacuna;
 
-my $user    = 'tmtowtdi';
-my $pass    = 'hi vas';     # THIS IS GETTING CHECKED IN TO GITHUB DON'T USE A REAL PASSWORD HERE
-my $server  = 'pt';
+my $user        = 'tmtowtdi';
+my $pass        = 'hi vas';     # THIS IS GETTING CHECKED IN TO GITHUB DON'T USE A REAL PASSWORD HERE
+my $server      = 'pt';
+my $base_dir    = IO::Path.new(callframe(0).file.IO.dirname).absolute;
 
 
 ### Create account object.  This does not log you in.
 ###
 ### Named args, so either version works.
 #my $a = Games::Lacuna::Account.new(:$user, :$pass, :$server);
-my $a = Games::Lacuna::Account.new(:$server, :$user, :$pass);
+#my $a = Games::Lacuna::Account.new(:$server, :$user, :$pass);
 
-### And since the class defaults to us1, we can skip the :server arg 
-### altogether if we're hitting production.  I'm not using this because I 
-### don't want my us1 password checked in to github.
+### Since the class defaults to us1, we can skip the :server arg altogether if 
+### we're hitting production.  I'm not using this because I don't want my us1 
+### password checked in to github.
 #my $a = Games::Lacuna::Account.new(:$user, :$pass);
+
+### At this point, I'm not seeing any way for module code located in another 
+### file to determine the path to this file (there's no FindBin yet).  So for 
+### now at least, I'm going to require passing in the $base_dir.
+my $a = Games::Lacuna::Account.new(:$server, :$user, :$pass, :$base_dir);
+
 
 
 ### This does log you in.  I'm not saving the session ID anywhere at this 

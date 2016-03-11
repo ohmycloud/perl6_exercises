@@ -1,4 +1,5 @@
 
+use Config::Simple;
 use JSON::Tiny;
 use Net::HTTP::GET;
 use Net::HTTP::POST;
@@ -8,9 +9,10 @@ use URI;
     When I try to dump this module out to html by
         perl6 --doc=HTML Lacuna.pm
     it's unable to find G::L::Exception without a 'use lib' to ../../lib/.
-    When I do add that in there, I'm getting a compile error.  The bugtracker seems to indicate
-    that this bug has been fixed, but for now, when you want to dump out the HTML, just comment
-    out the use of GL::Exception.
+    When I do add that in there, I'm getting a Pod compile error.  The 
+    bugtracker seems to indicate that this bug has been fixed, but for now, 
+    when you want to dump out the HTML, just comment out the use of 
+    GL::Exception.
 
 use Games::Lacuna::Exception;
 
@@ -85,16 +87,65 @@ class Games::Lacuna::Comms {#{{{
 
 #| TLE Account, handles authenticating with the server
 class Games::Lacuna::Account is Games::Lacuna::Comms {#{{{
-    has Str $!endpoint_name = 'empire';
+    has Str $!endpoint_name     = 'empire';
     has Str $.user;
     has Str $.pass;
-    has Str $.api_key       = 'perl6_test';
-    has Str $.server        = 'us1';
+    has Str $.api_key           = 'perl6_test';
+    has Str $.server            = 'us1';
+    has Str $.base_dir;
     has Str $.session_id;
+
+    has IO::Path $.config_file;
+
+
+    #|{
+        Returns the config file as an IO::Path object.
+        Creates the file if it does not already exist and dies if that 
+        creation is not possible.
+
+        With no args passed, assumes that the config file should exist as 
+        $.base_dir/config/lacuna.cfg.  Both the file and the directory will be 
+        created if needed.
+
+        Also accepts a full (Str) path.  Will create that path and file if 
+        needed.
+    }
+    proto method config_file(|) {#{{{
+        say "proto";
+        {*};
+        say "back to proto";
+        my $dir = IO::Path.new( $!config_file.dirname );
+        $dir.mkdir or die "$dir: Could not create directory.";
+        if $!config_file !~~ :e {   # create the config file if it doesn't already exist.
+            my $rv = $!config_file.open(:w);
+            $rv.close();
+        }
+        ### If we just created the file, our $!config_file object was created 
+        ### before the file existed.  It has not been updated to understand 
+        ### that the file now exists, even though we used its own open() 
+        ### method to create the thing.  This is presumably an IO::Handle bug 
+        ### that'll get worked out eventually.
+        ### For now, we have to re-create $!config_file to get it to re-stat 
+        ### the (possibly newly-created) file to tell if the thing is writable 
+        ### or not.
+        $!config_file = IO::Path.new( $!config_file );
+        die "$!config_file Cannot write to file." unless $!config_file ~~ :w;
+        return $!config_file;
+    }#}}}
+    multi method config_file() {#{{{
+        say "no args";
+        $!config_file   = IO::Path.new( $.base_dir ~ '/config/lacuna.cfg' );
+    }#}}}
+    multi method config_file(Str $path) {#{{{
+        $!config_file    = IO::Path.new( $path );
+    }#}}}
+
+    method load_config() {
+    }
 
     #|{
         Logs in to the server.
-        Throws exception on failure.
+        Throws exception on any failure (eg bad password or server down).
         Sets self.session_id and returns that session_id on success.
     }
     method login() {
