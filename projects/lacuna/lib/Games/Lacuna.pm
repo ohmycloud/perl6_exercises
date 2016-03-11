@@ -17,7 +17,7 @@ use Games::Lacuna::Exception;
 
 #| Communicates with TLE servers.
 class Games::Lacuna::Comms {#{{{
-    has Str $.protocol      = 'https';
+    has Str $.protocol      = 'http';
     has URI $.endpoint_url; 
 
     #|{
@@ -39,8 +39,8 @@ class Games::Lacuna::Comms {#{{{
         Throws Games::Lacuna::Broke if the response from the server is not JSON. 
     }
     method send_packet(Str $json_packet) {
-        ### $!endpoint_url is a URI object, but Net::HTTP::POST only accepts 
-        ### strings.  So we must stringify $!endpoint_url.
+        ### $!endpoint_url is a URI object, but NH::POST only accepts strings. 
+        ### So stringify $!endpoint_url.
         my $resp    = Net::HTTP::POST("$!endpoint_url", :body($json_packet));
         my $json    = $resp.content(:force);   # :force is required to decode the HTTP response.
         my $rv      = try { from-json($json) };
@@ -106,7 +106,7 @@ class Games::Lacuna::Account is Games::Lacuna::Comms {#{{{
         try { $!session_id = $rv<result><session_id> };
     }
 
-    #| This does not work yet.
+    #| This does not work yet because of the SSL problem.
     method fetch_captcha() {#{{{
         my %rv = $.send(:$!endpoint_name, :method('fetch_captcha') );
 
