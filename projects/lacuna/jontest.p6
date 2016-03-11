@@ -2,7 +2,12 @@
 
 use v6;
 
+my $hash = (
+    foo => 'bar'
+);
 
-my $var = '//www.example.com';
-say 'foo' unless $var ~~ /^ http: /;
+
+my $foo = try { die 'blarg' };
+say "-$!-" if $!;
+say $foo;
 

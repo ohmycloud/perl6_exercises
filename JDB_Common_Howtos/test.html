@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+<head>
+  <title></title>
+  <meta charset="UTF-8" />
+  <style>
+    /* code gets the browser-default font
+     * kbd gets a slightly less common monospace font
+     * samp gets the hard pixelly fonts
+     */
+    kbd { font-family: "Droid Sans Mono", "Luxi Mono", "Inconsolata", monospace }
+    samp { font-family: "Terminus", "Courier", "Lucida Console", monospace }
+    /* WHATWG HTML frowns on the use of <u> because it looks like a link,
+     * so we make it not look like one.
+     */
+    u { text-decoration: none }
+    .nested {
+        margin-left: 3em;
+    }
+    // footnote things:
+    aside, u { opacity: 0.7 }
+    a[id^="fn-"]:target { background: #ff0 }
+  </style>
+  <link rel="stylesheet" href="//design.perl6.org/perl.css">
+  
+  
+</head>
+<body class="pod" id="___top">
+
+
+<nav class="indexgroup">
+<ol class="indexList indexList1">
+  <li class="indexItem indexItem1"><a href="#Synopsis_URL_-_https%3A%2F%2Fdesign.perl6.org%2FS26.html">Synopsis URL - <a href="https://design.perl6.org/S26.html">https://design.perl6.org/S26.html</a></a></li>
+  <li class="indexItem indexItem1"><a href="#This_is_an_%27abbreviated_block%27.">This is an &#39;abbreviated block&#39;.</a></li>
+  <li class="indexItem indexItem1"><a href="#Internal_Header">Internal Header</a></li>
+</ol>
+</nav>
+<h1 id="Synopsis_URL_-_https://design.perl6.org/S26.html"><a class="u" href="#___top" title="go to top of document">Synopsis URL - <a href="https://design.perl6.org/S26.html">https://design.perl6.org/S26.html</a></a></h1>
+<section><h1>Displaying</h1>
+<p>You can pass the --doc arg to perl6 to see the Pod in here: $ perl6 --doc POD.p6</p>
+<p>But I&#39;ve also dicked with the shebang line in here, so just executing this $ ./POD.p6 will do the same thing.</p>
+<p>To produce HTML documentation: $ perl6 --doc=HTML &gt; output.html This requires that you have Pod::To::HTML installed (use panda).</p>
+<p>My guess is that you can produce any type of output as long as you have  the correct Pod::To::&lt;whatever&gt; module installed.</p>
+<p>This section gets displayed, including the newlines, because it&#39;s a  begin/end section.</p>
+</section>
+<section><h1>Name</h1>
+<p>It looks like we&#39;re now officially calling it &quot;Pod&quot;, rather than POD. https://design.perl6.org/S26.html</p>
+</section>
+<section><h1>Howto</h1>
+<p>This is an example of a Paragraph block. It ends at the first blank line,  with no need for an ending Pod command.</p>
+</section>
+<section><h1>Indentation</h1>
+<p>I tend to indent as you can see throughout, though it&#39;s not necessary.</p>
+</section>
+<section><h1>AnotherParagraphBlock</h1>
+<p>This is just another paragraph block that does get displayed.</p>
+</section>
+<h1 id="This_is_an_'abbreviated_block'."><a class="u" href="#___top" title="go to top of document">This is an &#39;abbreviated block&#39;.</a></h1>
+<section><h1>InternalPod</h1>
+<h1 id="Internal_Header"><a class="u" href="#___top" title="go to top of document">Internal Header</a></h1>
+<p>Our =begin and =end names must be one word. &quot;InternalPod&quot; is OK, but  &quot;Internal Pod&quot; is not.</p>
+<p>Also, it looks like we can indent our pod now, and we don&#39;t need blank  vertical lines around the individual Pod specifiers.</p>
+<p>Actually, it looks like indented text is meant to be a code block.</p>
+<p>my $foo = &#39;bar&#39;;</p>
+<p>However, there&#39;s no visual difference between this sentence and the previous  chunk of &quot;code&quot; in either the CLI or HTML output, so I&#39;m just going to go back  to indenting all of my text because it looks nicer in the source.</p>
+<p>Look - no =over or =back needed!</p>
+<ul><li><p>list item 1</p>
+</li>
+<li><p>list item 2</p>
+</li>
+<li><p>list item 3</p>
+</li>
+</ul>
+</section>
+<section><h1>DeclaratorBlocks</h1>
+<p>&#39;#|&#39; documents the declaration on the following line.</p>
+<p>I think that you&#39;re supposed to be able to use these declarator blocks to  document attributes as well as classes and methods, but for now at least,  the output looks bad enough that I&#39;ve skipped doing it.</p>
+<p>The Pod::To::HTML module is (hopefully) not in its final state, because  the declarator blocks below look like absolute dogshit in HTML right now. You can supposedly</p>
+</section>
+<h1>Person: Represents a person. Can I do this on multiple lines? Yes, I can!</h1><article>
+<code>greet:(Person $: *%_)</code>:
+Says hello to our Person. This curly brace thing is another way to do a declarator block with multiple lines. And my newly-updated perl6.vim file can deal with it!
+</article>
+<p>three</p>
+<section><h1>FormattingCodes</h1>
+<p><strong>This should be bold.</strong></p>
+<p><code>my $str = &quot;This should look like code.&quot;;</code></p>
+<p><em>This should be in italics.</em></p>
+<p><strong>We can now nest <em>formatting codes inside</em> other formatting codes.</strong></p>
+<p>You can use multiple angle brackets as your <strong>delimiters</strong>. Angle-bracket  delimited code can contain stuff with the same number of angle brackets or  fewer, but not more.</p>
+<p>So if we wanted to show some hash access code, these would be legal:</p>
+<p><code>say $foo&lt;bar&gt; </code></p>
+<p>Here, the separation between Pod and code is easier to see. <code>say $foo&lt;bar&gt; </code></p>
+<p>But we could not do this, because we&#39;re containing more angles than we used in  our delimiters - the output is all mucked up: <code>@foo </code>&gt; .meth &gt;</p>
+</section>
+<table>
+<tbody>
+<tr> <td>jon</td> <td>barton</td> </tr> <tr> <td>kermit</td> <td>jackson</td> </tr>
+</tbody>
+</table><table>
+<tbody>
+<tr> <td>jon</td> <td>barton</td> </tr> <tr> <td>kermit</td> <td>jackson</td> </tr>
+</tbody>
+</table>
+
+
+</body>
+</html>
+

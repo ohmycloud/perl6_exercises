@@ -2,57 +2,89 @@
 use JSON::Tiny;
 use Net::HTTP::GET;
 use Net::HTTP::POST;
+use URI;
 
-class Games::Lacuna::Comms {
+=for comment
+    When I try to dump this module out to html by
+        perl6 --doc=HTML Lacuna.pm
+    it's unable to find G::L::Exception without a 'use lib' to ../../lib/.
+    When I do add that in there, I'm getting a compile error.  The bugtracker seems to indicate
+    that this bug has been fixed, but for now, when you want to dump out the HTML, just comment
+    out the use of GL::Exception.
+
+use Games::Lacuna::Exception;
+
+
+#| Communicates with TLE servers.
+class Games::Lacuna::Comms {#{{{
     has Str $.protocol      = 'http';
-    has Str $.endpoint_url; 
+    has URI $.endpoint_url; 
 
-    ### There _is_ a URI p6 module out there.  $endpoint_url should really be 
-    ### of that class rather than a Str.
-    ###
-    ###
-    ### I want to end up not using *%named as a slurpy param.  I should be 
-    ### able to drop the * and move the arg to the front of the signature. 
-    ### See the second multi method where that's working for @pos.
-
-    multi method send(Str :$endpoint_name!, Str :$method!, *%named) {
-        $.set_endpoint_url( $endpoint_name );
-        $.send_packet( $.json_rpcize($method, %named) );
+    #|{
+        Sends data, either positional or named arguments, to a specific TLE endpoint.
+        TBD - The first send multimethod, accepting named args, is untested.
     }
-    multi method send(@pos, Str :$endpoint_name!, Str :$method!) {
+    multi method send(Str :$endpoint_name!, Str :$method!, *%named, :%opts) {
         $.set_endpoint_url( $endpoint_name );
-        $.send_packet( $.json_rpcize($method, @pos) );
+        $.send_packet( $.json_rpcize($method, %named, :id(%opts<id> || 1)) );
+    }
+    multi method send(@pos, Str :$endpoint_name!, Str :$method!, :%opts) {
+        $.set_endpoint_url( $endpoint_name );
+        $.send_packet( $.json_rpcize($method, @pos, :id(%opts<id> || 1)) );
     }
 
+    #|{
+        Accepts a JSON-encoded string, passes it to the currently-set endpoint, 
+        decodes and returns the response.
+        Throws Games::Lacuna::Broke if the response from the server is not JSON. 
+    }
     method send_packet(Str $json_packet) {
-        my $resp = Net::HTTP::POST($!endpoint_url, :body($json_packet));
-        from-json( $resp.content(:force) ); # :force is required to decode the HTTP response.
+        ### $!endpoint_url is a URI object, but Net::HTTP::POST only accepts 
+        ### strings.  So we must stringify $!endpoint_url.
+        my $resp    = Net::HTTP::POST("$!endpoint_url", :body($json_packet));
+        my $json    = $resp.content(:force);   # :force is required to decode the HTTP response.
+        my $rv      = try { from-json($json) };
+        die Games::Lacuna::Broke.new( :resp($json) ) if $!;
+        return $rv;
     }
 
 
-    ### On IDs -- I'd like for these methods to allow an optional ID argument 
-    ### and send either that or '1'.
-    multi method json_rpcize(Str $method, @pos) {
-        to-json({ :jsonrpc('2.0'), :id(1), :method($method), :params(@pos) });
+    #|{
+        Accepts a method name, positional or named arguments, and an optional
+        named 'id' argument.  Returns that data as a JSON-encoded string as 
+        expected by TLE servers.
     }
-    multi method json_rpcize(Str $method, %named) {
-        to-json({ :jsonrpc('2.0'), :id(1), :method($method), :params(%named) });
+    multi method json_rpcize(Str $method, @pos, Int :$id = 1) {
+        to-json({ :jsonrpc('2.0'), :id($id), :method($method), :params(@pos) });
+    }
+    multi method json_rpcize(Str $method, %named, Int :$id = 1) {
+        to-json({ :jsonrpc('2.0'), :id($id), :method($method), :params(%named) });
     }
 
 
+    #|{
+        Sets the full endpoint URL, taking into account the protocol, server, and
+        final endpoint name.
+    }
     multi method set_endpoint_url() {
         return $!endpoint_url if $!endpoint_url and $!endpoint_url ~~ /^ http /;
         $!endpoint_url = $.endpoint_base();
     }
     multi method set_endpoint_url(Str $path) {
-        $!endpoint_url = ($.endpoint_base(), $path).join('/');
+        $!endpoint_url = URI.new( ($.endpoint_base(), $path).join('/') );
+    }
+
+    #|{
+        Returns the endpoint base URL, which will vary depending upon what protocol
+        and server we're trying to hit.
     }
     method endpoint_base() {
-        ("$!protocol://$.server", 'lacunaexpanse', 'com').join('.');
+        URI.new( ("$!protocol://$.server", 'lacunaexpanse', 'com').join('.') );
     }
-}
+}#}}}
 
-class Games::Lacuna::Account is Games::Lacuna::Comms is export {
+#| TLE Account, handles authenticating with the server
+class Games::Lacuna::Account is Games::Lacuna::Comms {#{{{
     has Str $!endpoint_name = 'empire';
     has Str $.user;
     has Str $.pass;
@@ -60,11 +92,21 @@ class Games::Lacuna::Account is Games::Lacuna::Comms is export {
     has Str $.server        = 'us1';
     has Str $.session_id;
 
+    #|{
+        Logs in to the server.
+        Throws exception on failure.
+        Sets self.session_id and returns that session_id on success.
+    }
     method login() {
-        my %rv = $.send( :$!endpoint_name, :method('login'), ($!user, $!pass, $!api_key) );
-        $!session_id = %rv<result><session_id>;
+        my $rv = $.send(
+            :$!endpoint_name, :method('login'),
+            ($!user, $!pass, $!api_key)
+        );
+        die Games::Lacuna::Exception.new($rv) if $rv<error>;
+        try { $!session_id = $rv<result><session_id> };
     }
 
+    #| This does not work yet.
     method fetch_captcha() {#{{{
         my %rv = $.send(:$!endpoint_name, :method('fetch_captcha') );
 
@@ -85,6 +127,7 @@ class Games::Lacuna::Account is Games::Lacuna::Comms is export {
         say "The previous message was hard-coded 03/09/2016, so check again.";
     }#}}}
 
-}
+}#}}}
 
+ # vim: syntax=perl6 fdm=marker
 
