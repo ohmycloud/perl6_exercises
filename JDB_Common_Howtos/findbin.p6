@@ -3,7 +3,6 @@
 my $base_dir = callframe(0).file.IO.dirname.IO.absolute.IO;
 say $base_dir;
 
-
 #`{ Yikes on that $base_dir # {{{
 
     The goal here is to get the absolute (not relative!) path to the directory 
@@ -22,7 +21,4 @@ say $base_dir;
         Tack on ".IO" to turn it into an IO::Path object.
 
 }# }}}
-
-
-
 

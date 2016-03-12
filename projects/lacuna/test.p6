@@ -23,7 +23,6 @@ my $a = Games::Lacuna::Account.new(:$server, :$user, :$pass, :$base_dir);
 say $a.config_file;
 exit;
 
-
 ### This does log you in.  I'm not saving the session ID anywhere at this 
 ### point, so each run of this re-logs-in.
 $a.login();
