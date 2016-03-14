@@ -134,7 +134,7 @@ CONSTRUCTORS {#{{{
     That new() method we defined does have a "self" variable.  But before we 
     call bless on it, that variable is just the invocant, "Jontest".  It's not 
     a string, but it's not an object either.  self does not become an object 
-    until after the bless!
+    until after the bless.
         class Jontest {
             has $.some_var = 3;
 

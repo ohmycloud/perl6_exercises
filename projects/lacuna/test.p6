@@ -10,6 +10,7 @@ my $server      = 'pt';
 my $base_dir    = callframe(0).file.IO.dirname.IO.absolute.IO;
 
 
+
 ### Create account object.  This does not log you in.
 ###
 ### Named args, so either version works.
@@ -20,13 +21,39 @@ my $base_dir    = callframe(0).file.IO.dirname.IO.absolute.IO;
 #my $a = Games::Lacuna::Account.new(:$user, :$pass, :$server, :$base_dir);
 my $a = Games::Lacuna::Account.new(:$server, :$user, :$pass, :$base_dir);
 
-say $a.config_file;
+
+### spit out the config file name and exit.  I often use this to test.
+#say $a.config_file;
+#exit;
+
+
+### Log in.
+$a.login();
+say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance ID is {$a.alliance_id} and my session ID is {$a.session_id}.";
+''.say;
+
+
+### Get my public profile (23598 is me on PT.)
+my $profile = Games::Lacuna::PublicProfile.new(:account($a), :empire_id(23598));
+say "ID: " ~ $profile.id;
+say "Name: " ~ $profile.name;
 exit;
 
-### This does log you in.  I'm not saving the session ID anywhere at this 
-### point, so each run of this re-logs-in.
-$a.login();
-say "After logging in, my session ID is: {$a.session_id}";
+
+### Get my private profile (MUST BE USING YOUR FULL PASSWORD, NOT SITTER)
+### Does work if you're on your full.
+### I have not done an exhaustive check of all attributes here.  Typos are 
+### possible.
+#my $profile = Games::Lacuna::PrivateProfile.new(:account($a));
+#say $profile.endpoint_name;
+#say $profile.skip_facebook_wall_posts;
+#say $profile.skip_incoming_ships;
+#say $profile.skip_happiness_warnings;
+#say $profile.email;
+#say $profile.sitter_password;
+#exit;
+
+
 
 
 ### Doesn't work.  Looks like an SSL issue.  I can live without captchas for 

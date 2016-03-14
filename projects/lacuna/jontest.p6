@@ -1,52 +1,59 @@
 #!/usr/bin/env perl6
 
 
-if False {# {{{
+if True {# {{{
     
     class Jontest {# {{{
-        has $.config_file;
+        has $.foo is rw = 'jontest preset foo';
+        has $.bar;
 
-        proto method config_file(|) {
-            say "proto"; 
-            {*};
-            say "back to proto";
-            if $!config_file !~~ :e {   # create the config file if it doesn't already exist.
-                my $rv = $!config_file.open(:w);
-                $rv.close();
-            }
-            $!config_file    = IO::Path.new( $!config_file );
-            die "$!config_file Cannot write to file." unless $!config_file ~~ :w;
-            return $!config_file;
+        method new(Str $var) {
+            my $self = self.bless(foo => $var);
         }
-        multi method config_file() {
-            say "no args";
-            $!config_file   = IO::Path.new( callframe(0).file.IO.dirname ~ '/config/lacuna.cfg' );
-            my $dir         = IO::Path.new( $!config_file.dirname );
-            $dir.mkdir or die "$dir: Could not create directory.";
-        }
-        multi method config_file(Str $path) {
-            say "path arg";
-            $!config_file = IO::Path.new( $path );
+        submethod BUILD (:$foo) {
+            say "Jontest BUILD got var <$foo>.";
+            $!foo = 'jontest foo';
         }
 
     }# }}}
-    my $j = Jontest.new();
-    $j.config_file;
+    class Two is Jontest {# {{{
+
+        method new(Str $var) {
+            my $self = self.bless(foo => $var);
+        }
+        submethod BUILD (:$foo) {
+            say "Two BUILD got var <$foo>.";
+        }
+
+        method blarg {
+            $!foo;
+        }
+    }# }}}
+
+
+
+
+
+
+    my $j = Jontest.new( 'string arg' );
+    say "Jontest foo: " ~ $j.foo;
+    ''.say;
+
+
+    my $t = Two.new( 'string arg' );
+    say "Two foo: " ~ $t.foo;
+    say "Two blarg: " ~ $t.blarg;
+    ''.say;
+
+
 
 }# }}}
-if True {
+if False {# {{{
 
-    my %c;
-    %c<jon> = Nil;
-    say defined %c<kermit>;
-    say %c<kermit>;
-    say defined %c<jon>;
-    say %c<jon>;
+    my Int $num = 123;
+    my $str = $num.Str;
+    say "$str";
 
-    if %c<jon> {
-        say "true";
-    }
-
-}
+}# }}}
 
 
