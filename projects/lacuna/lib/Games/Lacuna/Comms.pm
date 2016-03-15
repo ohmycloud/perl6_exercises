@@ -25,7 +25,7 @@ class Games::Lacuna::Comms {#{{{
     }
     multi method send(%named, :$account, Str :$endpoint_name!, Str :$method!, :%opts) {#{{{
         $.set_endpoint_url( $endpoint_name );
-        $.send_packet( $.json_rpcize($method, %named, :id(%opts<id> || 1)) );
+        my $rv = $.send_packet( $.json_rpcize($method, %named, :id(%opts<id> || 1)) );
         $.relogin_expired($account, $rv);
     }#}}}
     multi method send(@pos, :$account, Str :$endpoint_name!, Str :$method!, :%opts) {#{{{
@@ -44,9 +44,8 @@ class Games::Lacuna::Comms {#{{{
     #|{
         If our session is expired, we have a Games::Lacuna::Account object, 
         we'll try to re-log-in.
-        Private method.
     #}
-    method !relogin_expired($account, $resp) {#{{{
+    method relogin_expired($account, $resp) {#{{{
         if $resp<error><code> eqv 1006 and $resp<error><message> eqv 'Session expired.' {
             if $account.WHAT.perl ~~ m:r/ 'Games::Lacuna::Account' / {
                 $account.login(:skip_test(True));

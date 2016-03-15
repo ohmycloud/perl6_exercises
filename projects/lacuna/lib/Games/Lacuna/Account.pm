@@ -122,26 +122,41 @@ class Games::Lacuna::Account is Games::Lacuna::Comms {#{{{
     #}
     method test_session() { ### #{{{
         return False unless $!session_id;
-        my $rv = $.send( :$!endpoint_name, :method('get_status'), [$!session_id]);
-        return True if $rv<server>;
+        my $rv = $.send( :$!endpoint_name, :method('get_status'), [$!session_id], :opts(id => 42));
+        return $rv if $rv<id> eqv 42 and not $rv<error>;
         return False;
     }#}}}
 
 
     #|{
-        Logs in to the server.
+        If we've already got a session_id attribute set, this tests that ID. 
+        If it's no good or we don't have one, this logs in and gets one for 
+        us.
         Throws exception on any failure (eg bad password or server down).
         Sets some attributes and saves them to the config file (including the 
         new session_id) on success.
     #}
     method login( Bool :$skip_test = False ) {#{{{
         unless $skip_test {
-            return if $.test_session();
+            if my $rv = $.test_session {
+                ### If our session_id was saved in the config file from a 
+                ### previous run, it's already been set as $!session_id, but 
+                ### these other attributes have not.
+                $!empire_name   = $rv<result><empire><name>;
+                $!empire_id     = $rv<result><empire><id>.Int;
+                $!alliance_id   = $rv<result><empire><alliance_id>.Int;
+                return;
+            }
         }
         my $rv = $.send(
             :$!endpoint_name, :method('login'),
             ($!user, $!pass, $!api_key)
         );
+
+        ### For testing.  Actually, I need to implement some logging facility 
+        ### and log this.
+        say "no valid session found.  Logging in fresh.";
+
         die Games::Lacuna::Exception.new($rv) if $rv<error>;
         try {
             $!session_id    = $rv<result><session_id>;

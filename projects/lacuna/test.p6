@@ -29,7 +29,6 @@ say "Logging in";
 $a.login();
 say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance ID is {$a.alliance_id} and my session ID is {$a.session_id}.";
 ''.say;
-exit;
 
 
 ### Get my public profile (23598 is me on PT.)
