@@ -57,7 +57,7 @@ class Games::Lacuna::Comms {#{{{
 
     #|{
         Accepts a JSON-encoded string, passes it to the currently-set 
-        endpoint, decodes and returns the response.
+        TLE endpoint, decodes and returns the response.
         Throws Games::Lacuna::Broke if the response from the server is not 
         JSON.
     }
