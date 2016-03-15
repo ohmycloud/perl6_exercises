@@ -5,43 +5,29 @@ use Net::HTTP::GET;
 use Net::HTTP::POST;
 use URI;
 
-
-=for comment
-    Left off working on GL::Model
-
-
-
-
 =for comment
     When I try to dump this module out to html by
         perl6 --doc=HTML Lacuna.pm
-    it's unable to find G::L::Exception without a 'use lib' to ../../lib/.
-    When I do add that in there, I'm getting a Pod compile error.
+    it's unable to find these other G::L classes without a 'use lib' to 
+    ../../lib/.
+    When I add that 'use lib', I'm getting a Pod compile error.
     The bugtracker seems to indicate that this bug has been fixed, but for 
     now, when you want to dump out the HTML, just comment out all of the use 
     lines below.
 
 use Games::Lacuna::Comms;
-
-=for comment
-    Structure
-    This file contains GL::Account, which hits the /empire endpoint.  But I'm 
-    considering the GL::Account class to be more bookkeeping-related than 
-    game-related.
-    The GL::Empire class also hits the /empire endpoint, but it doesn't manage 
-    logging in and session IDs, etc -- GL::Empire is game-related.
+use Games::Lacuna::Exception;
 
 
 #| TLE Account, handles authenticating with the server
 class Games::Lacuna::Account is Games::Lacuna::Comms {#{{{
-    has Str $!endpoint_name     = 'empire';
+    has Str $.endpoint_name;
     has Str $.user;
     has Str $.pass;
-    has Str $.api_key           = 'perl6_test';
-    has Str $.server            = 'us1';
+    has Str $.api_key;
+    has Str $.server;
     has Str $.session_id;
-
-    has Str $.section is rw     = 'real';
+    has Str $.config_section;
     has IO::Path $.base_dir;
     has IO::Path $.config_file;
 
@@ -49,8 +35,24 @@ class Games::Lacuna::Account is Games::Lacuna::Comms {#{{{
     has Int $.empire_id;
     has Int $.alliance_id;
 
+    method new(:$server = 'us1', :$user, :$pass, :$base_dir, :$config_section = 'real') {#{{{
+        my $obj = self.bless(:server($server), :user($user), :pass($pass), :base_dir($base_dir), :config_section($config_section));
+        $obj.config_file();
+        $obj.load_config();
+        $obj;
+    }#}}}
+    submethod BUILD(:$server, :$user, :$pass, :$base_dir, :$config_section) {#{{{
+        $!user              = $user;
+        $!pass              = $pass;
+        $!base_dir          = $base_dir;
+        $!server            = $server;
+        $!api_key           = q<perl6 test>;
+        $!endpoint_name     = q<empire>;
+        $!config_section    = $config_section;
+    }#}}}
+
     #|{
-        Returns the config file as an IO::Path object.
+        Sets the config file as an IO::Path object and returns it.
         Creates the file if it does not already exist and dies if that 
         creation is not possible.
 
@@ -60,7 +62,7 @@ class Games::Lacuna::Account is Games::Lacuna::Comms {#{{{
 
         Also accepts a full (Str) path.  Will create that path and file if 
         needed.
-    }
+    #}
     proto method config_file(|) {#{{{
         {*};
         my $dir = IO::Path.new( $!config_file.dirname );
@@ -89,53 +91,53 @@ class Games::Lacuna::Account is Games::Lacuna::Comms {#{{{
     }#}}}
 
     method load_config() {#{{{
-        my $conf = Config::Simple.read($!config_file.Str, :f<ini>);
-        if $!section ne 'DEFAULT' {
-            ### Copy anything this section doesn't explicitly set from the 
-            ### DEFAULT section except for the session_id.
+        my $conf = Config::Simple.read($.config_file.Str, :f<ini>);
+        if $.config_section ne 'DEFAULT' {
+            ### Copy anything this config_section doesn't explicitly set from 
+            ### the DEFAULT config_section except for the session_id.
             for <user pass api_key server> -> $a {
-                $conf{$!section}{$a} ||= $conf<DEFAULT>{$a};
+                $conf{$.config_section}{$a} ||= $conf<DEFAULT>{$a};
             }
         }
-        $!user          = $conf{$!section}<user>;
-        $!pass          = $conf{$!section}<pass>;
-        $!server        = $conf{$!section}<server>;
-        $!api_key       = $conf{$!section}<api_key>;
-        $!session_id    = $conf{$!section}<session_id>;
+        $!user          = $conf{$.config_section}<user>         || q<>;
+        $!pass          = $conf{$.config_section}<pass>         || q<>;
+        $!server        = $conf{$.config_section}<server>       || q<>;
+        $!api_key       = $conf{$.config_section}<api_key>      || q<>;
+        $!session_id    = $conf{$.config_section}<session_id>   || q<>;
     }#}}}
     method save_config() {#{{{
-        my $conf = Config::Simple.read($!config_file, :f<ini>);
-        $conf{$!section}<user> = $!user;
-        $conf{$!section}<pass> = $!pass;
-        $conf{$!section}<server> = $!server;
-        $conf{$!section}<api_key> = $!api_key;
-        $conf{$!section}<session_id> = $!session_id;
+        my $conf = Config::Simple.read($!config_file.Str, :f<ini>);
+        $conf{$.config_section}<user>       = $!user;
+        $conf{$.config_section}<pass>       = $!pass;
+        $conf{$.config_section}<server>     = $!server;
+        $conf{$.config_section}<api_key>    = $!api_key;
+        $conf{$.config_section}<session_id> = $!session_id;
         $conf.write;
     }#}}}
 
-    method test_session() { ### CHECK return to this#{{{
-        ###
-        ### If we've got a $!session_id, make some call to the server.  If the 
-        ### call comes back, our session ID is good.  Otherwise we have to log 
-        ### in again.
-        ###
-        ### Might as well make a useful call (like view_profile) and do 
-        ### something with its retval if we get one.
-        return False unless $.session_id;
+    #|{
+        Send a simple request using $!session_id.  If the request goes 
+        through, our session_id is still good and we return True.
+        Otherwise return False.
+    #}
+    method test_session() { ### #{{{
+        return False unless $!session_id;
+        my $rv = $.send( :$!endpoint_name, :method('get_status'), [$!session_id]);
+        return True if $rv<server>;
+        return False;
     }#}}}
-
-
-
-
-
 
 
     #|{
         Logs in to the server.
         Throws exception on any failure (eg bad password or server down).
-        Sets self.session_id and returns that session_id on success.
-    }
-    method login() {
+        Sets some attributes and saves them to the config file (including the 
+        new session_id) on success.
+    #}
+    method login( Bool :$skip_test = False ) {#{{{
+        unless $skip_test {
+            return if $.test_session();
+        }
         my $rv = $.send(
             :$!endpoint_name, :method('login'),
             ($!user, $!pass, $!api_key)
@@ -147,9 +149,10 @@ class Games::Lacuna::Account is Games::Lacuna::Comms {#{{{
             $!empire_id     = $rv<result><status><empire><id>.Int;
             $!alliance_id   = $rv<result><status><empire><alliance_id>.Int;
         };
-    }
+        $.save_config();
+    }#}}}
 
-    #| This does not work yet because of the SSL problem.
+    #| Does not work yet because of the SSL problem.
     method fetch_captcha() {#{{{
         my %rv = $.send(:$!endpoint_name, :method('fetch_captcha') );
 
