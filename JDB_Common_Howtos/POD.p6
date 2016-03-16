@@ -1,4 +1,4 @@
-#!/home/jon/.rakudo/install/bin/perl6 --doc
+#!/usr/bin/env perl6
 
 =head1 Synopsis URL - L<https://design.perl6.org/S26.html>
 

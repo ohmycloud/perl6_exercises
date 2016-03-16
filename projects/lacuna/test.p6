@@ -32,23 +32,30 @@ say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance
 
 
 ### Get my public profile (23598 is me on PT.)
-my $profile = Games::Lacuna::Model::PublicProfile.new(:account($a), :empire_id(23598));
-say "ID: " ~ $profile.id;
-say "Name: " ~ $profile.name;
-exit;
+#my $profile = Games::Lacuna::Model::PublicProfile.new(:account($a), :empire_id(23598));
+#say "ID: " ~ $profile.id;
+#say "Name: " ~ $profile.name;
+#say "Founded on: " ~ $profile.date_founded.Date;
+#say "Most recently logged in: {$profile.last_login.in-timezone(-14400)}.";
+#exit;
 
 
 ### Get my private profile (MUST BE USING YOUR FULL PASSWORD, NOT SITTER)
-### Does work if you're on your full.
 ### I have not done an exhaustive check of all attributes here.  Typos are 
 ### possible.
-#my $profile = Games::Lacuna::PrivateProfile.new(:account($a));
+my $profile = Games::Lacuna::Model::PrivateProfile.new(:account($a));
 #say $profile.endpoint_name;
 #say $profile.skip_facebook_wall_posts;
 #say $profile.skip_incoming_ships;
 #say $profile.skip_happiness_warnings;
 #say $profile.email;
 #say $profile.sitter_password;
+say "MEDALS";
+for $profile.medals -> $m {
+    if $m.name ~~ m:i/'of the week'/ {
+        say "\tThe {$m.name} medal has been earned {$m.times_earned} times, first on {$m.date}.  This medal is{' not' unless $m.public} public.";
+    }
+}
 #exit;
 
 

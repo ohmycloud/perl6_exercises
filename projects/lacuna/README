@@ -1,5 +1,13 @@
 
-Need to add logging
+- Need to add logging
+
+- Some (most) models will have methods that need to be able to talk to the 
+  server (eg a PrivateProfile needs an edit() method).  But a few models (eg 
+  Medal) are just collections of data and will not ever need to talk to the 
+  server.
+    - These "non-talking" models will have $!json_parsed attributes, but don't 
+      need $!endpoint or $!account attributes.  I should set up a non-comm 
+      Model role.
 
 Classes to add {#{{{
 

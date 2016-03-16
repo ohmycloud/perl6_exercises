@@ -1,9 +1,11 @@
 
 use Games::Lacuna::Exception;
+use Games::Lacuna::DateTime;
 use Games::Lacuna::Model;
+use Games::Lacuna::Model::Medal;
 
 role Games::Lacuna::Model::Profile does Games::Lacuna::Model {#{{{
-    has %.p;                        # convenience -- just %.json_parsed<result><profile>
+    has %.p;                        # convenience -- just %.json_parsed<result><profile>.  Handled by BUILD.
     has Int $.id;
     has Str $.name;
     has Str $.colony_count;
@@ -13,21 +15,13 @@ role Games::Lacuna::Model::Profile does Games::Lacuna::Model {#{{{
     has Str $.country;
     has Str $.skype;
     has Str $.player_name;
-#   has Medals @.medals;            # CHECK class does not exist
-    has Str $.last_login;           # CHECK date
-    has Str $.date_founded;         # CHECK date
+    has Games::Lacuna::Model::Medal @.medals;
+    has Games::Lacuna::DateTime $.last_login;
+    has Games::Lacuna::DateTime $.date_founded;
     has Str $.species;
 #   has Alliance $.alliance         # CHECK class does not exist;
 #   has Planet $.known_colonies     # CHECK class does not exist;
 
-
-    ###
-    ### CHECK
-    ### blarg too much copypasta.  I want a single method to take an attribute 
-    ### name and then do what all of these methods are doing ( getit('id'); 
-    ### getit('name'); etc).  But I don't know how to do that, or if it's even 
-    ### possible.
-    ###
     method id               { return $!id if defined $!id or not defined %!p<id>; $!id = %!p<id>.Int; }
     method name             { return $!name if defined $!name or not defined %!p<name>; $!name = %!p<name>; }
     method colony_count     { return $!colony_count if defined $!colony_count or not defined %!p<colony_count>; $!colony_count = %!p<colony_count>; }
@@ -37,13 +31,22 @@ role Games::Lacuna::Model::Profile does Games::Lacuna::Model {#{{{
     method country          { return $!country if defined $!country or not defined %!p<country>; $!country = %!p<country>; }
     method skype            { return $!skype if defined $!skype or not defined %!p<skype>; $!skype = %!p<skype>; }
     method player_name      { return $!player_name if defined $!player_name or not defined %!p<player_name>; $!player_name = %!p<player_name>; }
-    method last_login       { return $!last_login if defined $!last_login or not defined %!p<last_login>; $!last_login = %!p<last_login>; }
-    method date_founded     { return $!date_founded if defined $!date_founded or not defined %!p<date_founded>; $!date_founded = %!p<date_founded>; }
+    method last_login       { return $!last_login if defined $!last_login or not defined %!p<last_login>; $!last_login = Games::Lacuna::DateTime.from_tle(%!p<last_login>); }
+    method date_founded     { return $!date_founded if defined $!date_founded or not defined %!p<date_founded>; $!date_founded = Games::Lacuna::DateTime.from_tle(%!p<date_founded>); }
 
     ### CHECK these need love.
-#   method medals           { return @!medals if defined @!medals or not defined %!p<medals>; @!medals = %!p<medals>; }
 #   method alliance         { return $!alliance if defined $!alliance or not defined %!p<alliance>; $!alliance = %!p<alliance>; }
 #   method known_colonies   { return $!known_colonies if defined $!known_colonies or not defined %!p<known_colonies>; $!known_colonies = %!p<known_colonies>; }
+
+    method medals {
+        return @!medals if @!medals.elems > 0 or not defined %!p<medals>;
+        for %!p<medals>.kv -> $id, %m {
+            %m<id> = $id;
+            @!medals.push( Games::Lacuna::Model::Medal.new(:json_parsed(%m)) );
+        }
+        @!medals;
+   }
+
 }#}}}
 
 #| The publicly-viewable portion of a player's profile

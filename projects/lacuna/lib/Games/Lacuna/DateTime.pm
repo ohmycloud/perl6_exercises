@@ -20,12 +20,12 @@ grammar Games::Lacuna::DateTime::Grammar {
 class Games::Lacuna::DateTime::Actions {
     method TOP($/) {
         make DateTime.new(
-            :year( ~$<year>.Int ),
-            :month( ~$<month>.Int ),
-            :day( ~$<day>.Int ),
-            :hour( ~$<time><hour>.Int ),
-            :minute( ~$<time><minute>.Int ),
-            :second( ~$<time><second>.Int ),
+            :year( ~$<year> ),
+            :month( ~$<month> ),
+            :day( ~$<day> ),
+            :hour( ~$<time><hour> ),
+            :minute( ~$<time><minute> ),
+            :second( ~$<time><second> ),
             :timezone( $<timezone>.made ),
         );
     }
