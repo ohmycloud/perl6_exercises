@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+  <title></title>
+  <meta charset="UTF-8" />
+  <style>
+    /* code gets the browser-default font
+     * kbd gets a slightly less common monospace font
+     * samp gets the hard pixelly fonts
+     */
+    kbd { font-family: "Droid Sans Mono", "Luxi Mono", "Inconsolata", monospace }
+    samp { font-family: "Terminus", "Courier", "Lucida Console", monospace }
+    /* WHATWG HTML frowns on the use of <u> because it looks like a link,
+     * so we make it not look like one.
+     */
+    u { text-decoration: none }
+    .nested {
+        margin-left: 3em;
+    }
+    // footnote things:
+    aside, u { opacity: 0.7 }
+    a[id^="fn-"]:target { background: #ff0 }
+  </style>
+  <link rel="stylesheet" href="//design.perl6.org/perl.css">
+  
+  
+</head>
+<body class="pod" id="___top">
+
+
+<nav class="indexgroup">
+</nav>
+<h1>Games::Lacuna::Account: TLE Account, handles authenticating with the server</h1><article>
+<code>new:(Games::Lacuna::Account $: :$base_dir!, :$user!, :$pass!, :$server = { ... }, :$config_section = { ... }, *%_)</code>:
+Constructor You can pass in all options if you like, but you&#39;re more frequently going to just pass in a config file section name and let the constructor read your credentials from that. The config file is assumed to live in $base_dir/config/lacuna.cfg. Even if you&#39;re passing the credentials, you can still pass in a config file section name. If that section exists in the config file, its settings will override what you&#39;d passed in. If the section didn&#39;t already exist, the settings you passed in will be saved to a new section. If you don&#39;t pass in a section name, it&#39;ll default to &#39;real&#39;. Either way, passing in base_dir is always required. my $a = Games::Lacuna::Account.new( :$base_dir, :$server, :$user, :$pass, :$config_section ); my $a = Games::Lacuna::Account.new( :$base_dir, :$server, :$user, :$pass ); my $a = Games::Lacuna::Account.new( :$base_dir, :$config_section ); #
+</article>
+<article>
+<code>config_file:(Games::Lacuna::Account $: | is raw)</code>:
+Sets the config file as an IO::Path object and returns it. Creates the file if it does not already exist and dies if that creation is not possible. With no args passed, assumes that the config file should exist as $.base_dir/config/lacuna.cfg. Both the file and the config/ directory will be created if needed. Also accepts a full (Str) path. Will create that path and file if needed. #
+</article>
+<article>
+<code>test_session:(Games::Lacuna::Account $: *%_)</code>:
+Send a simple request using $!session_id. If the request goes through, our session_id is still good and we return True. Otherwise return False. #
+</article>
+<article>
+<code>login:(Games::Lacuna::Account $: Bool :$skip_test = { ... }, *%_)</code>:
+If we&#39;ve already got a session_id attribute set, this tests that ID. If it&#39;s no good or we don&#39;t have one, this logs in and gets one for us. Throws exception on any failure (eg bad password or server down). Sets some attributes and saves them to the config file (including the new session_id) on success. #
+</article>
+<article>
+<code>fetch_captcha:(Games::Lacuna::Account $: *%_)</code>:
+Does not work yet because of the SSL problem.
+</article>
+
+
+
+</body>
+</html>
+

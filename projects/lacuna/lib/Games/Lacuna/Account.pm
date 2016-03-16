@@ -6,14 +6,9 @@ use Net::HTTP::POST;
 use URI;
 
 =for comment
-    When I try to dump this module out to html by
-        perl6 --doc=HTML Lacuna.pm
-    it's unable to find these other G::L classes without a 'use lib' to 
-    ../../lib/.
-    When I add that 'use lib', I'm getting a Pod compile error.
-    The bugtracker seems to indicate that this bug has been fixed, but for 
-    now, when you want to dump out the HTML, just comment out all of the use 
-    lines below.
+    Produce HTML with:
+        perl6 -I ../.. --doc=HTML Account.pm > Account.html
+    But the formatting of the HTML output is (currently) just awful.
 
 use Games::Lacuna::Comms;
 use Games::Lacuna::Exception;
@@ -35,17 +30,52 @@ class Games::Lacuna::Account is Games::Lacuna::Comms {#{{{
     has Int $.empire_id;
     has Int $.alliance_id;
 
-    method new(:$server = 'us1', :$user, :$pass, :$base_dir, :$config_section = 'real') {#{{{
-        my $obj = self.bless(:server($server), :user($user), :pass($pass), :base_dir($base_dir), :config_section($config_section));
+    #|{
+        Constructor
+        You can pass in all options if you like, but you're more frequently 
+        going to just pass in a config file section name and let the 
+        constructor read your credentials from that.
+ 
+        The config file is assumed to live in $base_dir/config/lacuna.cfg, so 
+        'base_dir' is always required.
+ 
+        Even if you're passing the credentials, you can still pass in a config 
+        file section name.  If that section exists in the config file, its 
+        creds will override what you'd passed in.
+        If the section didn't already exist, the creds you passed in will be 
+        saved to a new section.
+        If you don't pass in a section name, it'll default to 'real'.
+ 
+        So while you can do this:
+            my $a = Games::Lacuna::Account.new( :$base_dir, :$server, :$user, :$pass, :$config_section );
+            my $a = Games::Lacuna::Account.new( :$base_dir, :$server, :$user, :$pass );
+
+        This is almost certainly what you want:
+            my $a = Games::Lacuna::Account.new( :$base_dir, :$config_section );
+    #}
+    multi method new(:$base_dir!, :$user!, :$pass!, :$server = 'us1', :$config_section = 'real') {#{{{
+        my $obj = self.bless(:$server, :$user, :$pass, :$base_dir, :$config_section);
         $obj.config_file();
         $obj.load_config();
         $obj;
     }#}}}
-    submethod BUILD(:$server, :$user, :$pass, :$base_dir, :$config_section) {#{{{
+    multi method new(:$base_dir!, :$config_section) {#{{{
+        my $obj = self.bless(:base_dir($base_dir), :config_section($config_section));
+        $obj.config_file();
+        $obj.load_config();
+        $obj;
+    }#}}}
+    multi submethod BUILD(:$server!, :$user!, :$pass!, :$base_dir!, :$config_section!) {#{{{
         $!user              = $user;
         $!pass              = $pass;
         $!base_dir          = $base_dir;
         $!server            = $server;
+        $!api_key           = q<perl6 test>;
+        $!endpoint_name     = q<empire>;
+        $!config_section    = $config_section;
+    }#}}}
+    multi submethod BUILD(:$base_dir!, :$config_section!) {#{{{
+        $!base_dir          = $base_dir;
         $!api_key           = q<perl6 test>;
         $!endpoint_name     = q<empire>;
         $!config_section    = $config_section;

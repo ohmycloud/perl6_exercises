@@ -4,27 +4,15 @@ use v6;
 use lib 'lib';
 use Games::Lacuna;
 
-my $user        = 'tmtowtdi';
-my $pass        = 'hi vas';     # THIS IS GETTING CHECKED IN TO GITHUB DON'T USE A REAL PASSWORD HERE
-my $server      = 'pt';
-my $base_dir    = callframe(0).file.IO.dirname.IO.absolute.IO;
-my $section     = q<real>;
-
+my $base_dir        = callframe(0).file.IO.dirname.IO.absolute.IO;
+my $config_section  = <real>;
 
 
 ### Create account object.  This does not log you in.
-### 
-### The config_section defaults to 'real'.
-#my $a = Games::Lacuna::Account.new(:$user, :$pass, :$server, :$base_dir);
-my $a = Games::Lacuna::Account.new(:$server, :$user, :$pass, :$base_dir, :config_section($section) );
+my $a = Games::Lacuna::Account.new( :$base_dir, :$config_section );
 
 
-### spit out the config file name and exit.  I often use this to test.
-#say $a.config_file;
-#exit;
-
-
-### Log in.
+### This logs you in.
 say "Logging in";
 $a.login();
 say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance ID is {$a.alliance_id} and my session ID is {$a.session_id}.";
