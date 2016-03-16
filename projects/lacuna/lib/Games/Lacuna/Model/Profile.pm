@@ -2,7 +2,7 @@
 use Games::Lacuna::Exception;
 use Games::Lacuna::Model;
 
-role Games::Lacuna::Profile does Games::Lacuna::Model {#{{{
+role Games::Lacuna::Model::Profile does Games::Lacuna::Model {#{{{
     has %.p;                        # convenience -- just %.json_parsed<result><profile>
     has Int $.id;
     has Str $.name;
@@ -47,7 +47,7 @@ role Games::Lacuna::Profile does Games::Lacuna::Model {#{{{
 }#}}}
 
 #| The publicly-viewable portion of a player's profile
-class Games::Lacuna::PublicProfile does Games::Lacuna::Profile {#{{{
+class Games::Lacuna::Model::PublicProfile does Games::Lacuna::Model::Profile {#{{{
 
     submethod BUILD (:$account, :$empire_id) {
         $!account       = $account;
@@ -64,7 +64,7 @@ class Games::Lacuna::PublicProfile does Games::Lacuna::Profile {#{{{
 
 #| The portion of a player's profile only visible to that player.
 #| You must be logged in with your real password, not your sitter.  Throws exception if you're on your sitter.
-class Games::Lacuna::PrivateProfile does Games::Lacuna::Profile {#{{{
+class Games::Lacuna::Model::PrivateProfile does Games::Lacuna::Model::Profile {#{{{
     has Bool $.skip_happiness_warnings;
     has Bool $.skip_resource_warnings;
     has Bool $.skip_pollution_warnings;

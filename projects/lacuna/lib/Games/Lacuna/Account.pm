@@ -155,7 +155,7 @@ class Games::Lacuna::Account is Games::Lacuna::Comms {#{{{
 
         ### For testing.  Actually, I need to implement some logging facility 
         ### and log this.
-        say "no valid session found.  Logging in fresh.";
+        #say "no valid session found.  Logging in fresh.";
 
         die Games::Lacuna::Exception.new($rv) if $rv<error>;
         try {

@@ -1,9 +1,5 @@
 
-
-Left off working on the public and private profiles.  They should be working, 
-but need confirmation before checking them off as done.
-
-
+Need to add logging
 
 Classes to add {#{{{
 
@@ -13,6 +9,9 @@ Classes to add {#{{{
 
         I need to change those to use a date class that can translate from TLE 
         date format into something p6 understands.
+
+    - Comms
+        - Exists as a class, but I think this should become a role instead.
 
     - Alliance
         Empire.pm - profile class

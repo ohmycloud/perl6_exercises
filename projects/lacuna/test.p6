@@ -32,7 +32,7 @@ say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance
 
 
 ### Get my public profile (23598 is me on PT.)
-my $profile = Games::Lacuna::PublicProfile.new(:account($a), :empire_id(23598));
+my $profile = Games::Lacuna::Model::PublicProfile.new(:account($a), :empire_id(23598));
 say "ID: " ~ $profile.id;
 say "Name: " ~ $profile.name;
 exit;
