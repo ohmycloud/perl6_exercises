@@ -3,14 +3,26 @@
 
 if True {# {{{
 
-my %p;
-%p<members> = [{:id("2115"), :name("Dementia")}, {:id("2403"), :name("Infinate Ones")}, {:id("15008"), :name("Space Herpes")}, {:id("19748"), :name("jof")}, {:id("22581"), :name("KC1")}, {:id("22718"), :name("Trancendance")}, {:id("23598"), :name("tmtowtdi")}, {:id("24905"), :name("Mythrandia")}, {:id("26469"), :name("Galactic Enterprise")}, {:id("26925"), :name("Chodes Empire")}, {:id("33563"), :name("carbonhalo")}, {:id("33730"), :name("Land_of_the_Free")}, {:id("33861"), :name("Silmarilos")}, {:id("36101"), :name("xLeinaDX")}, {:id("36112"), :name("ViOl3nc3")}, {:id("36277"), :name("Trade Federation")}, {:id("36408"), :name("Jarvisopolis")}, {:id("36635"), :name("Spock")}, {:id("37374"), :name("Zorn")}, {:id("37877"), :name("The Eldar")}, {:id("38165"), :name("LeatherNeck League")}, {:id("39688"), :name("Calradia")}, {:id("40124"), :name("Grimtooth")}, {:id("40285"), :name("SargePL")}, {:id("41974"), :name("Lapis Land")}, {:id("42431"), :name("Toftberg")}, {:id("42495"), :name("Izdihari Star Empire")}, {:id("42499"), :name("peppinik")}, {:id("42760"), :name("Etnmarchand")}, {:id("42794"), :name("mystery")}, {:id("42804"), :name("WatchmanCole")}, {:id("42831"), :name("Foopah")}, {:id("42862"), :name("Salidus")}, {:id("42865"), :name("Zeus43")}, {:id("42883"), :name("Calaine")}, {:id("42903"), :name("Shermatyde")}, {:id("42918"), :name("wiseupu2")}, {:id("42992"), :name("Trudevil")}, {:id("43047"), :name("Bretai")}, {:id("43268"), :name("Petronius")}, {:id("43366"), :name("Spirithawke")}, {:id("43480"), :name("Discordia")}, {:id("43489"), :name("Talborias")}, {:id("43629"), :name("Coriolis")}, {:id("43653"), :name("Nemordiabel")}, {:id("44050"), :name("The Collective")}, {:id("44816"), :name("Zephyr")}, {:id("46099"), :name("The Empire of Etlite")}, {:id("46101"), :name("Iralian Empire")}, {:id("50401"), :name("Ticcor")}, {:id("50831"), :name("Collectors")}, {:id("50918"), :name("Test.Of.Test")}];
 
-%p<members>.WHAT.say;
+my %h = (jon => 'barton');
+%h = ();
+say %h;
+say %h.WHAT;
+exit;
 
-for %p<members>.values -> $m {
-    say $m<name>;
-}
+
+
+my %resp;
+%resp<result><empire><bodies> = :colonies($[{:empire_id("23598"), :empire_name("tmtowtdi"), :id("184926"), :name("bmots rof 1.1"), :orbit("1"), :star_id("65281"), :star_name("SMA bmots 001"), :x("-297"), :y("134"), :zone("-1|0")}, {:empire_id("23598"), :empire_name("tmtowtdi"), :id("478857"), :name("bmots rof 1.2"), :orbit("2"), :star_id("65281"), :star_name("SMA bmots 001"), :x("-296"), :y("133"), :zone("-1|0")}, {:empire_id("23598"), :empire_name("tmtowtdi"), :id("483187"), :name("bmots rof 1.3"), :orbit("5"), :star_id("2181"), :star_name("Glab"), :x("1203"), :y("-1449"), :zone("4|-5")}, {:empire_id("23598"), :empire_name("tmtowtdi"), :id("473071"), :name("bmots rof 1.4"), :orbit("4"), :star_id("65281"), :star_name("SMA bmots 001"), :x("-297"), :y("130"), :zone("-1|0")}, {:empire_id("23598"), :empire_name("tmtowtdi"), :id("470140"), :name("bmots rof 1.5"), :orbit("5"), :star_id("65281"), :star_name("SMA bmots 001"), :x("-299"), :y("130"), :zone("-1|0")}, {:empire_id("23598"), :empire_name("tmtowtdi"), :id("470141"), :name("bmots rof 1.6"), :orbit("6"), :star_id("65281"), :star_name("SMA bmots 001"), :x("-300"), :y("131"), :zone("-1|0")}, {:empire_id("23598"), :empire_name("tmtowtdi"), :id("604255"), :name("bmots rof 1.7"), :orbit("3"), :star_id("50269"), :star_name("01 Star of The Queen"), :x("-466"), :y("-241"), :zone("-1|0")}, {:empire_id("23598"), :empire_name("tmtowtdi"), :id("108756"), :name("bmots rof 2.1"), :orbit("1"), :star_id("15320"), :star_name("Oot Yaeplie Oad"), :x("289"), :y("-1116"), :zone("1|-4")}, {:empire_id("23598"), :empire_name("tmtowtdi"), :id("144484"), :name("bmots rof 2.2"), :orbit("2"), :star_id("15320"), :star_name("Oot Yaeplie Oad"), :x("290"), :y("-1117"), :zone("1|-4")}, {:empire_id("23598"), :empire_name("tmtowtdi"), :id("110199"), :name("bmots rof 2.3"), :orbit("6"), :star_id("11981"), :star_name("Oasuloec"), :x("1208"), :y("-1201"), :zone("4|-4")}, {:empire_id("23598"), :empire_name("tmtowtdi"), :id("111653"), :name("bmots rof 2.4"), :orbit("4"), :star_id("15320"), :star_name("Oot Yaeplie Oad"), :x("289"), :y("-1120"), :zone("1|-4")}, {:empire_id("23598"), :empire_name("tmtowtdi"), :id("110201"), :name("bmots rof 2.5"), :orbit("3"), :star_id("20181"), :star_name("Ev Ghiehou Oah"), :x("1207"), :y("-999"), :zone("4|-3")}, {:empire_id("23598"), :empire_name("tmtowtdi"), :id("217046"), :name("bmots rof 2.6"), :orbit("6"), :star_id("15320"), :star_name("Oot Yaeplie Oad"), :x("286"), :y("-1119"), :zone("1|-4")}, {:empire_id("23598"), :empire_name("tmtowtdi"), :id("110203"), :name("bmots rof 2.7"), :orbit("7"), :star_id("15320"), :star_name("Oot Yaeplie Oad"), :x("286"), :y("-1117"), :zone("1|-4")}, {:empire_id("23598"), :empire_name("tmtowtdi"), :id("82651"), :name("bmots support 01"), :orbit("1"), :star_id("11967"), :star_name("Gho Xoahlae"), :x("1001"), :y("-1198"), :zone("4|-4")}, {:empire_id("23598"), :empire_name("tmtowtdi"), :id("76901"), :name("bmots support 02"), :orbit("1"), :star_id("20181"), :star_name("Ev Ghiehou Oah"), :x("1206"), :y("-996"), :zone("4|-3")}, {:empire_id("23598"), :empire_name("tmtowtdi"), :id("84292"), :name("bmots support 03"), :orbit("1"), :star_id("2181"), :star_name("Glab"), :x("1205"), :y("-1445"), :zone("4|-5")}, {:empire_id("23598"), :empire_name("tmtowtdi"), :id("157231"), :name("bmots01"), :orbit("7"), :star_id("2181"), :star_name("Glab"), :x("1202"), :y("-1446"), :zone("4|-5")}, {:empire_id("23598"), :empire_name("tmtowtdi"), :id("360565"), :name("bmots07"), :orbit("2"), :star_id("1789"), :star_name("SMA App 39 I Blow"), :x("1326"), :y("-1456"), :zone("5|-5")}, {:empire_id("23598"), :empire_name("tmtowtdi"), :id("844994"), :name("bmots08"), :orbit("5"), :star_id("65080"), :star_name("Schu Ize"), :x("-304"), :y("125"), :zone("-1|0")}]); 
+
+my %colonies;
+
+
+%resp<result><empire><bodies><colonies>.map({ %colonies{.<id>} = 1 });
+%colonies.say;
+
+
+
 
 
 }# }}}

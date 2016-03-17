@@ -86,6 +86,5 @@ class Games::Lacuna::Model::Alliance does Games::Lacuna::Model {#{{{
 
 }#}}}
 
-
  # vim: syntax=perl6 fdm=marker
 

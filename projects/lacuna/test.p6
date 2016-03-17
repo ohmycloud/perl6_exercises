@@ -16,7 +16,11 @@ my $a = Games::Lacuna::Account.new( :$base_dir, :$config_section );
 say "Logging in";
 $a.login();
 say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance ID is {$a.alliance_id} and my session ID is {$a.session_id}.";
+say "I own the following colonies: {$a.mycolonies.keys}";
+say "I own the following stations: {$a.mystations.keys}";
+say "My alliance owns the following stations: {$a.ourstations.keys}";
 ''.say;
+exit;
 
 
 ### Log out
@@ -31,6 +35,7 @@ my $profile = Games::Lacuna::Model::PublicProfile.new(:account($a), :empire_id(2
 say "Name: " ~ $profile.name;
 #say "Founded on: " ~ $profile.date_founded.Date;
 #say "Most recently logged in: {$profile.last_login.in-timezone(-14400)}.";
+### Profile.alliance gives full access to the member's alliance object.
 say "{$profile.name} is a member of {$profile.alliance.name}";
 exit
 

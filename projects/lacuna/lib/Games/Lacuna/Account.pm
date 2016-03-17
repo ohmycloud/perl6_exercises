@@ -30,6 +30,12 @@ class Games::Lacuna::Account does Games::Lacuna::Comms {#{{{
     has Int $.empire_id;
     has Int $.alliance_id;
 
+    ### Each of these is
+    ###     body_id => 1
+    has Int %.mycolonies;
+    has Int %.mystations;
+    has Int %.ourstations;
+
     #|{
         Constructor
         You can pass in all options if you like, but you're more frequently 
@@ -53,6 +59,7 @@ class Games::Lacuna::Account does Games::Lacuna::Comms {#{{{
         This is almost certainly what you want:
             my $a = Games::Lacuna::Account.new( :$base_dir, :$config_section );
     #}
+    ### CHECK I'm not convinced I need two new()s here.
     multi method new(:$base_dir!, :$user!, :$pass!, :$server = 'us1', :$config_section = 'real') {#{{{
         my $obj = self.bless(:$server, :$user, :$pass, :$base_dir, :$config_section);
         $obj.config_file();
@@ -60,7 +67,7 @@ class Games::Lacuna::Account does Games::Lacuna::Comms {#{{{
         $obj;
     }#}}}
     multi method new(:$base_dir!, :$config_section) {#{{{
-        my $obj = self.bless(:base_dir($base_dir), :config_section($config_section));
+        my $obj = self.bless(:$base_dir, :$config_section);
         $obj.config_file();
         $obj.load_config();
         $obj;
@@ -162,8 +169,10 @@ class Games::Lacuna::Account does Games::Lacuna::Comms {#{{{
 
     #|{
         If we've already got a session_id attribute set, this tests that ID. 
-        If it's no good or we don't have one, this logs in and gets one for 
-        us.
+        If it's valid, this just sets our logged-in attributes and returns 
+        without calling the server's login() method.
+        If the session_id is no good or we don't have one, this logs in and 
+        gets a valid one for us.
         Throws exception on any failure (eg bad password or server down).
         Sets some attributes and saves them to the config file (including the 
         new session_id) on success.
@@ -174,9 +183,7 @@ class Games::Lacuna::Account does Games::Lacuna::Comms {#{{{
                 ### If our session_id was saved in the config file from a 
                 ### previous run, it's already been set as $!session_id, but 
                 ### these other attributes have not.
-                $!empire_name   = $rv<result><empire><name>;
-                $!empire_id     = $rv<result><empire><id>.Int;
-                $!alliance_id   = $rv<result><empire><alliance_id>.Int;
+                $.set_attributes( $rv<result><empire> );
                 return;
             }
         }
@@ -184,7 +191,6 @@ class Games::Lacuna::Account does Games::Lacuna::Comms {#{{{
             :$!endpoint_name, :method('login'),
             ($!user, $!pass, $!api_key)
         );
-
         ### For testing.  Actually, I need to implement some logging facility 
         ### and log this.
         say "no valid session found.  Logging in fresh.";
@@ -192,17 +198,43 @@ class Games::Lacuna::Account does Games::Lacuna::Comms {#{{{
         die Games::Lacuna::Exception.new($rv) if $rv<error>;
         try {
             $!session_id    = $rv<result><session_id>;
-            $!empire_name   = $rv<result><status><empire><name>;
-            $!empire_id     = $rv<result><status><empire><id>.Int;
-            $!alliance_id   = $rv<result><status><empire><alliance_id>.Int;
+            $.set_attributes( $rv<result><status><empire> );
         };
         $.save_config();
     }#}}}
 
     #|{
-        Deletes the current user-related attributes (empire_name, _id, 
-        alliance_id).  Also deletes session_id and re-writes the config file 
-        to remove the session_id key.
+        Depending on how we logged in, the empire_hash can be in a few 
+        different places in the server response.
+        Wherever it was, send it here to set logged-in-specific attributes.
+    #}
+    method set_attributes (%empire_hash) {#{{{
+        $!empire_name   = %empire_hash<name>;
+        $!empire_id     = %empire_hash<id>.Int;
+        $!alliance_id   = %empire_hash<alliance_id>.Int;
+
+        ### These for loops work.
+        for %empire_hash<bodies><colonies>.values -> $c {
+            %.mycolonies{$c<id>} = 1;
+        }
+        for %empire_hash<bodies><mystations>.values -> $m {
+            %.mystations{$m<id>} = 1;
+        }
+        for %empire_hash<bodies><ourstations>.values -> $o {
+            %.ourstations{$o<id>} = 1;
+        }
+
+        ### The first two maps work.  But the third does not.  However I 
+        ### change their order around, the third one doesn't hit.
+        #%empire_hash<bodies><colonies>.values.map(    -> $c { %.mycolonies{$c<id>}      = 1 });
+        #%empire_hash<bodies><mystations>.values.map(  -> $m { %.mystations{$m<id>}      = 1 });
+        #%empire_hash<bodies><ourstations>.values.map( -> $o { %.ourstations{$o<id>}     = 1 });
+    }#}}}
+
+    #|{
+        Deletes the current user-related attributes from the current Account 
+        object. This includes the session_id.  Re-writes the config file to 
+        remove the session_id key.
         DOES NOT actually call the server's logout() method, so the session_id 
         is still valid until the server times it out.
     #}
@@ -211,6 +243,9 @@ class Games::Lacuna::Account does Games::Lacuna::Comms {#{{{
         $!empire_id     = Nil;
         $!alliance_id   = Nil;
         $!session_id    = Nil;
+        %!mycolonies    = ();
+        %!mystations    = ();
+        %!ourstations   = ();
         $.save_config();
     }#}}}
 
