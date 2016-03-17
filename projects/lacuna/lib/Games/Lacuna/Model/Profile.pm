@@ -4,6 +4,7 @@ use Games::Lacuna::DateTime;
 use Games::Lacuna::Model;
 use Games::Lacuna::Model::Medal;
 use Games::Lacuna::Model::Alliance;
+use Games::Lacuna::Model::Body;
 
 role Games::Lacuna::Model::Profile does Games::Lacuna::Model {#{{{
     has %.p;                        # convenience -- just %.json_parsed<result><profile>.  Handled by BUILD.

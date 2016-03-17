@@ -31,10 +31,13 @@ class Games::Lacuna::Account does Games::Lacuna::Comms {#{{{
     has Int $.alliance_id;
 
     ### Each of these is
-    ###     body_id => 1
-    has Int %.mycolonies;
-    has Int %.mystations;
-    has Int %.ourstations;
+    ###  {
+    ###     <ids>{$body_id}       = $body_name
+    ###     <names>{$body_name}   = $body_id
+    ###  }
+    has Hash %.mycolonies;
+    has Hash %.mystations;
+    has Hash %.ourstations;
 
     #|{
         Constructor
@@ -215,13 +218,16 @@ class Games::Lacuna::Account does Games::Lacuna::Comms {#{{{
 
         ### These for loops work.
         for %empire_hash<bodies><colonies>.values -> $c {
-            %.mycolonies{$c<id>} = 1;
+            %.mycolonies<ids>{$c<id>}       = $c<name>;
+            %.mycolonies<names>{$c<name>}   = $c<id>;
         }
         for %empire_hash<bodies><mystations>.values -> $m {
-            %.mystations{$m<id>} = 1;
+            %.mystations<ids>{$m<id>}       = $m<name>;
+            %.mystations<names>{$m<name>}   = $m<id>;
         }
         for %empire_hash<bodies><ourstations>.values -> $o {
-            %.ourstations{$o<id>} = 1;
+            %.ourstations<ids>{$o<id>}       = $o<name>;
+            %.ourstations<names>{$o<name>}   = $o<id>;
         }
 
         ### The first two maps work.  But the third does not.  However I 
