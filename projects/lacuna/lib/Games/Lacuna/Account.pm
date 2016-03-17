@@ -141,7 +141,9 @@ class Games::Lacuna::Account does Games::Lacuna::Comms {#{{{
         $conf{$.config_section}<pass>       = $!pass;
         $conf{$.config_section}<server>     = $!server;
         $conf{$.config_section}<api_key>    = $!api_key;
-        $conf{$.config_section}<session_id> = $!session_id;
+        ### If we don't have a $!session_id we're not logged in (we probably 
+        ### just called logout), so delete the key entirely.
+        $conf{$.config_section}<session_id> = $!session_id or $conf{$.config_section}<session_id>:delete;
         $conf.write;
     }#}}}
 
@@ -185,7 +187,7 @@ class Games::Lacuna::Account does Games::Lacuna::Comms {#{{{
 
         ### For testing.  Actually, I need to implement some logging facility 
         ### and log this.
-        #say "no valid session found.  Logging in fresh.";
+        say "no valid session found.  Logging in fresh.";
 
         die Games::Lacuna::Exception.new($rv) if $rv<error>;
         try {
@@ -194,6 +196,21 @@ class Games::Lacuna::Account does Games::Lacuna::Comms {#{{{
             $!empire_id     = $rv<result><status><empire><id>.Int;
             $!alliance_id   = $rv<result><status><empire><alliance_id>.Int;
         };
+        $.save_config();
+    }#}}}
+
+    #|{
+        Deletes the current user-related attributes (empire_name, _id, 
+        alliance_id).  Also deletes session_id and re-writes the config file 
+        to remove the session_id key.
+        DOES NOT actually call the server's logout() method, so the session_id 
+        is still valid until the server times it out.
+    #}
+    method logout() {#{{{
+        $!empire_name   = Nil;
+        $!empire_id     = Nil;
+        $!alliance_id   = Nil;
+        $!session_id    = Nil;
         $.save_config();
     }#}}}
 

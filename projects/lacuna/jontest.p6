@@ -3,7 +3,14 @@
 
 if True {# {{{
 
+my %p;
+%p<members> = [{:id("2115"), :name("Dementia")}, {:id("2403"), :name("Infinate Ones")}, {:id("15008"), :name("Space Herpes")}, {:id("19748"), :name("jof")}, {:id("22581"), :name("KC1")}, {:id("22718"), :name("Trancendance")}, {:id("23598"), :name("tmtowtdi")}, {:id("24905"), :name("Mythrandia")}, {:id("26469"), :name("Galactic Enterprise")}, {:id("26925"), :name("Chodes Empire")}, {:id("33563"), :name("carbonhalo")}, {:id("33730"), :name("Land_of_the_Free")}, {:id("33861"), :name("Silmarilos")}, {:id("36101"), :name("xLeinaDX")}, {:id("36112"), :name("ViOl3nc3")}, {:id("36277"), :name("Trade Federation")}, {:id("36408"), :name("Jarvisopolis")}, {:id("36635"), :name("Spock")}, {:id("37374"), :name("Zorn")}, {:id("37877"), :name("The Eldar")}, {:id("38165"), :name("LeatherNeck League")}, {:id("39688"), :name("Calradia")}, {:id("40124"), :name("Grimtooth")}, {:id("40285"), :name("SargePL")}, {:id("41974"), :name("Lapis Land")}, {:id("42431"), :name("Toftberg")}, {:id("42495"), :name("Izdihari Star Empire")}, {:id("42499"), :name("peppinik")}, {:id("42760"), :name("Etnmarchand")}, {:id("42794"), :name("mystery")}, {:id("42804"), :name("WatchmanCole")}, {:id("42831"), :name("Foopah")}, {:id("42862"), :name("Salidus")}, {:id("42865"), :name("Zeus43")}, {:id("42883"), :name("Calaine")}, {:id("42903"), :name("Shermatyde")}, {:id("42918"), :name("wiseupu2")}, {:id("42992"), :name("Trudevil")}, {:id("43047"), :name("Bretai")}, {:id("43268"), :name("Petronius")}, {:id("43366"), :name("Spirithawke")}, {:id("43480"), :name("Discordia")}, {:id("43489"), :name("Talborias")}, {:id("43629"), :name("Coriolis")}, {:id("43653"), :name("Nemordiabel")}, {:id("44050"), :name("The Collective")}, {:id("44816"), :name("Zephyr")}, {:id("46099"), :name("The Empire of Etlite")}, {:id("46101"), :name("Iralian Empire")}, {:id("50401"), :name("Ticcor")}, {:id("50831"), :name("Collectors")}, {:id("50918"), :name("Test.Of.Test")}];
 
+%p<members>.WHAT.say;
+
+for %p<members>.values -> $m {
+    say $m<name>;
+}
 
 
 }# }}}

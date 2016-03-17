@@ -3,6 +3,7 @@ use Games::Lacuna::Exception;
 use Games::Lacuna::DateTime;
 use Games::Lacuna::Model;
 use Games::Lacuna::Model::Medal;
+use Games::Lacuna::Model::Alliance;
 
 role Games::Lacuna::Model::Profile does Games::Lacuna::Model {#{{{
     has %.p;                        # convenience -- just %.json_parsed<result><profile>.  Handled by BUILD.
@@ -19,7 +20,7 @@ role Games::Lacuna::Model::Profile does Games::Lacuna::Model {#{{{
     has Games::Lacuna::DateTime $.last_login;
     has Games::Lacuna::DateTime $.date_founded;
     has Str $.species;
-#   has Alliance $.alliance         # CHECK class does not exist;
+   has Games::Lacuna::Model::Alliance $.alliance;
 #   has Planet $.known_colonies     # CHECK class does not exist;
 
     method id               { return $!id if defined $!id or not defined %!p<id>; $!id = %!p<id>.Int; }
@@ -35,9 +36,12 @@ role Games::Lacuna::Model::Profile does Games::Lacuna::Model {#{{{
     method date_founded     { return $!date_founded if defined $!date_founded or not defined %!p<date_founded>; $!date_founded = Games::Lacuna::DateTime.from_tle(%!p<date_founded>); }
 
     ### CHECK these need love.
-#   method alliance         { return $!alliance if defined $!alliance or not defined %!p<alliance>; $!alliance = %!p<alliance>; }
 #   method known_colonies   { return $!known_colonies if defined $!known_colonies or not defined %!p<known_colonies>; $!known_colonies = %!p<known_colonies>; }
 
+   method alliance {
+        return $!alliance if defined $!alliance or not defined %!p<alliance>;
+        $!alliance = Games::Lacuna::Model::Alliance.new(:account($.account), :json_parsed(%!p<alliance><id>));
+    }
     method medals {
         return @!medals if @!medals.elems > 0 or not defined %!p<medals>;
         for %!p<medals>.kv -> $id, %m {

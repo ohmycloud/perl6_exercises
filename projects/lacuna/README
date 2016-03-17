@@ -3,9 +3,6 @@
 
 Classes to add {#{{{
 
-    - Comms
-        - Exists as a class, but I think this should become a role instead.
-
     - Alliance
         Empire.pm - profile class
 
