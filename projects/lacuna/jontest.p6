@@ -3,9 +3,7 @@
 
 if True {# {{{
 
-    my $var = <foo>;
-    say $var;
-    say $var.WHAT;
+
 
 
 }# }}}

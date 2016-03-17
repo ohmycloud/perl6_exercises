@@ -7,7 +7,7 @@ use URI;
 use Games::Lacuna::Exception;
 
 #| Communicates with TLE servers.
-class Games::Lacuna::Comms {#{{{
+class Games::Lacuna::Comms {
     has Str $.protocol      = 'http';
     has URI $.endpoint_url; 
 
@@ -104,7 +104,7 @@ class Games::Lacuna::Comms {#{{{
     method endpoint_base() {#{{{
         URI.new( ("$!protocol://$.server", 'lacunaexpanse', 'com').join('.') );
     }#}}}
-}#}}}
+}
 
 
 
