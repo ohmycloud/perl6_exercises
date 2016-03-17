@@ -25,7 +25,7 @@ say "ID: " ~ $profile.id;
 say "Name: " ~ $profile.name;
 say "Founded on: " ~ $profile.date_founded.Date;
 say "Most recently logged in: {$profile.last_login.in-timezone(-14400)}.";
-#exit;
+exit;
 
 
 ### Get my private profile (MUST BE USING YOUR FULL PASSWORD, NOT SITTER)

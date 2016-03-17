@@ -280,7 +280,7 @@ if False {  # anyof, allof#{{{
     say "The anyof promise took {$end.second - $start.second} seconds.";        # about 2
 
 }#}}}
-if False {   # vow  #{{{
+if False {  # vow  #{{{
 
     ### If you've got a promise that you're going to hand back to userland 
     ### code, but which you do not want userland code to either keep or break, 

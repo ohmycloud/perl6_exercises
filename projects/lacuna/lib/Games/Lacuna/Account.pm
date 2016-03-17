@@ -15,7 +15,7 @@ use Games::Lacuna::Exception;
 
 
 #| TLE Account, handles authenticating with the server
-class Games::Lacuna::Account is Games::Lacuna::Comms {#{{{
+class Games::Lacuna::Account does Games::Lacuna::Comms {#{{{
     has Str $.endpoint_name;
     has Str $.user;
     has Str $.pass;
