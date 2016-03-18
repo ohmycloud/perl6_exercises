@@ -3,51 +3,59 @@ use Games::Lacuna::Exception;
 use Games::Lacuna::DateTime;
 use Games::Lacuna::Model;
 
-###
-### This needs to be a factory.  Types of bodies:
-###     planet - own
-###     planet - foreign
-###     star
-###     asteroid
-###         Not sure if either star or asteroid are going to end up here.
-###     ss - own
-###         pretty sure this should include SSs I specifically own as well as 
-###         SSs owned by anybody in my alliance.
-###     ss - foreign
-###         SSs owned by "not my alliance". 
-###
-### 
-###
-###
-### Body classes are mostly for dealing with your own planets. 
-###
-### But a lot of server responses contain a small subset of planet data.  eg a 
-### PublicProfile contains a list of a user's known_colonies.  These 
-### known_colonies will become a list of ForeignBody objects.
-###
-class Games::Lacuna::Model::Body {#{{{
 
-    multi method new (:$account!, :$body_name!) {#{{{
-        return Games::Lacuna::Model::Body::OwnPlanet.new(:$account, $account.mycolonies<names>{$body_name})    if $account.mycolonies<names>{$body_name};
-        return Games::Lacuna::Model::Body::OwnSS.new(:$account, $account.mystations<names>{$body_name})        if $account.mystations<names>{$body_name};
-        return Games::Lacuna::Model::Body::OwnSS.new(:$account, $account.ourstations<names>{$body_name})       if $account.ourstations<names>{$body_name};
-        die "You can only access a body by name if you own it.";
-    }#}}}
-    multi method new (:$account!, :$body_id!) {#{{{
-        return Games::Lacuna::Model::Body::OwnPlanet.new(:$account, $account.mycolonies<ids>{$body_id})    if $account.mycolonies<ids>{$body_id};
-        return Games::Lacuna::Model::Body::OwnSS.new(:$account, $account.mystations<ids>{$body_id})        if $account.mystations<ids>{$body_id};
-        return Games::Lacuna::Model::Body::OwnSS.new(:$account, $account.ourstations<ids>{$body_id})       if $account.ourstations<ids>{$body_id};
-        die "You can only access a body by ID if you own it.";
-    }#}}}
-    multi method new (:%planet_hash!) {#{{{
-        return Games::Lacuna::Model::Body::ForeignPlanet.new(:%planet_hash);
-    }#}}}
-    multi method new (:%station_hash!) {#{{{
-        return Games::Lacuna::Model::Body::ForeignSS.new(:%station_hash);
-    }#}}}
+### Utility classes.  These are part of some of the Body responses.
+###
+### CHECK
+### I've set up Body as a factory which is able to return ForeignBody or 
+### ForeignSS classes - those classes are little subsets of Body or SS that 
+### get included in other classes (like a Profile that returns 
+### known_colonies).
+###
+### In the same way, I should set up Empire and Ship factories that can also 
+### return little clumps of code.  Once that's done, the Empire and 
+### IncomingShip classes in here should be replaced by those factories.
+class Games::Lacuna::Model::Body::Empire does Games::Lacuna::NonCommModel {#{{{
+    has Int $.id;
+    has Str $.name;
+    has Str $.alignment;
+    has Bool $.is_isolationist;
 
-
+    submethod BUILD (:%!json_parsed) { }
+    method id               { return $!id if defined $!id or not defined %!json_parsed<id>; $!id = %!json_parsed<id>.Int; }
+    method name             { return $!name if defined $!name or not defined %!json_parsed<name>; $!name = %!json_parsed<name>; }
+    method alignment        { return $!alignment if defined $!alignment or not defined %!json_parsed<alignment>; $!alignment = %!json_parsed<alignment>; }
+    method is_isolationist  { return $!is_isolationist if defined $!is_isolationist or not defined %!json_parsed<is_isolationist>; $!is_isolationist = %!json_parsed<is_isolationist>.Int.Bool; }
 }#}}}
+class Games::Lacuna::Model::Body::IncomingShip does Games::Lacuna::NonCommModel {#{{{
+    has Int $.id;
+    has Games::Lacuna::DateTime $.date_arrives;
+    has Bool $.is_own;
+    has Bool $.is_ally;
+
+    submethod BUILD (:%!json_parsed) { }
+    method id           { return $!id if defined $!id or not defined %!json_parsed<id>; $!id = %!json_parsed<id>.Int; }
+    method date_arrives { return $!date_arrives if defined $!date_arrives or not defined %.json_parsed<date_arrives>; $!date_arrives = Games::Lacuna::DateTime.from_tle(%.json_parsed<date_arrives>); }
+    method is_own       { return $!is_own if defined $!is_own or not defined %!json_parsed<is_own>; $!is_own = %!json_parsed<is_own>.Int.Bool; }
+    method is_ally      { return $!is_ally if defined $!is_ally or not defined %!json_parsed<is_ally>; $!is_ally = %!json_parsed<is_ally>.Int.Bool; }
+}#}}}
+
+### Used by BodyRole.
+class Games::Lacuna::Model::Body::UtilSS {#{{{
+    has %.p;
+    has Int $.id;
+    has Int $.x;
+    has Int $.y;
+    has Str $.name;
+    submethod BUILD (:%station_hash) {
+        %!p = %station_hash;
+    }
+    method id   { return $!id if defined $!id or not defined %!p<id>; $!id = %!p<id>.Int; }
+    method x    { return $!x if defined $!x or not defined %!p<x>; $!x = %!p<x>.Int; }
+    method y    { return $!y if defined $!y or not defined %!p<y>; $!y = %!p<y>.Int; }
+    method name { return $!name if defined $!name or not defined %!p<name>; $!name = %!p<name>; }
+}#}}}
+
 
 role Games::Lacuna::Model::Body::BodyRole {#{{{
     has %.p;                        # convenience -- just %.json_parsed<result><body>.  Handled by BUILD.
@@ -63,9 +71,8 @@ role Games::Lacuna::Model::Body::BodyRole {#{{{
     has Str $.name;
     has Str $.image;
 
-    ### CHECK - need classes and accessor methods
-    #has Ore $.ore;
-    #has SS $.station;          # won't show up if body not under SS control
+    has Int %.ore;
+    has Games::Lacuna::Model::Body::UtilSS $.station;          # Only set if the body is under SS control
 
     method id           { return $!id if defined $!id or not defined %!p<id>; $!id = %!p<id>.Int; }
     method x            { return $!x if defined $!x or not defined %!p<x>; $!x = %!p<x>.Int; }
@@ -78,7 +85,24 @@ role Games::Lacuna::Model::Body::BodyRole {#{{{
     method type         { return $!type if defined $!type or not defined %!p<type>; $!type = %!p<type>; }
     method name         { return $!name if defined $!name or not defined %!p<name>; $!name = %!p<name>; }
     method image        { return $!image if defined $!image or not defined %!p<image>; $!image = %!p<image>; }
+    method ore          { return %!ore if %!ore.keys.elems > 0 or not defined %!p<ore>; %!ore = %!p<ore>; }
 
+
+    ### I wanted to do this:
+        #method station { return $!station if defined $!station or not defined %!p<station>; $!station = Games::Lacuna::Model::Body.new(:station_hash(%!p<station>)); }
+    ###
+    ### But at this point, we're in a chicken-and-egg situation, and p6 won't 
+    ### let me do that.  The error given is "You cannot create an instance of 
+    ### this type".
+    ###
+    ### The problem looks like it has to do with lexical ordering, and just 
+    ### moving roles and classes around in here might work (I haven't looked 
+    ### into it enough to see if it's possible), but would be really fragile.
+    ###
+    ### So instead, I created the UtilSS class which doesn't depend on 
+    ### anything.  I'd have preferred not to have to do that, but am not 
+    ### seeing any other solutions, and this does work just fine.
+    method station { return $!station if defined $!station or not defined %!p<station>; $!station = Games::Lacuna::Model::Body::UtilSS.new(:station_hash(%!p<station>)); }
 }#}}}
 role Games::Lacuna::Model::Body::OwnBodyRole does Games::Lacuna::Model does Games::Lacuna::Model::Body::BodyRole {#{{{
     has Int $.needs_surface_refresh;
@@ -112,11 +136,11 @@ role Games::Lacuna::Model::Body::OwnBodyRole does Games::Lacuna::Model does Game
     has Games::Lacuna::DateTime $.unhappy_date;
     has Games::Lacuna::DateTime $.neutral_entry;     # Earliest date this body can enter the NZ
 
-    ### CHECK - need classes
-    #has Empire $.empire;
-    #has Ships $.incoming_enemy_ships;
-    #has Ships $.incoming_ally_ships;
-    #has Ships $.incoming_own_ships;
+    has Games::Lacuna::Model::Body::Empire $.empire;
+    has Games::Lacuna::Model::Body::IncomingShip @.incoming_enemy_ships;
+    has Games::Lacuna::Model::Body::IncomingShip @.incoming_ally_ships;
+    has Games::Lacuna::Model::Body::IncomingShip @.incoming_own_ships;
+
 
     method needs_surface_refresh           { return $!needs_surface_refresh if defined $!needs_surface_refresh or not defined %.p<needs_surface_refresh>; $!needs_surface_refresh = %.p<needs_surface_refresh>.Int; }
     method building_count           { return $!building_count if defined $!building_count or not defined %.p<building_count>; $!building_count = %.p<building_count>.Int; }
@@ -151,12 +175,33 @@ role Games::Lacuna::Model::Body::OwnBodyRole does Games::Lacuna::Model does Game
     method num_incoming_enemy   { return $!num_incoming_enemy if defined $!num_incoming_enemy or not defined %.p<num_incoming_enemy>; $!num_incoming_enemy = %.p<num_incoming_enemy>.Int; }
     method num_incoming_ally    { return $!num_incoming_ally if defined $!num_incoming_ally or not defined %.p<num_incoming_ally>; $!num_incoming_ally = %.p<num_incoming_ally>.Int; }
     method num_incoming_own     { return $!num_incoming_own if defined $!num_incoming_own or not defined %.p<num_incoming_own>; $!num_incoming_own = %.p<num_incoming_own>.Int; }
- 
-    ### CHECK fix
-    #method incoming_enemy_ships           { return $!incoming_enemy_ships if defined $!incoming_enemy_ships or not defined %.p<incoming_enemy_ships>; $!incoming_enemy_ships = %.p<incoming_enemy_ships>.Int; }
-    #method incoming_ally_ships           { return $!incoming_ally_ships if defined $!incoming_ally_ships or not defined %.p<incoming_ally_ships>; $!incoming_ally_ships = %.p<incoming_ally_ships>.Int; }
-    #method incoming_own_ships           { return $!incoming_own_ships if defined $!incoming_own_ships or not defined %.p<incoming_own_ships>; $!incoming_own_ships = %.p<incoming_own_ships>.Int; }
 
+    method empire {#{{{
+        return $!empire if defined $!empire or not defined %.p<empire>;
+        $!empire = Games::Lacuna::Model::Body::Empire.new( :json_parsed(%.p<empire>) );
+    }#}}}
+    method incoming_own_ships {#{{{
+        return @!incoming_own_ships if @!incoming_own_ships.elems > 0 or not defined %.p<incoming_own_ships>;
+        for %.p<incoming_own_ships>.values -> %s {
+            @!incoming_own_ships.push( Games::Lacuna::Model::Body::IncomingShip.new(:json_parsed(%s)) )
+        }
+        @!incoming_own_ships;
+    }#}}}
+    method incoming_enemy_ships {#{{{
+        return @!incoming_enemy_ships if @!incoming_enemy_ships.elems > 0 or not defined %.p<incoming_enemy_ships>;
+        for %.p<incoming_enemy_ships> -> %s {
+            @!incoming_enemy_ships.push( Games::Lacuna::Model::Body::IncomingShip.new(:json_parsed(%s)) )
+        }
+        @!incoming_enemy_ships;
+    }#}}}
+    method incoming_ally_ships {#{{{
+        return @!incoming_ally_ships if @!incoming_ally_ships.elems > 0 or not defined %.p<incoming_ally_ships>;
+        for %.p<incoming_ally_ships> -> %s {
+            @!incoming_ally_ships.push( Games::Lacuna::Model::Body::IncomingShip.new(:json_parsed(%s)) )
+        }
+        @!incoming_ally_ships;
+    }#}}}
+ 
 }#}}}
 role Games::Lacuna::Model::Body::ForeignBodyRole does Games::Lacuna::NonCommModel does Games::Lacuna::Model::Body::BodyRole {#{{{
 }#}}}
@@ -175,8 +220,9 @@ class Games::Lacuna::Model::Body::OwnPlanet does Games::Lacuna::Model::Body::Own
             ($!account.session_id, $body_id)
         );
         die Games::Lacuna::Exception.new(%!json_parsed) if %!json_parsed<error>;
-        try { %!p = %!json_parsed<result><profile> };
+        try { %!p = %!json_parsed<result><body> };
     }
+
 }#}}}
 class Games::Lacuna::Model::Body::OwnSS does Games::Lacuna::Model::Body::SSRole does Games::Lacuna::Model::Body::OwnBodyRole {#{{{
     submethod BUILD (:$account, :$body_id) {
@@ -187,7 +233,7 @@ class Games::Lacuna::Model::Body::OwnSS does Games::Lacuna::Model::Body::SSRole 
             ($!account.session_id, $body_id)
         );
         die Games::Lacuna::Exception.new(%!json_parsed) if %!json_parsed<error>;
-        try { %!p = %!json_parsed<result><profile> };
+        try { %!p = %!json_parsed<result><body> };
     }
 }#}}}
 
@@ -203,6 +249,69 @@ class Games::Lacuna::Model::Body::ForeignSS does Games::Lacuna::Model::Body::For
         %!p             = %station_hash;
     }
 }#}}}
+
+
+
+#|{
+    Factory class.
+
+    Depending upon arguments, returns one of:
+        Games::Lacuna::Model::Body::OwnPlanet
+        Games::Lacuna::Model::Body::OwnSS
+        Games::Lacuna::Model::Body::ForeignPlanet
+        Games::Lacuna::Model::Body::ForeignSS
+
+    The Own* classes refer to a body owned by the user or his alliance, and 
+    implement the various Body methods.
+        https://us1.lacunaexpanse.com/api/Body.html
+
+    The Foreign* classes generally get handed back as part of another 
+    response.  eg a user's PublicProfile contains a list of known_colonies, 
+    which will become a list of ForiegnPlanet objects.  These are mostly just 
+    collections of data.  You can't call methods on a Body that's not yours.
+
+    What Body attributes actually get set in the Foriegn* classes vary, but 
+    id, name, x, and y are pretty common.
+
+    Examples:
+            my $own_planet = Games::Lacuna::Model::Body.new( :$account, :body_name("Earth") );      # name of a planet
+            my $own_planet = Games::Lacuna::Model::Body.new( :$account, :body_id(12345) );          # ID of a planet
+
+        "own station" doesn't need to be a station your account personally 
+        owns.  It can be controlled by any member of your alliance.
+            my $own_station = Games::Lacuna::Model::Body.new( :$account, :body_name("ISS") );       # name of a station
+            my $own_station = Games::Lacuna::Model::Body.new( :$account, :body_id(23456) );         # ID of a station
+
+        When another response hands you back a small hash of details about a 
+        planet or station:
+            my %p = %resp<keys><to><planet_details>;
+            my %s = %resp<keys><to><station_details>;
+            my $for_planet  = Games::Lacuna::Model::Body.new( :planet_hash(%p) );
+            my $for_station = Games::Lacuna::Model::Body.new( :station_hash(%s) );
+#}
+class Games::Lacuna::Model::Body {#{{{
+    multi method new (:$account!, :$body_name!) {#{{{
+        return Games::Lacuna::Model::Body::OwnPlanet.new(:$account, :body_id($account.mycolonies<names>{$body_name}))    if $account.mycolonies<names>{$body_name};
+        return Games::Lacuna::Model::Body::OwnSS.new(:$account,     :body_id($account.mystations<names>{$body_name}))    if $account.mystations<names>{$body_name};
+        return Games::Lacuna::Model::Body::OwnSS.new(:$account,     :body_id($account.ourstations<names>{$body_name}))   if $account.ourstations<names>{$body_name};
+        die "You can only access a body by name if you own it.";
+    }#}}}
+    multi method new (:$account!, :$body_id!) {#{{{
+        return Games::Lacuna::Model::Body::OwnPlanet.new(:$account, :$body_id)  if $account.mycolonies<ids>{$body_id};
+        return Games::Lacuna::Model::Body::OwnSS.new(:$account,     :$body_id)  if $account.mystations<ids>{$body_id};
+        return Games::Lacuna::Model::Body::OwnSS.new(:$account,     :$body_id)  if $account.ourstations<ids>{$body_id};
+        die "You can only access a body by ID if you own it.";
+    }#}}}
+    multi method new (:%planet_hash!) {#{{{
+        return Games::Lacuna::Model::Body::ForeignPlanet.new(:%planet_hash);
+    }#}}}
+    multi method new (:%station_hash!) {#{{{
+        return Games::Lacuna::Model::Body::ForeignSS.new(:%station_hash);
+    }#}}}
+
+}#}}}
+
+
 
  # vim: syntax=perl6 fdm=marker
 

@@ -3,6 +3,14 @@ use Games::Lacuna::Exception;
 use Games::Lacuna::DateTime;
 use Games::Lacuna::Model;
 
+
+### CHECK
+### GLM::Alliance needs to become a factory that returns either 
+### GLM::MyAlliance or GLM::ForeignAlliance (neither or which exists now), the 
+### same way that GLM::Body works.
+
+
+
 class Games::Lacuna::Model::Alliance::Member does Games::Lacuna::NonCommModel {#{{{
     has Int $.id;
     has Str $.name;
@@ -23,7 +31,8 @@ class Games::Lacuna::Model::Alliance::SS does Games::Lacuna::NonCommModel {#{{{
     method x   { return $!x if defined $!x or not defined %!json_parsed<x>; $!x = %!json_parsed<x>.Int; }
     method y   { return $!y if defined $!y or not defined %!json_parsed<y>; $!y = %!json_parsed<y>.Int; }
 }#}}}
-class Games::Lacuna::Model::Alliance does Games::Lacuna::Model {#{{{
+
+class Games::Lacuna::Model::MyAlliance does Games::Lacuna::Model {#{{{
     has %.p;                        # convenience -- just %.json_parsed<result><profile>.  Handled by BUILD.
     has Int $.id;
     has Str $.name;
@@ -84,6 +93,26 @@ class Games::Lacuna::Model::Alliance does Games::Lacuna::Model {#{{{
         @!space_stations;
     }
 
+}#}}}
+class Games::Lacuna::Model::ForeignAlliance does Games::Lacuna::NonCommModel {#{{{
+    has Int $.id;
+    has Str $.name;
+    method id               { return $!id if defined $!id or not defined %!json_parsed<id>; $!id = %!json_parsed<id>.Int; }
+    method name             { return $!name if defined $!name or not defined %!json_parsed<name>; $!name = %!json_parsed<name>; }
+}#}}}
+
+#|{
+    Factory class.
+#}
+class Games::Lacuna::Model::Alliance {#{{{
+
+    multi method new (:$account!, :%json_parsed!) {#{{{
+        return Games::Lacuna::Model::MyAlliance.new(:$.account, :%json_parsed);
+    }#}}}
+    multi method new (:%json_parsed!) {#{{{
+        return Games::Lacuna::Model::ForeignAlliance.new(:%json_parsed);
+    }#}}}
+ 
 }#}}}
 
  # vim: syntax=perl6 fdm=marker

@@ -20,7 +20,12 @@ say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance
 #say "I own the following stations: {$a.mystations<ids>.keys}";
 #say "My alliance owns the following stations: {$a.ourstations<ids>.keys}";
 ''.say;
-exit;
+#exit;
+
+
+### Doesn't work.  Looks like an SSL issue.  I can live without captchas for 
+### now.
+#$a.fetch_captcha;
 
 
 ### Log out
@@ -30,15 +35,19 @@ exit;
 
 
 ### Get my public profile (23598 is me on PT.)
-my $profile = Games::Lacuna::Model::PublicProfile.new(:account($a), :empire_id(23598));
+#my $profile = Games::Lacuna::Model::PublicProfile.new(:account($a), :empire_id(23598));
 #say "ID: " ~ $profile.id;
-say "Name: " ~ $profile.name;
+#say "Name: " ~ $profile.name;
 #say "Founded on: " ~ $profile.date_founded.Date;
 #say "Most recently logged in: {$profile.last_login.in-timezone(-14400)}.";
 ### Profile.alliance gives full access to the member's alliance object.
-say "{$profile.name} is a member of {$profile.alliance.name}";
-exit
-
+#say "{$profile.name} is a member of {$profile.alliance.name}";
+#say "KNOWN COLONIES";
+#for $profile.known_colonies -> $c {
+#    say "\t{$c.name} has ID {$c.id} and lives at ({$c.x}, {$c.y}).";
+#}
+#''.say;
+#exit;
 
 
 
@@ -61,11 +70,10 @@ exit
 #exit;
 
 
-
 ### Get my alliance profile
 ### Constructor dies if you're not in an alliance.
-#my $sma = Games::Lacuna::Model::Alliance.new(:account($a));
-#say "{$sma.name} is described as {$sma.description} and currently exerts {$sma.influence} influence.";
+my $sma = Games::Lacuna::Model::MyAlliance.new(:account($a));
+say "{$sma.name} is described as {$sma.description} and currently exerts {$sma.influence} influence.";
 #say "MEMBERS:";
 #for $sma.members -> $m {
 #    say "\t{$m.name} has ID {$m.id}.";
@@ -88,11 +96,59 @@ exit
 #    say "\t{$ss.name} has ID {$ss.id} and lives at ({$ss.x}, {$ss.y}).";
 #}
 #''.say;
+exit;
+
+
+
+### Bodies
+###
+### Get my...
+###
+### ...planet by name
+#my $p1 = Games::Lacuna::Model::Body.new( :account($a), :body_name('bmots07') );
+#say "{$p1.name} has ID {$p1.id} and lives at ({$p1.x}, {$p1.y}).";
+
+### ...planet by ID (bmots07 again)
+#my $p2 = Games::Lacuna::Model::Body.new( :account($a), :body_id('360565') );
+#say "{$p2.name} has ID {$p2.id} and lives at ({$p2.x}, {$p2.y}).";
+
+### ...station by name
+#my $s1 = Games::Lacuna::Model::Body.new( :account($a), :body_name('SASS bmots 01') );
+#say "{$s1.name} has ID {$s1.id} and lives at ({$s1.x}, {$s1.y}).";
+
+### ..station by ID (SASS bmots 01 again)
+#my $s2 = Games::Lacuna::Model::Body.new( :account($a), :body_id(468709) );
+#say "{$s2.name} has ID {$s2.id} and lives at ({$s2.x}, {$s2.y}).";
+#''.say;
 #exit;
 
+### More body testing
+if False {# {{{
+    #my %s = (
+    #    :id(123),
+    #    :name('jontest station'),
+    #    :x(111),
+    #    :y(222),
+    #);
+    #my $s = Games::Lacuna::Model::Body.new( :station_hash(%s) );
+    #say $s.name; exit;
+    
+    my $p3 = Games::Lacuna::Model::Body.new( :account($a), :body_name('bmots07') );
+    say "{$p3.empire.name} is me.  Alignment is '{$p3.empire.alignment}'.";     # alignment == 'self'
+    say "{$p3.name} has concentrations of {$p3.ore<gold>} gold and {$p3.ore<bauxite>} bauxite.";
+    say "{$p3.name} is under the control of {$p3.station.name}." if $p3.station;
+    unless $p3.skip_incoming_ships {
+        ### No incoming ships will be shown if .skip_incoming_ships is True.
+        for $p3.incoming_own_ships -> $s {
+            say "Ship {$s.id} will arrive on {$s.date_arrives}.";
+        }
+        ### .incoming_own_ships is easiest to test by just sending yourself a 
+        ### smuggler, but incoming_enemy_ships and incoming_ally_ships both work 
+        ### the same way.
+    }
+
+}# }}}
 
 
-### Doesn't work.  Looks like an SSL issue.  I can live without captchas for 
-### now.
-#$a.fetch_captcha;
+
 

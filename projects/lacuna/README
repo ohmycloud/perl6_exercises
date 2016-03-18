@@ -9,11 +9,14 @@ Left off working on Model::Body.pm.  It compiles, but I haven't tried doing anyt
 
 Classes to add {#{{{
 
-    - Alliance
-        Empire.pm - profile class
-
-    - Planet
-        Empire.pm - profile class
+    - Empire.pm
+    - Ship.pm
+        - Both of these need to be factories like Body.pm is.
+        - Body.pm (and possibly other classes) includes its own little 
+          mini-ship and empire utility classes.  Those ultimately need to go 
+          away, to be replaced by mini-classes in Empire.pm and Ship.pm.  
+          These "mini-classes" need to be similar to the ForeignBody class in 
+          Body.pm.
 
 }#}}}
 

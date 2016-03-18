@@ -17,12 +17,12 @@ role Games::Lacuna::Model::Profile does Games::Lacuna::Model {#{{{
     has Str $.country;
     has Str $.skype;
     has Str $.player_name;
+    has Str $.species;
     has Games::Lacuna::Model::Medal @.medals;
     has Games::Lacuna::DateTime $.last_login;
     has Games::Lacuna::DateTime $.date_founded;
-    has Str $.species;
-   has Games::Lacuna::Model::Alliance $.alliance;
-#   has Planet $.known_colonies     # CHECK class does not exist;
+    has Games::Lacuna::Model::MyAlliance $.alliance;
+    has Games::Lacuna::Model::Body::ForeignPlanet @.known_colonies;
 
     method id               { return $!id if defined $!id or not defined %!p<id>; $!id = %!p<id>.Int; }
     method name             { return $!name if defined $!name or not defined %!p<name>; $!name = %!p<name>; }
@@ -36,27 +36,33 @@ role Games::Lacuna::Model::Profile does Games::Lacuna::Model {#{{{
     method last_login       { return $!last_login if defined $!last_login or not defined %!p<last_login>; $!last_login = Games::Lacuna::DateTime.from_tle(%!p<last_login>); }
     method date_founded     { return $!date_founded if defined $!date_founded or not defined %!p<date_founded>; $!date_founded = Games::Lacuna::DateTime.from_tle(%!p<date_founded>); }
 
-    ### CHECK these need love.
-#   method known_colonies   { return $!known_colonies if defined $!known_colonies or not defined %!p<known_colonies>; $!known_colonies = %!p<known_colonies>; }
-
-   method alliance {
+    method alliance {#{{{
         return $!alliance if defined $!alliance or not defined %!p<alliance>;
         $!alliance = Games::Lacuna::Model::Alliance.new(:account($.account), :json_parsed(%!p<alliance><id>));
-    }
-    method medals {
+    }#}}}
+    method medals {#{{{
         return @!medals if @!medals.elems > 0 or not defined %!p<medals>;
         for %!p<medals>.kv -> $id, %m {
             %m<id> = $id;
             @!medals.push( Games::Lacuna::Model::Medal.new(:json_parsed(%m)) );
         }
         @!medals;
-   }
+   }#}}}
+    method known_colonies {#{{{
+        return @!known_colonies if @!known_colonies.elems > 0 or not defined %!p<known_colonies>;
+        for %!p<known_colonies>.values -> %c {
+            @!known_colonies.push( Games::Lacuna::Model::Body.new(:planet_hash(%c)) );
+        }
+        @!known_colonies;
+   }#}}}
 
 }#}}}
 
-#| The publicly-viewable portion of a player's profile
+#|{
+    The publicly-viewable portion of a player's profile.
+            my $p = Games::Lacuna::Model::PublicProfile.new( :account($a), :empire_id(12345) );
+#}
 class Games::Lacuna::Model::PublicProfile does Games::Lacuna::Model::Profile {#{{{
-
     submethod BUILD (:$account, :$empire_id) {
         $!account       = $account;
         $!endpoint_name = 'empire';
@@ -67,11 +73,17 @@ class Games::Lacuna::Model::PublicProfile does Games::Lacuna::Model::Profile {#{
         die Games::Lacuna::Exception.new(%!json_parsed) if %!json_parsed<error>;
         try { %!p = %!json_parsed<result><profile> };
     }
-
 }#}}}
 
-#| The portion of a player's profile only visible to that player.
-#| You must be logged in with your real password, not your sitter.  Throws exception if you're on your sitter.
+#|{
+    The portion of a player's profile only visible to that player.
+    You must be logged in with your real password, not your sitter.  Throws 
+    exception if you're on your sitter.
+
+    You don't need to pass an empire_id for this, since the method can only be 
+    called for the currently-logged-in empire:
+            my $p = Games::Lacuna::Model::PrivateProfile.new( :account($a) );
+#}
 class Games::Lacuna::Model::PrivateProfile does Games::Lacuna::Model::Profile {#{{{
     has Bool $.skip_happiness_warnings;
     has Bool $.skip_resource_warnings;
