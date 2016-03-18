@@ -21,7 +21,7 @@ role Games::Lacuna::Model::Profile does Games::Lacuna::Model {#{{{
     has Games::Lacuna::Model::Medal @.medals;
     has Games::Lacuna::DateTime $.last_login;
     has Games::Lacuna::DateTime $.date_founded;
-    has Games::Lacuna::Model::MyAlliance $.alliance;
+    has Games::Lacuna::Model::Alliance::MyAlliance $.alliance;
     has Games::Lacuna::Model::Body::ForeignPlanet @.known_colonies;
 
     method id               { return $!id if defined $!id or not defined %!p<id>; $!id = %!p<id>.Int; }
@@ -38,7 +38,7 @@ role Games::Lacuna::Model::Profile does Games::Lacuna::Model {#{{{
 
     method alliance {#{{{
         return $!alliance if defined $!alliance or not defined %!p<alliance>;
-        $!alliance = Games::Lacuna::Model::Alliance.new(:account($.account), :json_parsed(%!p<alliance><id>));
+        $!alliance = Games::Lacuna::Model::Alliance.new(:account($.account), :alliance_id(%!p<alliance><id>));
     }#}}}
     method medals {#{{{
         return @!medals if @!medals.elems > 0 or not defined %!p<medals>;

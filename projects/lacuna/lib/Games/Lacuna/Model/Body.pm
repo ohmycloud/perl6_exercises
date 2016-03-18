@@ -2,6 +2,7 @@
 use Games::Lacuna::Exception;
 use Games::Lacuna::DateTime;
 use Games::Lacuna::Model;
+use Games::Lacuna::Model::Alliance;
 
 
 ### Utility classes.  These are part of some of the Body responses.
@@ -54,6 +55,16 @@ class Games::Lacuna::Model::Body::UtilSS {#{{{
     method x    { return $!x if defined $!x or not defined %!p<x>; $!x = %!p<x>.Int; }
     method y    { return $!y if defined $!y or not defined %!p<y>; $!y = %!p<y>.Int; }
     method name { return $!name if defined $!name or not defined %!p<name>; $!name = %!p<name>; }
+}#}}}
+
+### Used by SSRole.
+class Games::Lacuna::Model::Body::UtilInfluence {#{{{
+    has %.p;
+    has Int $.total;
+    has Int $.spent;
+    submethod BUILD (:%influence) { %!p = %influence; }
+    method total   { return $!total if defined $!total or not defined %!p<total>; $!total = %!p<total>.Int; }
+    method spent   { return $!spent if defined $!spent or not defined %!p<spent>; $!spent = %!p<spent>.Int; }
 }#}}}
 
 
@@ -205,10 +216,16 @@ role Games::Lacuna::Model::Body::OwnBodyRole does Games::Lacuna::Model does Game
 }#}}}
 role Games::Lacuna::Model::Body::ForeignBodyRole does Games::Lacuna::NonCommModel does Games::Lacuna::Model::Body::BodyRole {#{{{
 }#}}}
+
+#|{
+    Any class that implements this role must also implement BodyRole.
+#}
 role Games::Lacuna::Model::Body::SSRole {#{{{
-    ### CHECK - need classes
-    #has Alliance $.alliance;
-    #has Influence $.influence;
+    has Games::Lacuna::Model::Alliance::PartialAlliance $.alliance;
+    has Games::Lacuna::Model::Body::UtilInfluence $.influence;
+
+    method alliance { return $!alliance if defined $!alliance or not defined %.p<alliance>; $!alliance = Games::Lacuna::Model::Alliance.new(:json_parsed(%.p<alliance>)); }
+    method influence { return $!influence if defined $!influence or not defined %.p<influence>; $!influence = Games::Lacuna::Model::Body::UtilInfluence.new(:influence(%.p<influence>)); }
 }#}}}
 
 class Games::Lacuna::Model::Body::OwnPlanet does Games::Lacuna::Model::Body::OwnBodyRole {#{{{
@@ -224,6 +241,13 @@ class Games::Lacuna::Model::Body::OwnPlanet does Games::Lacuna::Model::Body::Own
     }
 
 }#}}}
+class Games::Lacuna::Model::Body::ForeignPlanet does Games::Lacuna::Model::Body::ForeignBodyRole {#{{{
+    submethod BUILD (:%planet_hash) {
+        %!json_parsed   = %planet_hash;
+        %!p             = %planet_hash;
+    }
+}#}}}
+
 class Games::Lacuna::Model::Body::OwnSS does Games::Lacuna::Model::Body::SSRole does Games::Lacuna::Model::Body::OwnBodyRole {#{{{
     submethod BUILD (:$account, :$body_id) {
         $!account       = $account;
@@ -236,20 +260,12 @@ class Games::Lacuna::Model::Body::OwnSS does Games::Lacuna::Model::Body::SSRole 
         try { %!p = %!json_parsed<result><body> };
     }
 }#}}}
-
-class Games::Lacuna::Model::Body::ForeignPlanet does Games::Lacuna::Model::Body::ForeignBodyRole {#{{{
-    submethod BUILD (:%planet_hash) {
-        %!json_parsed   = %planet_hash;
-        %!p             = %planet_hash;
-    }
-}#}}}
-class Games::Lacuna::Model::Body::ForeignSS does Games::Lacuna::Model::Body::ForeignBodyRole does Games::Lacuna::Model::Body::SSRole {#{{{
+class Games::Lacuna::Model::Body::ForeignSS does Games::Lacuna::Model::Body::SSRole does Games::Lacuna::Model::Body::ForeignBodyRole {#{{{
     submethod BUILD (:%station_hash) {
         %!json_parsed   = %station_hash;
         %!p             = %station_hash;
     }
 }#}}}
-
 
 
 #|{

@@ -1,10 +1,4 @@
 
-
-Left off working on Model::Body.pm.  It compiles, but I haven't tried doing anything with it yet.
-
-
-
-
 - Need to add logging
 
 Classes to add {#{{{

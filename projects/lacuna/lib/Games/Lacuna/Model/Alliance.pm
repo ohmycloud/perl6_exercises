@@ -4,13 +4,6 @@ use Games::Lacuna::DateTime;
 use Games::Lacuna::Model;
 
 
-### CHECK
-### GLM::Alliance needs to become a factory that returns either 
-### GLM::MyAlliance or GLM::ForeignAlliance (neither or which exists now), the 
-### same way that GLM::Body works.
-
-
-
 class Games::Lacuna::Model::Alliance::Member does Games::Lacuna::NonCommModel {#{{{
     has Int $.id;
     has Str $.name;
@@ -32,7 +25,7 @@ class Games::Lacuna::Model::Alliance::SS does Games::Lacuna::NonCommModel {#{{{
     method y   { return $!y if defined $!y or not defined %!json_parsed<y>; $!y = %!json_parsed<y>.Int; }
 }#}}}
 
-class Games::Lacuna::Model::MyAlliance does Games::Lacuna::Model {#{{{
+class Games::Lacuna::Model::Alliance::MyAlliance does Games::Lacuna::Model {#{{{
     has %.p;                        # convenience -- just %.json_parsed<result><profile>.  Handled by BUILD.
     has Int $.id;
     has Str $.name;
@@ -94,7 +87,7 @@ class Games::Lacuna::Model::MyAlliance does Games::Lacuna::Model {#{{{
     }
 
 }#}}}
-class Games::Lacuna::Model::ForeignAlliance does Games::Lacuna::NonCommModel {#{{{
+class Games::Lacuna::Model::PartialAlliance does Games::Lacuna::NonCommModel {#{{{
     has Int $.id;
     has Str $.name;
     method id               { return $!id if defined $!id or not defined %!json_parsed<id>; $!id = %!json_parsed<id>.Int; }
@@ -103,14 +96,24 @@ class Games::Lacuna::Model::ForeignAlliance does Games::Lacuna::NonCommModel {#{
 
 #|{
     Factory class.
+
+            $some_alliance      = Games::Lacuna::Model::Alliance.new( :$account, :$alliance_id );
+            $my_alliance        = Games::Lacuna::Model::Alliance.new( :$account );
+            $partial_alliance   = Games::Lacuna::Model::Alliance.new( :$json_parsed );
+
+    A partial alliance is just a subset of Alliance-related data that 
+    sometimes gets handed back in another request.
 #}
 class Games::Lacuna::Model::Alliance {#{{{
 
-    multi method new (:$account!, :%json_parsed!) {#{{{
-        return Games::Lacuna::Model::MyAlliance.new(:$.account, :%json_parsed);
+    multi method new (:$account!, :$alliance_id!) {#{{{
+        return Games::Lacuna::Model::MyAlliance.new(:$account, :$alliance_id);
+    }#}}}
+    multi method new (:$account!) {#{{{
+        return Games::Lacuna::Model::MyAlliance.new(:$account);
     }#}}}
     multi method new (:%json_parsed!) {#{{{
-        return Games::Lacuna::Model::ForeignAlliance.new(:%json_parsed);
+        return Games::Lacuna::Model::PartialAlliance.new(:%json_parsed);
     }#}}}
  
 }#}}}

@@ -72,8 +72,8 @@ say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance
 
 ### Get my alliance profile
 ### Constructor dies if you're not in an alliance.
-my $sma = Games::Lacuna::Model::MyAlliance.new(:account($a));
-say "{$sma.name} is described as {$sma.description} and currently exerts {$sma.influence} influence.";
+#my $sma = Games::Lacuna::Model::Alliance.new(:account($a));
+#say "{$sma.name} is described as {$sma.description} and currently exerts {$sma.influence} influence.";
 #say "MEMBERS:";
 #for $sma.members -> $m {
 #    say "\t{$m.name} has ID {$m.id}.";
@@ -96,7 +96,7 @@ say "{$sma.name} is described as {$sma.description} and currently exerts {$sma.i
 #    say "\t{$ss.name} has ID {$ss.id} and lives at ({$ss.x}, {$ss.y}).";
 #}
 #''.say;
-exit;
+#exit;
 
 
 
@@ -124,28 +124,25 @@ exit;
 
 ### More body testing
 if False {# {{{
-    #my %s = (
-    #    :id(123),
-    #    :name('jontest station'),
-    #    :x(111),
-    #    :y(222),
-    #);
-    #my $s = Games::Lacuna::Model::Body.new( :station_hash(%s) );
-    #say $s.name; exit;
     
-    my $p3 = Games::Lacuna::Model::Body.new( :account($a), :body_name('bmots07') );
-    say "{$p3.empire.name} is me.  Alignment is '{$p3.empire.alignment}'.";     # alignment == 'self'
-    say "{$p3.name} has concentrations of {$p3.ore<gold>} gold and {$p3.ore<bauxite>} bauxite.";
-    say "{$p3.name} is under the control of {$p3.station.name}." if $p3.station;
-    unless $p3.skip_incoming_ships {
+    my $p = Games::Lacuna::Model::Body.new( :account($a), :body_name('bmots07') );
+    say "{$p.empire.name} is me.  Alignment is '{$p.empire.alignment}'.";     # alignment == 'self'
+    say "{$p.name} has concentrations of {$p.ore<gold>} gold and {$p.ore<bauxite>} bauxite.";
+    say "{$p.name} is under the control of {$p.station.name}." if $p.station;
+    unless $p.skip_incoming_ships {
         ### No incoming ships will be shown if .skip_incoming_ships is True.
-        for $p3.incoming_own_ships -> $s {
+        for $p.incoming_own_ships -> $s {
             say "Ship {$s.id} will arrive on {$s.date_arrives}.";
         }
         ### .incoming_own_ships is easiest to test by just sending yourself a 
         ### smuggler, but incoming_enemy_ships and incoming_ally_ships both work 
         ### the same way.
     }
+
+
+    my $s = Games::Lacuna::Model::Body.new( :account($a), :body_name('SASS bmots 01') );
+    say "{$s.name} is controlled by {$s.alliance.name}.";
+    say "{$s.name} is exerting {$s.influence.spent} of its total {$s.influence.total} influence.";
 
 }# }}}
 
