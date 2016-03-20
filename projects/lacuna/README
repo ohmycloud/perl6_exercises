@@ -1,6 +1,9 @@
 
 - Need to add logging
 
+- Switch from Net::HTTP to HTTP::UserAgent, which seems to work better, and 
+  which should therefore allow me to get captchas.
+
 Classes to add {#{{{
 
     - Empire.pm

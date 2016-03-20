@@ -6,7 +6,16 @@ use LWP::Simple;
 
 ###
 ### IO::Socket::SSL required.  Installed fine via panda.
+### 
 ###
+### However, this isn't reliable.  See the Problems section below, then go 
+### look at HTTP::UserAgent, which works just fine for all of the "problem" 
+### URLs in here.
+###
+
+
+
+
 
 my $ua = LWP::Simple.new;
 
