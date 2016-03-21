@@ -257,23 +257,13 @@ class Games::Lacuna::Account does Games::Lacuna::Comms {#{{{
 
     #| Does not work yet because of the SSL problem.
     method fetch_captcha() {#{{{
-        my %rv = $.send(:$!endpoint_name, :method('fetch_captcha') );
+        my %rv = $.send( :$!endpoint_name, :method('fetch_captcha') );
 
-        ### If you try this again, I suggest you do
-        ###     ./script.p6 2> err.txt
-        ### because it produced a shitton of output on STDERR but only a 
-        ### couple lines on STDOUT the last time it blew up.
-        ###
-        ### The problem might be IO::Socket::SSL, and it might be 
-        ### Net::HTTP::GET; I dunno.  Might be worth seeing if there's another 
-        ### HTTP client out there and give that a shot.
-        ###
-        #my $resp = Net::HTTP::GET( %rv<result><url> );
-        #spurt 'test.png', $resp.content(:force);
+        ### CHECK
+        ### this is now working but it needs to be nice-ified.
+        my $resp = Net::HTTP::GET( %rv<result><url> );
+        spurt 'out.png', $resp.body, :bin;
 
-        say "The URL for the captcha is %rv<result><url>";
-        say "but perl6 seems unable to grab that at this time.";
-        say "The previous message was hard-coded 03/09/2016, so check again.";
     }#}}}
 
 }#}}}

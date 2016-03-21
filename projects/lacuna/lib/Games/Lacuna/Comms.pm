@@ -22,6 +22,15 @@ role Games::Lacuna::Comms {
     #|{
         Sends data, either positional or named arguments, to a specific TLE endpoint.
         TBD - The first send multimethod, accepting named args, is untested.
+
+        $account is optional.  If it gets passed in, and the send() call fails 
+        because the user's session has expired, that $account will be used to 
+        re-login.
+
+        CHECK
+        after doing that relogin_expired(), don't I have to re-call 
+        send_packet?  I'm pretty sure I do, and I'm obviously not.  Need to 
+        test this and fix.
     }
     multi method send(%named, :$account, Str :$endpoint_name!, Str :$method!, :%opts) {#{{{
         $.set_endpoint_url( $endpoint_name );
@@ -32,6 +41,11 @@ role Games::Lacuna::Comms {
         $.set_endpoint_url( $endpoint_name );
         my $rv = $.send_packet( $.json_rpcize($method, @pos, :id(%opts<id> || 1)) );
         $.relogin_expired($account, $rv);
+    }#}}}
+    multi method send(Str :$endpoint_name!, Str :$method!, :%opts) {#{{{
+        ### No args, eg the /empire endpoint's fetch_captcha()
+        $.set_endpoint_url( $endpoint_name );
+        my $rv = $.send_packet( $.json_rpcize($method, :id(%opts<id> || 1)) );
     }#}}}
 
 
@@ -77,11 +91,14 @@ role Games::Lacuna::Comms {
         named 'id' argument.  Returns that data as a JSON-encoded string as 
         expected by TLE servers.
     }
+    multi method json_rpcize(Str $method, %named, Int :$id = 1) {#{{{
+        to-json({ :jsonrpc('2.0'), :id($id), :method($method), :params(%named) });
+    }#}}}
     multi method json_rpcize(Str $method, @pos, Int :$id = 1) {#{{{
         to-json({ :jsonrpc('2.0'), :id($id), :method($method), :params(@pos) });
     }#}}}
-    multi method json_rpcize(Str $method, %named, Int :$id = 1) {#{{{
-        to-json({ :jsonrpc('2.0'), :id($id), :method($method), :params(%named) });
+    multi method json_rpcize(Str $method, Int :$id = 1) {#{{{
+        to-json({ :jsonrpc('2.0'), :id($id), :method($method) });
     }#}}}
 
 

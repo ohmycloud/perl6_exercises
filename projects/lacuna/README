@@ -1,8 +1,13 @@
 
-- Need to add logging
 
-- Switch from Net::HTTP to HTTP::UserAgent, which seems to work better, and 
-  which should therefore allow me to get captchas.
+
+Left off working on Account::fetch_captcha.  I'm now getting the image 
+properly, so the code just needs to be moved to the correct Model file etc.
+
+
+
+
+- Need to add logging
 
 Classes to add {#{{{
 
@@ -15,5 +20,32 @@ Classes to add {#{{{
           These "mini-classes" need to be similar to the ForeignBody class in 
           Body.pm.
 
+}#}}}
+HTTP Traffic {#{{{
+    Using Net::HTTP, some https requests fail, some succeed.  Not sure what 
+    the difference is.  Fetching captcha images fails.
+        This is now fixed; see the OpenSSL section below.
+
+    I tried switching to HTTP::UserAgent.  In tests, it's able to access https 
+    URLs that Net::HTTP is not.
+
+    However, HTTP::UserAgent isn't POSTing properly.  When I send "params", it 
+    must be sent as an array, and HTTP::UserAgent is sending it as a single 
+    scalar value (at least when there's only a single param).  TLE won't 
+    accept that - it requires a single-element array.
+}#}}}
+OpenSSL {#{{{
+    
+    For a full explanation, see ../../modules/Net/HTTP/README.
+
+    The short explanation is that the actual OpenSSL.pm used by Net::HTTP is  
+    not able to access TLE https servers.  I had to hack at OpenSSL.pm to get 
+    it to work, and that hacked copy is what's in ./lib/ and is what's being 
+    used for network traffic.
+
+    My hack is naive, and is likely to cause problems with hitting https URLs 
+    other than TLE.  Plus, it could well blow up at any time if the TLE 
+    servers get re-configured.
+    
 }#}}}
 

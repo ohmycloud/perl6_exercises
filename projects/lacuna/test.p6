@@ -7,8 +7,10 @@ use Games::Lacuna;
 
 
 my $base_dir        = callframe(0).file.IO.dirname.IO.absolute.IO;
-my $config_section  = <pt_real>;
+#my $config_section  = <pt_real>;
 #my $config_section  = <pt_sitter>;
+my $config_section  = <us1_sitter>;
+
 
 
 ### Create account object.  This does not log you in.
@@ -29,7 +31,8 @@ say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance
 
 ### Doesn't work.  Looks like an SSL issue.  I can live without captchas for 
 ### now.
-#$a.fetch_captcha;
+$a.fetch_captcha;
+exit;
 
 
 ### Log out
