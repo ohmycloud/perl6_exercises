@@ -4,8 +4,11 @@ use v6;
 use lib 'lib';
 use Games::Lacuna;
 
+
+
 my $base_dir        = callframe(0).file.IO.dirname.IO.absolute.IO;
-my $config_section  = <pt_sitter>;
+my $config_section  = <pt_real>;
+#my $config_section  = <pt_sitter>;
 
 
 ### Create account object.  This does not log you in.
@@ -23,6 +26,7 @@ say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance
 #exit;
 
 
+
 ### Doesn't work.  Looks like an SSL issue.  I can live without captchas for 
 ### now.
 #$a.fetch_captcha;
@@ -35,18 +39,19 @@ say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance
 
 
 ### Get my public profile (23598 is me on PT.)
-#my $profile = Games::Lacuna::Model::PublicProfile.new(:account($a), :empire_id(23598));
-#say "ID: " ~ $profile.id;
-#say "Name: " ~ $profile.name;
-#say "Founded on: " ~ $profile.date_founded.Date;
-#say "Most recently logged in: {$profile.last_login.in-timezone(-14400)}.";
+#my $pub_profile = Games::Lacuna::Model::PublicProfile.new(:account($a), :empire_id(23598));
+my $pub_profile = Games::Lacuna::Model::Profile.new(:account($a), :empire_id(23598));
+say "ID: " ~ $pub_profile.id;
+say "Name: " ~ $pub_profile.name;
+#say "Founded on: " ~ $pub_profile.date_founded.Date;
+#say "Most recently logged in: {$pub_profile.last_login.in-timezone(-14400)}.";
 ### Profile.alliance gives full access to the member's alliance object.
-#say "{$profile.name} is a member of {$profile.alliance.name}";
+#say "{$pub_profile.name} is a member of {$pub_profile.alliance.name}";
 #say "KNOWN COLONIES";
-#for $profile.known_colonies -> $c {
+#for $pub_profile.known_colonies -> $c {
 #    say "\t{$c.name} has ID {$c.id} and lives at ({$c.x}, {$c.y}).";
 #}
-#''.say;
+''.say;
 #exit;
 
 
@@ -54,20 +59,21 @@ say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance
 ### Get my private profile (MUST BE USING YOUR FULL PASSWORD, NOT SITTER)
 ### I have not done an exhaustive check of all attributes here.  Typos are 
 ### possible.
-#my $profile = Games::Lacuna::Model::PrivateProfile.new(:account($a));
-#say $profile.endpoint_name;
-#say $profile.skip_facebook_wall_posts;
-#say $profile.skip_incoming_ships;
-#say $profile.skip_happiness_warnings;
-#say $profile.email;
-#say $profile.sitter_password;
-#say "MEDALS";
-#for $profile.medals -> $m {
-#    if $m.name ~~ m:i/'of the week'/ {
-#        say "\tThe {$m.name} medal has been earned {$m.times_earned} times, first on {$m.date}.  This medal is{' not' unless $m.public} public.";
-#    }
-#}
-#exit;
+#my $priv_profile = Games::Lacuna::Model::PrivateProfile.new(:account($a));
+my $priv_profile = Games::Lacuna::Model::Profile.new(:account($a));
+#say $priv_profile.endpoint_name;
+#say $priv_profile.skip_facebook_wall_posts;
+#say $priv_profile.skip_incoming_ships;
+#say $priv_profile.skip_happiness_warnings;
+#say $priv_profile.email;
+#say $priv_profile.sitter_password;
+say "MEDALS";
+for $priv_profile.medals -> $m {
+    if $m.name ~~ m:i/'of the week'/ {
+        say "\tThe {$m.name} medal has been earned {$m.times_earned} times, first on {$m.date}.  This medal is{' not' unless $m.public} public.";
+    }
+}
+exit;
 
 
 ### Get my alliance profile

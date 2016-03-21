@@ -1,13 +1,12 @@
 
-use Games::Lacuna::Exception;
-use Games::Lacuna::DateTime;
-use Games::Lacuna::Model;
+#use Games::Lacuna::Exception;
+#use Games::Lacuna::DateTime;
+#use Games::Lacuna::Model;
+use Games::Lacuna::Model::Medal;
 use Games::Lacuna::Model::Alliance;
 use Games::Lacuna::Model::Body;
-use Games::Lacuna::Model::Medal;
 
-
-role Games::Lacuna::Model::Profile::ProfileRole does Games::Lacuna::Model {#{{{
+role Games::Lacuna::Model::Profile does Games::Lacuna::Model {#{{{
     has %.p;                        # convenience -- just %.json_parsed<result><profile>.  Handled by BUILD.
     has Int $.id;
     has Str $.name;
@@ -63,7 +62,7 @@ role Games::Lacuna::Model::Profile::ProfileRole does Games::Lacuna::Model {#{{{
     The publicly-viewable portion of a player's profile.
             my $p = Games::Lacuna::Model::PublicProfile.new( :account($a), :empire_id(12345) );
 #}
-class Games::Lacuna::Model::Profile::PublicProfile does Games::Lacuna::Model::Profile::ProfileRole {#{{{
+class Games::Lacuna::Model::PublicProfile does Games::Lacuna::Model::Profile {#{{{
     submethod BUILD (:$account, :$empire_id) {
         $!account       = $account;
         $!endpoint_name = 'empire';
@@ -85,7 +84,7 @@ class Games::Lacuna::Model::Profile::PublicProfile does Games::Lacuna::Model::Pr
     called for the currently-logged-in empire:
             my $p = Games::Lacuna::Model::PrivateProfile.new( :account($a) );
 #}
-class Games::Lacuna::Model::Profile::PrivateProfile does Games::Lacuna::Model::Profile::ProfileRole {#{{{
+class Games::Lacuna::Model::PrivateProfile does Games::Lacuna::Model::Profile {#{{{
     has Bool $.skip_happiness_warnings;
     has Bool $.skip_resource_warnings;
     has Bool $.skip_pollution_warnings;
@@ -132,29 +131,6 @@ class Games::Lacuna::Model::Profile::PrivateProfile does Games::Lacuna::Model::P
     method sitter_password          { return $!sitter_password if defined $!sitter_password or not defined %!p<sitter_password>; $!sitter_password = %!p<sitter_password>; }
 
 }#}}}
-
-
-
-#|{
-    Profile Factory.
-
-    Returns either a public profile or a private profile.  The private profile 
-    can only be returned for the current account, and only when that account 
-    has been logged in using its full, not sitter, password.
-
-    Examples:
-            my $pub_profile  = Games::Lacuna::Model::Profile.new(:account($a), :empire_id(23598));
-            my $priv_profile = Games::Lacuna::Model::Profile.new(:account($a));
-}
-class Games::Lacuna::Model::Profile {
-    multi method new (:$account!, :$empire_id!) {#{{{
-        return Games::Lacuna::Model::Profile::PublicProfile.new(:$account, :$empire_id);
-    }#}}}
-    multi method new (:$account!) {#{{{
-        return Games::Lacuna::Model::Profile::PrivateProfile.new(:$account);
-    }#}}}
-
-}
 
 
 

@@ -87,7 +87,7 @@ class Games::Lacuna::Model::Alliance::MyAlliance does Games::Lacuna::Model {#{{{
     }
 
 }#}}}
-class Games::Lacuna::Model::PartialAlliance does Games::Lacuna::NonCommModel {#{{{
+class Games::Lacuna::Model::Alliance::PartialAlliance does Games::Lacuna::NonCommModel {#{{{
     has Int $.id;
     has Str $.name;
     method id               { return $!id if defined $!id or not defined %!json_parsed<id>; $!id = %!json_parsed<id>.Int; }
@@ -113,7 +113,7 @@ class Games::Lacuna::Model::Alliance {#{{{
         return Games::Lacuna::Model::MyAlliance.new(:$account);
     }#}}}
     multi method new (:%json_parsed!) {#{{{
-        return Games::Lacuna::Model::PartialAlliance.new(:%json_parsed);
+        return Games::Lacuna::Model::Alliance::PartialAlliance.new(:%json_parsed);
     }#}}}
  
 }#}}}

@@ -3,11 +3,22 @@
 
 if True {# {{{
 
+    use lib 'lib';
+    use Games::Lacuna;
+    use Games::Lacuna::Model::Profile;
 
-#my %foo;
-my %foo = (jon => 'barton');
-say %foo.keys.elems;
+    #my $m = Games::Lacuna::Model::Flurble.new();
+    #say $m.name;
 
+    my %stuff = (
+        id => 1,
+        name => 'test',
+        image => 'test.jpg',
+        public => True,
+        times_earned => 43,
+    );
+    my $m = Games::Lacuna::Model::Medal.new(:json_parsed(%stuff));
+    say $m.name;
 
 
 }# }}}

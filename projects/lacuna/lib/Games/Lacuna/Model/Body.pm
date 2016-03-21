@@ -4,7 +4,6 @@ use Games::Lacuna::DateTime;
 use Games::Lacuna::Model;
 use Games::Lacuna::Model::Alliance;
 
-
 ### Utility classes.  These are part of some of the Body responses.
 ###
 ### CHECK
