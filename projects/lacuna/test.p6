@@ -39,10 +39,9 @@ say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance
 
 
 ### Get my public profile (23598 is me on PT.)
-#my $pub_profile = Games::Lacuna::Model::PublicProfile.new(:account($a), :empire_id(23598));
-my $pub_profile = Games::Lacuna::Model::Profile.new(:account($a), :empire_id(23598));
-say "ID: " ~ $pub_profile.id;
-say "Name: " ~ $pub_profile.name;
+#my $pub_profile = Games::Lacuna::Model::Profile.new(:account($a), :empire_id(23598));
+#say "ID: " ~ $pub_profile.id;
+#say "Name: " ~ $pub_profile.name;
 #say "Founded on: " ~ $pub_profile.date_founded.Date;
 #say "Most recently logged in: {$pub_profile.last_login.in-timezone(-14400)}.";
 ### Profile.alliance gives full access to the member's alliance object.
@@ -51,7 +50,7 @@ say "Name: " ~ $pub_profile.name;
 #for $pub_profile.known_colonies -> $c {
 #    say "\t{$c.name} has ID {$c.id} and lives at ({$c.x}, {$c.y}).";
 #}
-''.say;
+#''.say;
 #exit;
 
 
@@ -59,21 +58,20 @@ say "Name: " ~ $pub_profile.name;
 ### Get my private profile (MUST BE USING YOUR FULL PASSWORD, NOT SITTER)
 ### I have not done an exhaustive check of all attributes here.  Typos are 
 ### possible.
-#my $priv_profile = Games::Lacuna::Model::PrivateProfile.new(:account($a));
-my $priv_profile = Games::Lacuna::Model::Profile.new(:account($a));
+#my $priv_profile = Games::Lacuna::Model::Profile.new(:account($a));
 #say $priv_profile.endpoint_name;
 #say $priv_profile.skip_facebook_wall_posts;
 #say $priv_profile.skip_incoming_ships;
 #say $priv_profile.skip_happiness_warnings;
 #say $priv_profile.email;
 #say $priv_profile.sitter_password;
-say "MEDALS";
-for $priv_profile.medals -> $m {
-    if $m.name ~~ m:i/'of the week'/ {
-        say "\tThe {$m.name} medal has been earned {$m.times_earned} times, first on {$m.date}.  This medal is{' not' unless $m.public} public.";
-    }
-}
-exit;
+#say "MEDALS";
+#for $priv_profile.medals -> $m {
+#    if $m.name ~~ m:i/'of the week'/ {
+#        say "\tThe {$m.name} medal has been earned {$m.times_earned} times, first on {$m.date}.  This medal is{' not' unless $m.public} public.";
+#    }
+#}
+#exit;
 
 
 ### Get my alliance profile

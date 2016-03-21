@@ -3,23 +3,9 @@
 
 if True {# {{{
 
-    use lib 'lib';
-    use Games::Lacuna;
-    use Games::Lacuna::Model::Profile;
-
-    #my $m = Games::Lacuna::Model::Flurble.new();
-    #say $m.name;
-
-    my %stuff = (
-        id => 1,
-        name => 'test',
-        image => 'test.jpg',
-        public => True,
-        times_earned => 43,
-    );
-    my $m = Games::Lacuna::Model::Medal.new(:json_parsed(%stuff));
-    say $m.name;
-
+    my $var = utf8.new(109, 101, 116, 104, 111, 100, 61, 103, 101, 116, 95, 115, 116, 97, 116, 117, 115, 38, 105, 100, 61, 52, 50, 38, 106, 115, 111, 110, 114, 112, 99, 61, 50, 46, 48, 38, 112, 97, 114, 97, 109, 115, 61, 50, 55, 57, 49, 50, 48, 100, 99, 45, 102, 102, 56, 54, 45, 52, 97, 51, 97, 45, 97, 53, 101, 48, 45, 55, 54, 97, 56, 102, 51, 100, 49, 51, 56, 55, 48);
+    say $var.WHAT;
+    say $var.decode;    # method=get_status&id=42&jsonrpc=2.0&params=279120dc-ff86-4a3a-a5e0-76a8f3d13870
 
 }# }}}
 if False {# {{{

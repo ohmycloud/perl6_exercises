@@ -1,5 +1,4 @@
 
-use HTTP::UserAgent;
 use JSON::Tiny;
 use Net::HTTP::GET;
 use Net::HTTP::POST;
