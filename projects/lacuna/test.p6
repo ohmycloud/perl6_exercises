@@ -2,6 +2,7 @@
 
 use v6;
 use lib 'lib';
+use File::Temp;
 use Games::Lacuna;
 
 
@@ -28,11 +29,17 @@ say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance
 #exit;
 
 
-
-### Doesn't work.  Looks like an SSL issue.  I can live without captchas for 
-### now.
-$a.fetch_captcha;
-exit;
+### Get and display a captcha image, check the solution.
+#my $c = Games::Lacuna::Model::Captcha.new( :account($a) );
+#$c.fetch;
+#my ($fn, $fh) = tempfile(:!unlink);
+#$c.save($fn);
+#shell("xdg-open $fn");     # obviously not portable but fine for a test script.
+#print "I just opened a captcha image.  Enter the solution here: ";
+#my $resp = $*IN.get();
+#$fn.IO.unlink;
+#say $c.solve($resp) ?? "Correct!" !! "BRRRRZZZT!";
+#exit;
 
 
 ### Log out

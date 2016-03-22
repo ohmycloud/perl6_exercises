@@ -15,7 +15,7 @@ use Games::Lacuna::Model::Alliance;
 ### In the same way, I should set up Empire and Ship factories that can also 
 ### return little clumps of code.  Once that's done, the Empire and 
 ### IncomingShip classes in here should be replaced by those factories.
-class Games::Lacuna::Model::Body::Empire does Games::Lacuna::NonCommModel {#{{{
+class Games::Lacuna::Model::Body::Empire does Games::Lacuna::Model::NonCommModel {#{{{
     has Int $.id;
     has Str $.name;
     has Str $.alignment;
@@ -27,7 +27,7 @@ class Games::Lacuna::Model::Body::Empire does Games::Lacuna::NonCommModel {#{{{
     method alignment        { return $!alignment if defined $!alignment or not defined %!json_parsed<alignment>; $!alignment = %!json_parsed<alignment>; }
     method is_isolationist  { return $!is_isolationist if defined $!is_isolationist or not defined %!json_parsed<is_isolationist>; $!is_isolationist = %!json_parsed<is_isolationist>.Int.Bool; }
 }#}}}
-class Games::Lacuna::Model::Body::IncomingShip does Games::Lacuna::NonCommModel {#{{{
+class Games::Lacuna::Model::Body::IncomingShip does Games::Lacuna::Model::NonCommModel {#{{{
     has Int $.id;
     has Games::Lacuna::DateTime $.date_arrives;
     has Bool $.is_own;
@@ -213,7 +213,7 @@ role Games::Lacuna::Model::Body::OwnBodyRole does Games::Lacuna::Model does Game
     }#}}}
  
 }#}}}
-role Games::Lacuna::Model::Body::ForeignBodyRole does Games::Lacuna::NonCommModel does Games::Lacuna::Model::Body::BodyRole {#{{{
+role Games::Lacuna::Model::Body::ForeignBodyRole does Games::Lacuna::Model::NonCommModel does Games::Lacuna::Model::Body::BodyRole {#{{{
 }#}}}
 
 #|{
@@ -233,7 +233,7 @@ class Games::Lacuna::Model::Body::OwnPlanet does Games::Lacuna::Model::Body::Own
         $!endpoint_name = 'body';
         %!json_parsed   = $!account.send(
             :$!endpoint_name, :method('get_status'),
-            ($!account.session_id, $body_id)
+            [$!account.session_id, $body_id]
         );
         die Games::Lacuna::Exception.new(%!json_parsed) if %!json_parsed<error>;
         try { %!p = %!json_parsed<result><body> };

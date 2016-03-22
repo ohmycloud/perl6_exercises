@@ -255,17 +255,6 @@ class Games::Lacuna::Account does Games::Lacuna::Comms {#{{{
         $.save_config();
     }#}}}
 
-    #| Does not work yet because of the SSL problem.
-    method fetch_captcha() {#{{{
-        my %rv = $.send( :$!endpoint_name, :method('fetch_captcha') );
-
-        ### CHECK
-        ### this is now working but it needs to be nice-ified.
-        my $resp = Net::HTTP::GET( %rv<result><url> );
-        spurt 'out.png', $resp.body, :bin;
-
-    }#}}}
-
 }#}}}
 
 

@@ -68,6 +68,15 @@ role Games::Lacuna::Comms {
         $resp;
     }#}}}
 
+    #|{
+        Calls Net::HTTP::GET on a url and returns the response.
+    }
+    multi method http_get(Str $url --> Net::HTTP::Response) {#{{{
+        return Net::HTTP::GET( $url );
+    }#}}}
+    multi method http_get(URI $url --> Net::HTTP::Response) {#{{{
+        return Net::HTTP::GET( "$url" );
+    }#}}}
 
     #|{
         Accepts a JSON-encoded string, passes it to the currently-set 
@@ -85,7 +94,6 @@ role Games::Lacuna::Comms {
         return $rv;
     }#}}}
 
-
     #|{
         Accepts a method name, positional or named arguments, and an optional
         named 'id' argument.  Returns that data as a JSON-encoded string as 
@@ -100,7 +108,6 @@ role Games::Lacuna::Comms {
     multi method json_rpcize(Str $method, Int :$id = 1) {#{{{
         to-json({ :jsonrpc('2.0'), :id($id), :method($method) });
     }#}}}
-
 
     #|{
         Sets the full endpoint URL, taking into account the protocol, server, and

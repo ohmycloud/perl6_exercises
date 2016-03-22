@@ -4,7 +4,7 @@ use Games::Lacuna::DateTime;
 use Games::Lacuna::Model;
 
 
-class Games::Lacuna::Model::Alliance::Member does Games::Lacuna::NonCommModel {#{{{
+class Games::Lacuna::Model::Alliance::Member does Games::Lacuna::Model::NonCommModel {#{{{
     has Int $.id;
     has Str $.name;
 
@@ -12,7 +12,7 @@ class Games::Lacuna::Model::Alliance::Member does Games::Lacuna::NonCommModel {#
     method id   { return $!id if defined $!id or not defined %!json_parsed<id>; $!id = %!json_parsed<id>.Int; }
     method name { return $!name if defined $!name or not defined %!json_parsed<name>; $!name = %!json_parsed<name>; }
 }#}}}
-class Games::Lacuna::Model::Alliance::SS does Games::Lacuna::NonCommModel {#{{{
+class Games::Lacuna::Model::Alliance::SS does Games::Lacuna::Model::NonCommModel {#{{{
     has Int $.id;
     has Str $.name;
     has Int $.x;
@@ -87,7 +87,7 @@ class Games::Lacuna::Model::Alliance::MyAlliance does Games::Lacuna::Model {#{{{
     }
 
 }#}}}
-class Games::Lacuna::Model::Alliance::PartialAlliance does Games::Lacuna::NonCommModel {#{{{
+class Games::Lacuna::Model::Alliance::PartialAlliance does Games::Lacuna::Model::NonCommModel {#{{{
     has Int $.id;
     has Str $.name;
     method id               { return $!id if defined $!id or not defined %!json_parsed<id>; $!id = %!json_parsed<id>.Int; }

@@ -47,7 +47,7 @@ awarded the medal again.
 
 #| A user's profile will include zero or more medals.
 #|      my $medal = Games::Lacuna::Model::Medal.new( %resp<profile><medals>{$id>} );
-class Games::Lacuna::Model::Medal does Games::Lacuna::NonCommModel {#{{{
+class Games::Lacuna::Model::Medal does Games::Lacuna::Model::NonCommModel {#{{{
     has Int $.id;
     has Str $.name;
     has Str $.image;
