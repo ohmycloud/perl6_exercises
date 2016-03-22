@@ -1,12 +1,42 @@
 #!/usr/bin/env perl6
 
+        {
+            use Test;
+            plan 1;
+            ok( 1, 1 );
+        }
+        ok( 1, 1 );
+        exit;
+
+
+
+
 
 if True {# {{{
 
-    use File::Temp;
-    my ($fn, $fh) = tempfile;
-    say $fn;
-    say $fh;
+    class Jontest {
+        method static (Str $arg) {
+            say "static got $arg.";
+        }
+    }
+    Jontest.static('foo');
+    ''.say;
+
+
+    class Jontest2 {
+        multi method FALLBACK ($meth_name, Str $arg) {
+            say "-$meth_name-";
+            say "FALLBACK got $arg.";
+        }
+        multi method FALLBACK ($meth_name, Int $num) {
+            say "-$meth_name-";
+            say "int FALLBACK got $num.";
+        }
+    }
+    my $j2 = Jontest2.new;
+    say $j2.blarg('foo');
+    say $j2.blarg(34);
+
 
 }# }}}
 if False {# {{{

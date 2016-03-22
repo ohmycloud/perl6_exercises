@@ -8,8 +8,8 @@ use Games::Lacuna;
 
 
 my $base_dir        = callframe(0).file.IO.dirname.IO.absolute.IO;
-my $config_section  = <pt_real>;
-#my $config_section  = <pt_sitter>;
+#my $config_section  = <pt_real>;
+my $config_section  = <pt_sitter>;
 #my $config_section  = <us1_sitter>;
 
 
@@ -69,8 +69,8 @@ say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance
 ### Get my private profile (MUST BE USING YOUR FULL PASSWORD, NOT SITTER)
 ### I have not done an exhaustive check of all attributes here.  Typos are 
 ### possible.
-my $priv_profile = Games::Lacuna::Model::Profile.new(:account($a));
-say $priv_profile.endpoint_name;
+#my $priv_profile = Games::Lacuna::Model::Profile.new(:account($a));
+#say $priv_profile.endpoint_name;
 #say $priv_profile.skip_facebook_wall_posts;
 #say $priv_profile.skip_incoming_ships;
 #say $priv_profile.skip_happiness_warnings;

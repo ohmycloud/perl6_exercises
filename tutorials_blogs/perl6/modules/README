@@ -47,6 +47,19 @@ Loading and Basic Importing {#{{{
             do_stuff();
             ### and now, some_imported_func is no longer defined.
 
+
+    Per one of jnthn's slides 
+    (http://jnthn.net/papers/2015-fosdem-static-dynamic.pdf, page 53), imports 
+    are now lexical (!).  I tested this and it does work.
+        {
+            use Test;
+            plan 1;
+            ok( 1, 1 );         # no problem
+        }
+        ok( 1, 1 );             # GONNNG!  compile error - "undeclared routine...."
+
+
+
 }#}}}
 Exporting, Conditional Importing {#{{{
     

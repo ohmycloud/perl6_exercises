@@ -5,6 +5,8 @@ use Log::D;
 
 my $l = Log::D.new(:w, :i);         # enable warnings and infos    
 
+### Set up the format of the "prefix" - the stuff that appears before the log 
+### message.
 $l.prefix = sub {
     callframe(2).file ~ " " 
     ~ callframe(2).line ~ " " 
@@ -23,6 +25,7 @@ $l.w("This is a warning.");
 
 
 ### Reports all calls to allow(), remove_allow, ban(), etc to the log.
+### We're going to make those calls below.
 $l.notify = True;
 
 

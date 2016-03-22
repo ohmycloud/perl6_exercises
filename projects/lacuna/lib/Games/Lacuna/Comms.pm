@@ -16,7 +16,9 @@ eventually.
 Models that need to talk to the server do the Comms role, so they could call 
 self.send() to send data to the server.  However, if you call send() 
 specifically on a GL::Account object, that send() call will automatically 
-attempt to re-login if it discovers that the session ID has expired.
+attempt to re-login if it discovers that the session ID has expired.  Since 
+any model that does the Comms role also does the Model role, those models 
+I<will> have $.account attributes pointing at GL::Account objects.
 
 So, eg if you're working in the Profile module, instead of calling:
  %!json_parsed   = self.send(
@@ -30,37 +32,36 @@ You should prefer to make that same call on the Profile's $.account attribute:
   [$!account.session_id]
  );
 
-So the logic flow is:
+The logic flow is:
     - Profile class uses its $.account attribute to send a request to the 
-      view_profile() TLE class
-        - So Profile is calling Comms::send() via its $.account attribute
+      view_profile() TLE method
+        - So Profile is calling $.account.send(), which in turn calls 
+          Comms::send().
     - Comms::send() sends the request and checks the response, noting that it 
       contains an error stating that the session ID has expired.
         - Comms::send() also notes that the calling object is an Account 
           object.
         - So Comms::send() re-calls login() on that Account object.
-    - Since we've re-logged in, our account object's $.session_id is now 
-      valid.
-    - Now that we're logged in again, we're going to re-try the original 
-      view_profile() call that failed.
-        - However, we're still holding the original arguments array sent to 
-          view_profile(), and that array contains the old (bad) session id.
-        - So we need to replace that old session_id with our new one.
-            - Since we're using positional params in this case, we can't know 
-              for sure (programmatically) where in the @args array that 
-              session_id is.
-            - As it happens, in TLE's positional-arg methods, the session_id 
-              always comes first, so we'll replace @args[0] with our new, 
-              valid session_id.
-        - Now we can call view_profile() again, passing our modified @args 
-          array, and return the result of that.
+    - Now that we're re-logged in, our account object's $.session_id is valid, 
+      so we can re-try the original view_profile() call that failed.
+    - However, we're still holding the original arguments array sent to 
+      view_profile(), and that array contains the old (bad) session id.  We 
+      need to replace that old session_id with our new one.
+        - Since we're using positional params in this case, we can't know for 
+          sure (programmatically) where in the @args array that session_id is.
+        - As it happens, in TLE's positional-arg methods, the session_id 
+          always comes first, so we'll replace @args[0] with our new, valid 
+          session_id.
+    - Now we can call view_profile() again, passing our modified @args array, 
+      and return the result of that.
 
 All of the above happens automatically, as long as you're calling send() from 
 a GL::Account object.
 
 =end pod
 
-#| Communicates with TLE servers.
+
+
 role Games::Lacuna::Comms {
     has Str $.protocol      = 'http';
     has URI $.endpoint_url; 
@@ -167,8 +168,6 @@ role Games::Lacuna::Comms {
         URI.new( ("$!protocol://$.server", 'lacunaexpanse', 'com').join('.') );
     }#}}}
 }
-
-
 
  # vim: syntax=perl6 fdm=marker
 
