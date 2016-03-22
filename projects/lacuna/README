@@ -1,8 +1,14 @@
 
 
 
-Left off working on Account::fetch_captcha.  I'm now getting the image 
-properly, so the code just needs to be moved to the correct Model file etc.
+all models so far have an $.account object.  
+
+The models are mostly doing the Comms role, so the idea is that the model 
+itself can call its own $.send() method.
+
+But through copy/pasting, I've been calling $.account.send throughout.  I 
+think this ends up being a good thing.  I'm going to say that a relogin gets 
+attempted only if send() was called from an account object.
 
 
 

@@ -48,6 +48,8 @@ class Games::Lacuna::Model::LoggedInCaptcha does Games::Lacuna::Model::CaptchaRo
         Fetches a new captcha, setting the guid, image_url, and image_content 
         attributes.
     }
+
+
     method fetch() {#{{{
         %!json_parsed   = $.account.send(
             :$.endpoint_name, :method('fetch'),

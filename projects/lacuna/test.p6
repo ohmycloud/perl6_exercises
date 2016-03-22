@@ -8,9 +8,9 @@ use Games::Lacuna;
 
 
 my $base_dir        = callframe(0).file.IO.dirname.IO.absolute.IO;
-#my $config_section  = <pt_real>;
+my $config_section  = <pt_real>;
 #my $config_section  = <pt_sitter>;
-my $config_section  = <us1_sitter>;
+#my $config_section  = <us1_sitter>;
 
 
 
@@ -19,7 +19,7 @@ my $a = Games::Lacuna::Account.new( :$base_dir, :$config_section );
 
 
 ### This logs you in.
-say "Logging in";
+say "Logging in using config section $config_section.";
 $a.login();
 say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance ID is {$a.alliance_id} and my session ID is {$a.session_id}.";
 #say "I own the following colonies: {$a.mycolonies<ids>.keys}";
@@ -31,6 +31,7 @@ say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance
 
 ### Get and display a captcha image, check the solution.
 #my $c = Games::Lacuna::Model::Captcha.new( :account($a) );
+#say "Calling fetch";
 #$c.fetch;
 #my ($fn, $fh) = tempfile(:!unlink);
 #$c.save($fn);
@@ -68,8 +69,8 @@ say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance
 ### Get my private profile (MUST BE USING YOUR FULL PASSWORD, NOT SITTER)
 ### I have not done an exhaustive check of all attributes here.  Typos are 
 ### possible.
-#my $priv_profile = Games::Lacuna::Model::Profile.new(:account($a));
-#say $priv_profile.endpoint_name;
+my $priv_profile = Games::Lacuna::Model::Profile.new(:account($a));
+say $priv_profile.endpoint_name;
 #say $priv_profile.skip_facebook_wall_posts;
 #say $priv_profile.skip_incoming_ships;
 #say $priv_profile.skip_happiness_warnings;

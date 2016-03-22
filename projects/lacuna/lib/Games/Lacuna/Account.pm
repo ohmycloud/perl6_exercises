@@ -15,7 +15,7 @@ use Games::Lacuna::Exception;
 
 
 #| TLE Account, handles authenticating with the server
-class Games::Lacuna::Account does Games::Lacuna::Comms {#{{{
+class Games::Lacuna::Account does Games::Lacuna::Comms {
     has Str $.endpoint_name;
     has Str $.user;
     has Str $.pass;
@@ -190,14 +190,15 @@ class Games::Lacuna::Account does Games::Lacuna::Comms {#{{{
                 return;
             }
         }
-        my $rv = $.send(
-            :$!endpoint_name, :method('login'),
-            ($!user, $!pass, $!api_key)
-        );
+
         ### For testing.  Actually, I need to implement some logging facility 
         ### and log this.
         say "no valid session found.  Logging in fresh.";
 
+        my $rv = $.send(
+            :$!endpoint_name, :method('login'),
+            ($!user, $!pass, $!api_key)
+        );
         die Games::Lacuna::Exception.new($rv) if $rv<error>;
         try {
             $!session_id    = $rv<result><session_id>;
@@ -255,7 +256,7 @@ class Games::Lacuna::Account does Games::Lacuna::Comms {#{{{
         $.save_config();
     }#}}}
 
-}#}}}
+}
 
 
 

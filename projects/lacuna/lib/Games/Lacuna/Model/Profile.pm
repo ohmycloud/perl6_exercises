@@ -68,7 +68,7 @@ class Games::Lacuna::Model::Profile::PublicProfile does Games::Lacuna::Model::Pr
         $!account       = $account;
         $!endpoint_name = 'empire';
         %!json_parsed   = $!account.send(
-            :$!endpoint_name, :method('view_public_profile'),
+            $!endpoint_name, :method('view_public_profile'),
             ($!account.session_id, $empire_id)
         );
         die Games::Lacuna::Exception.new(%!json_parsed) if %!json_parsed<error>;

@@ -6,41 +6,84 @@ use URI;
 
 use Games::Lacuna::Exception;
 
+=begin pod
+
+=head1 COMMUNICATIONS FLOW
+Session IDs expire every $time_period.  I think it's 2 hours now, and there's 
+been talk of Icy changing that to 4 hours, but either way, it will expire 
+eventually.
+
+Models that need to talk to the server do the Comms role, so they could call 
+self.send() to send data to the server.  However, if you call send() 
+specifically on a GL::Account object, that send() call will automatically 
+attempt to re-login if it discovers that the session ID has expired.
+
+So, eg if you're working in the Profile module, instead of calling:
+ %!json_parsed   = self.send(
+  :$!endpoint_name, :method('view_profile'),
+  [$!account.session_id]
+ );
+
+You should prefer to make that same call on the Profile's $.account attribute:
+ %!json_parsed   = $.account.send(
+  :$!endpoint_name, :method('view_profile'),
+  [$!account.session_id]
+ );
+
+So the logic flow is:
+    - Profile class uses its $.account attribute to send a request to the 
+      view_profile() TLE class
+        - So Profile is calling Comms::send() via its $.account attribute
+    - Comms::send() sends the request and checks the response, noting that it 
+      contains an error stating that the session ID has expired.
+        - Comms::send() also notes that the calling object is an Account 
+          object.
+        - So Comms::send() re-calls login() on that Account object.
+    - Since we've re-logged in, our account object's $.session_id is now 
+      valid.
+    - Now that we're logged in again, we're going to re-try the original 
+      view_profile() call that failed.
+        - However, we're still holding the original arguments array sent to 
+          view_profile(), and that array contains the old (bad) session id.
+        - So we need to replace that old session_id with our new one.
+            - Since we're using positional params in this case, we can't know 
+              for sure (programmatically) where in the @args array that 
+              session_id is.
+            - As it happens, in TLE's positional-arg methods, the session_id 
+              always comes first, so we'll replace @args[0] with our new, 
+              valid session_id.
+        - Now we can call view_profile() again, passing our modified @args 
+          array, and return the result of that.
+
+All of the above happens automatically, as long as you're calling send() from 
+a GL::Account object.
+
+=end pod
+
 #| Communicates with TLE servers.
 role Games::Lacuna::Comms {
     has Str $.protocol      = 'http';
     has URI $.endpoint_url; 
 
-
-=for comment
-    I'd prefer to have a proto method to avoid the code repeated between the 
-    two multimethods below, but I can't figure out how to get the args out of 
-    the capture in the proto.
-    There's gotta be a way to do this, I just haven't figured out what it is 
-    yet.
-
     #|{
         Sends data, either positional or named arguments, to a specific TLE endpoint.
-        TBD - The first send multimethod, accepting named args, is untested.
 
-        $account is optional.  If it gets passed in, and the send() call fails 
-        because the user's session has expired, that $account will be used to 
-        re-login.
-
-        CHECK
-        after doing that relogin_expired(), don't I have to re-call 
-        send_packet?  I'm pretty sure I do, and I'm obviously not.  Need to 
-        test this and fix.
+        TBD - The first send multimethod, accepting named args, is untested. 
+        It's also not doing any re-calling on session ID failure.  Remember to 
+        add that when you get to testing a named-args method.
     }
-    multi method send(%named, :$account, Str :$endpoint_name!, Str :$method!, :%opts) {#{{{
+    multi method send(%named, Str :$endpoint_name!, Str :$method!, :%opts) {#{{{
         $.set_endpoint_url( $endpoint_name );
         my $rv = $.send_packet( $.json_rpcize($method, %named, :id(%opts<id> || 1)) );
-        $.relogin_expired($account, $rv);
     }#}}}
-    multi method send(@pos, :$account, Str :$endpoint_name!, Str :$method!, :%opts) {#{{{
+    multi method send(@pos, Str :$endpoint_name!, Str :$method!, :%opts) {#{{{
         $.set_endpoint_url( $endpoint_name );
         my $rv = $.send_packet( $.json_rpcize($method, @pos, :id(%opts<id> || 1)) );
-        $.relogin_expired($account, $rv);
+        if self.WHAT.perl ~~ 'Games::Lacuna::Account' and $.relogin_expired($rv)  {
+            @pos[0] = $.session_id;
+            $rv = $.send_packet( $.json_rpcize($method, @pos, :id(%opts<id> || 1)) );
+        }
+        $rv;
     }#}}}
     multi method send(Str :$endpoint_name!, Str :$method!, :%opts) {#{{{
         ### No args, eg the /empire endpoint's fetch_captcha()
@@ -49,23 +92,18 @@ role Games::Lacuna::Comms {
     }#}}}
 
 
-=for comment
-    I can't just test if $account ~~ Games::Lacuna::Account.  I'd have to use 
-    GL::Account in this file, and doing so gets us into a dependency loop, 
-    since GL::Account is use'ing this module.  So I have to to a text match 
-    against $account.WHAT.perl instead.
-
     #|{
-        If our session is expired, we have a Games::Lacuna::Account object, 
-        we'll try to re-log-in.
+        If the server response is an expiration error, we'll try to re-login.
+        Returns True if a re-login was necessary.  In which case our 
+        $.session_id will have been reset to a valid session ID.
+        If no re-login was necessary, returns False.
     #}
-    method relogin_expired($account, $resp) {#{{{
+    method relogin_expired($resp --> Bool) {#{{{
         if $resp<error><code> eqv 1006 and $resp<error><message> eqv 'Session expired.' {
-            if $account.WHAT.perl ~~ m:r/ 'Games::Lacuna::Account' / {
-                $account.login(:skip_test(True));
-            }
+            self.login(:skip_test(True));
+            return True;
         }
-        $resp;
+        return False;
     }#}}}
 
     #|{
