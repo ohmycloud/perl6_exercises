@@ -70,8 +70,9 @@ role Games::Lacuna::Comms {
         Sends data, either positional or named arguments, to a specific TLE endpoint.
 
         TBD - The first send multimethod, accepting named args, is untested. 
-        It's also not doing any re-calling on session ID failure.  Remember to 
-        add that when you get to testing a named-args method.
+        When you get to dealing with TLE methods that use named args, have 
+        that named arg send() below end up looking much like the positional 
+        version.
     }
     multi method send(%named, Str :$endpoint_name!, Str :$method!, :%opts) {#{{{
         $.set_endpoint_url( $endpoint_name );
@@ -79,10 +80,14 @@ role Games::Lacuna::Comms {
     }#}}}
     multi method send(@pos, Str :$endpoint_name!, Str :$method!, :%opts) {#{{{
         $.set_endpoint_url( $endpoint_name );
-        my $rv = $.send_packet( $.json_rpcize($method, @pos, :id(%opts<id> || 1)) );
+
+        my $p1 = start $.send_packet( $.json_rpcize($method, @pos, :id(%opts<id> || 1)) );
+        my $rv = await $p1;
+
         if self.WHAT.perl ~~ 'Games::Lacuna::Account' and $.relogin_expired($rv)  {
             @pos[0] = $.session_id;
-            $rv = $.send_packet( $.json_rpcize($method, @pos, :id(%opts<id> || 1)) );
+            my $p2 = start $.send_packet( $.json_rpcize($method, @pos, :id(%opts<id> || 1)) );
+            $rv = await $p2;
         }
         $rv;
     }#}}}

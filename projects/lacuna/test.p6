@@ -138,26 +138,72 @@ say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance
 #exit;
 
 ### More body testing
-if False {# {{{
+if True {# {{{
+
+
+    ### 
+    ### Planets
+    ###
     
     my $p = Games::Lacuna::Model::Body.new( :account($a), :body_name('bmots07') );
     say "{$p.empire.name} is me.  Alignment is '{$p.empire.alignment}'.";     # alignment == 'self'
-    say "{$p.name} has concentrations of {$p.ore<gold>} gold and {$p.ore<bauxite>} bauxite.";
-    say "{$p.name} is under the control of {$p.station.name}." if $p.station;
-    unless $p.skip_incoming_ships {
-        ### No incoming ships will be shown if .skip_incoming_ships is True.
-        for $p.incoming_own_ships -> $s {
-            say "Ship {$s.id} will arrive on {$s.date_arrives}.";
-        }
-        ### .incoming_own_ships is easiest to test by just sending yourself a 
-        ### smuggler, but incoming_enemy_ships and incoming_ally_ships both work 
-        ### the same way.
-    }
 
+    #say "{$p.name} has concentrations of {$p.ore<gold>} gold and {$p.ore<bauxite>} bauxite.";
+    #say "{$p.name} is under the control of {$p.station.name}." if $p.station;
+    #unless $p.skip_incoming_ships {
+    #    ### No incoming ships will be shown if .skip_incoming_ships is True.
+    #    for $p.incoming_own_ships -> $s {
+    #        say "Ship {$s.id} will arrive on {$s.date_arrives}.";
+    #    }
+    #    ### .incoming_own_ships is easiest to test by just sending yourself a 
+    #    ### smuggler, but incoming_enemy_ships and incoming_ally_ships both work 
+    #    ### the same way.
+    #}
+
+
+    ###
+    ### Several different ways of getting at buildings on the planet
+    ###
+
+    ### Just get all (list)
+    #say "All buildings on {$p.name}:";
+    #for $p.buildings -> $b { say "\t{$b.name} level {$b.level} is at ({$b.x}, {$b.y})."; }
+    #''.say;
+
+    ### By name (list)
+    #say "SAWs on {$p.name}:";
+    #for $p.buildings('shield against weapons') -> $b { say "\t{$b.name} level {$b.level} is at ({$b.x}, {$b.y})."; }
+    #''.say;
+
+    ### By coord location (single object)
+    #say "Building at (0,0) on {$p.name}:";
+    #my $pcc1 = $p.buildings(:x(0), :y(0));
+    #say "\t{$pcc1.name} with ID {$pcc1.id} is at ({$pcc1.x}, {$pcc1.y}).";
+    #''.say;
+
+    ### By ID (single object)
+    #say "Building with ID 804063 on {$p.name}:";
+    #my $pcc2 = $p.buildings(:id(804063));
+    #say "\t{$pcc2.name} is at ({$pcc2.x}, {$pcc2.y}).";
+    #''.say;
+
+
+    ### 
+    ### Stations
+    ###
 
     my $s = Games::Lacuna::Model::Body.new( :account($a), :body_name('SASS bmots 01') );
     say "{$s.name} is controlled by {$s.alliance.name}.";
     say "{$s.name} is exerting {$s.influence.spent} of its total {$s.influence.total} influence.";
+    ''.say;
+
+    ### 
+    ### We can get the buildings on a station the same way we get the ones on 
+    ### a planet.
+    ###
+    say "All buildings on {$s.name}:";
+    for $s.buildings -> $b { say "\t{$b.name} level {$b.level} is at ({$b.x}, {$b.y})."; }
+    ''.say;
 
 }# }}}
 

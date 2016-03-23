@@ -3,6 +3,7 @@ use Games::Lacuna::Exception;
 use Games::Lacuna::DateTime;
 use Games::Lacuna::Model;
 use Games::Lacuna::Model::Alliance;
+use Games::Lacuna::Model::Building;
 
 ### Utility classes.  These are part of some of the Body responses.
 ###
@@ -40,7 +41,7 @@ class Games::Lacuna::Model::Body::IncomingShip does Games::Lacuna::Model::NonCom
     method is_ally      { return $!is_ally if defined $!is_ally or not defined %!json_parsed<is_ally>; $!is_ally = %!json_parsed<is_ally>.Int.Bool; }
 }#}}}
 
-### Used by BodyRole.
+### Used by BodyRole and SSRole.
 class Games::Lacuna::Model::Body::UtilSS {#{{{
     has %.p;
     has Int $.id;
@@ -55,8 +56,6 @@ class Games::Lacuna::Model::Body::UtilSS {#{{{
     method y    { return $!y if defined $!y or not defined %!p<y>; $!y = %!p<y>.Int; }
     method name { return $!name if defined $!name or not defined %!p<name>; $!name = %!p<name>; }
 }#}}}
-
-### Used by SSRole.
 class Games::Lacuna::Model::Body::UtilInfluence {#{{{
     has %.p;
     has Int $.total;
@@ -65,7 +64,6 @@ class Games::Lacuna::Model::Body::UtilInfluence {#{{{
     method total   { return $!total if defined $!total or not defined %!p<total>; $!total = %!p<total>.Int; }
     method spent   { return $!spent if defined $!spent or not defined %!p<spent>; $!spent = %!p<spent>.Int; }
 }#}}}
-
 
 role Games::Lacuna::Model::Body::BodyRole {#{{{
     has %.p;                        # convenience -- just %.json_parsed<result><body>.  Handled by BUILD.
@@ -151,6 +149,7 @@ role Games::Lacuna::Model::Body::OwnBodyRole does Games::Lacuna::Model does Game
     has Games::Lacuna::Model::Body::IncomingShip @.incoming_ally_ships;
     has Games::Lacuna::Model::Body::IncomingShip @.incoming_own_ships;
 
+    has Games::Lacuna::Model::Building::OwnBuilding @.buildings;
 
     method needs_surface_refresh           { return $!needs_surface_refresh if defined $!needs_surface_refresh or not defined %.p<needs_surface_refresh>; $!needs_surface_refresh = %.p<needs_surface_refresh>.Int; }
     method building_count           { return $!building_count if defined $!building_count or not defined %.p<building_count>; $!building_count = %.p<building_count>.Int; }
@@ -210,6 +209,40 @@ role Games::Lacuna::Model::Body::OwnBodyRole does Games::Lacuna::Model does Game
             @!incoming_ally_ships.push( Games::Lacuna::Model::Body::IncomingShip.new(:json_parsed(%s)) )
         }
         @!incoming_ally_ships;
+    }#}}}
+
+    #|{
+        These always return lists.  Even if you search by name of a unique 
+        building (eg Planetary Command Center), you'll get back an array of 
+        one element.
+            my @all_bldgs   = $p.buildings();                               # Array.
+            my @saws        = $p.buildings('shield against weapons');       # Seq.  Name is case insensitive.
+
+        These always returns single Games::Lacuna::Model::Building::OwnBuilding objects.
+            my $pcc         = $p.buildings( :x(0), :y(0) );
+            my $whatever    = $p.buildings( :id(12345) );
+    }
+    multi method buildings(--> Array) {#{{{
+        return @!buildings if @!buildings.elems > 0;    # no defined check on %.p<buildings>.
+        %.json_parsed   = $.account.send(
+            :$.endpoint_name, :method('get_buildings'),
+            [$.account.session_id, $.id]
+        );
+ 
+        for %.json_parsed<result><buildings>.kv -> $bldg_id, %hash {
+            %hash<id> = $bldg_id;
+            @!buildings.push( Games::Lacuna::Model::Building.new(:$.account, %hash) );
+        }
+        return @!buildings;
+    }#}}}
+    multi method buildings(Str $name --> Seq) {#{{{
+        return @.buildings.grep({ $_.name.lc eqv $name.lc });
+    }#}}}
+    multi method buildings(Int :$x!, Int :$y! --> Games::Lacuna::Model::Building::OwnBuilding) {#{{{
+        return @.buildings.grep({ $_.x eqv $x && $_.y eqv $y })[0];
+    }#}}}
+    multi method buildings(Int :$id! --> Games::Lacuna::Model::Building::OwnBuilding) {#{{{
+        return @.buildings.grep({ $_.id eqv $id })[0];
     }#}}}
  
 }#}}}
@@ -304,7 +337,8 @@ class Games::Lacuna::Model::Body::ForeignSS does Games::Lacuna::Model::Body::SSR
             my $for_planet  = Games::Lacuna::Model::Body.new( :planet_hash(%p) );
             my $for_station = Games::Lacuna::Model::Body.new( :station_hash(%s) );
 #}
-class Games::Lacuna::Model::Body {#{{{
+class Games::Lacuna::Model::Body {
+
     multi method new (:$account!, :$body_name!) {#{{{
         return Games::Lacuna::Model::Body::OwnPlanet.new(:$account, :body_id($account.mycolonies<names>{$body_name}))    if $account.mycolonies<names>{$body_name};
         return Games::Lacuna::Model::Body::OwnSS.new(:$account,     :body_id($account.mystations<names>{$body_name}))    if $account.mystations<names>{$body_name};
@@ -324,7 +358,7 @@ class Games::Lacuna::Model::Body {#{{{
         return Games::Lacuna::Model::Body::ForeignSS.new(:%station_hash);
     }#}}}
 
-}#}}}
+}
 
 
 
