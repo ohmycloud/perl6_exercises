@@ -50,16 +50,20 @@ if True {
     my $h = HTML.new;
 
     my $bold = $h.b("This is bold.");
-    say $bold;
+    say $bold;                          # <b>This is bold.</b>
     ''.say;
 
     my $it = $h.i( "This is italicized and heavy.", :attrs({:font_weight('heavy')}) );
-    say $it;
+    say $it;                            # <i font_weight='heavy'>This is italicized and heavy.</i>
     ''.say;
 
     my $para = $h.p( $bold, $it, "This is some paragraph text" );
-    say $para;
+    say $para;                          # <p><b>This is bold.</b><i font_weight='heavy'>This is italicized and heavy.</i>This is some paragraph text</p>
     ''.say;
+
+
+
+
 
 }
 
