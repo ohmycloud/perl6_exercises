@@ -32,6 +32,8 @@ Supplies {#{{{
 
     In my own words (which may not be entirely accurate), a supply feels like 
     a multi-consumer message queue.
+        But then, that's also what Channels look like, so I think I'm wrong 
+        about that for Supplies.
 
     See also the Supplies section from JW's video, notes are below.
 
