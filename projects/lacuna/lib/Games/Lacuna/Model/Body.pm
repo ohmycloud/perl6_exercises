@@ -223,6 +223,7 @@ role Games::Lacuna::Model::Body::OwnBodyRole does Games::Lacuna::Model does Game
             :$.endpoint_name, :method('get_buildings'),
             [$.account.session_id, $.id]
         );
+        die Games::Lacuna::Exception.new(%rv) if %rv<error>;
         %.json = %rv<result><buildings>;
  
         for %.json.kv -> $bldg_id, %hash {

@@ -3,11 +3,22 @@
 
 if True {# {{{
 
-    sub foo (Str $a where {$a.chars >= 3}) {
-        say $a;
+    class MyOne {
+        method foo() {
+            return "this is One.foo";
+        }
     }
 
-    foo('bl');
+    class MyTwo is MyOne {
+        method foo() {
+            #say self.parent;
+            #say self.parents;
+            #my $s = $.parent.foo() ~ " and this is Two.foo";
+        }
+    }
+
+    my $t = MyTwo.new;
+    say $t.foo;
 
 }# }}}
 

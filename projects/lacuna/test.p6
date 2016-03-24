@@ -156,14 +156,13 @@ say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance
 #exit;
 
 ### More body testing
-if True {# {{{
-
+if False {# {{{
 
     ### 
     ### Planets
     ###
-    
-    #my $p = Games::Lacuna::Model::Body.new( :account($a), :body_name('bmots07') );
+    my $p = Games::Lacuna::Model::Body.new( :account($a), :body_name('bmots07') );
+
     #say "{$p.empire.name} is me.  Alignment is '{$p.empire.alignment}'.";     # alignment == 'self'
     #say "{$p.name} has concentrations of {$p.ore<gold>} gold and {$p.ore<bauxite>} bauxite.";
     #say "{$p.name} is under the control of {$p.station.name}." if $p.station;
@@ -195,8 +194,7 @@ if True {# {{{
     ### By coord location (single object)
     #say "Building at (0,0) on {$p.name}:";
     #my $pcc1 = $p.buildings(:x(0), :y(0));
-    #say "\t{$pcc1.name} with ID {$pcc1.id} is at ({$pcc1.x}, {$pcc1.y}) and goes through endpoint {$pcc1.url}.";
-    #''.say;
+    #say "\t{$pcc1.name} with ID {$pcc1.id} is at ({$pcc1.x}, {$pcc1.y}) and goes through url {$pcc1.url}.";
 
     ### By ID (single object)
     #say "Building with ID 804063 on {$p.name}:";
@@ -220,6 +218,32 @@ if True {# {{{
     #say "All buildings on {$s.name}:";
     #for $s.buildings -> $b { say "\t{$b.name} level {$b.level} is at ({$b.x}, {$b.y})."; }
     #''.say;
+
+}# }}}
+
+### Building testing
+if True {   # PCC # {{{
+
+    my $planet  = Games::Lacuna::Model::Body.new( :account($a), :body_name('bmots07') );
+    my $pcc     = $planet.buildings(:x(0), :y(0));
+    my $obj     = $pcc.object();
+
+    #my @plans = $obj.view_plans;
+    #say "PLANS:";
+    #for @plans -> $p {
+    #    say "\t{$p.name}";
+    #}
+    #''.say;
+
+    ### Make sure you've got at least one supply chain inc.
+    #my @chains = $obj.view_incoming_supply_chains;
+    #say "CHAINS:";
+    #for @chains -> $c {
+    #    say "\t{$c.resource_hour.Str} of {$c.resource_type} is incoming from {$c.from_body.name} at {$c.percent_transferred}% efficiency.";
+    #}
+    #''.say;
+
+    say "Cooldown subsidy successful" if $obj.subsidize_pod_cooldown;
 
 }# }}}
 

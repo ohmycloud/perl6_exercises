@@ -2,6 +2,22 @@
 
 - Need to add logging
 
+
+- In Building.pm
+    - role_view needs to create a view object of some sort.
+    - Building classes like the PCC that modify that view need to take that 
+      role_view's object and add stuff to it and then return that.
+
+    - I need a class for every building in the game.
+        - Remember that the classname has to match the building's 'type' 
+          attribute (which is the same as the 'url' attribute without the 
+          leading slash).
+        - The name of that attribute does not necessarily match what's linked 
+          from the docs page (eg "LostCityOfTyleon" is linked, but there are 
+          9 classes involved there - 'lcota', 'lcotb', etc.)
+
+
+
 Classes to add {#{{{
 
     - Empire.pm
