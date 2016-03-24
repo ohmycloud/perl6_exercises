@@ -101,7 +101,7 @@ say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance
 #exit;
 
 ### Get another alliance's profile by ID
-#my $culture = Games::Lacuna::Model::Alliance.new(:account($a), :alliance_id(26));
+#my $culture = Games::Lacuna::Model::Alliance.new(:account($a), :id(26));
 #say "{$culture.name} is described as {$culture.description} and currently exerts {$culture.influence} influence.";
 #say "MEMBERS:";
 #for $culture.members -> $m {
@@ -109,6 +109,22 @@ say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance
 #}
 #say "SSs:";
 #for $culture.space_stations -> $ss {
+#    say "\t{$ss.name} has ID {$ss.id} and lives at ({$ss.x}, {$ss.y}).";
+#}
+#''.say;
+#exit;
+
+### Get another alliance's profile by name
+#my $tu = Games::Lacuna::Model::Alliance.new(:account($a), :name('The Understanding'));      # Full alliance name.  Works
+#my $tu = Games::Lacuna::Model::Alliance.new(:account($a), :name('The Understandin'));       # Partial alliance name, but unambiguous.  Works.
+#my $tu = Games::Lacuna::Model::Alliance.new(:account($a), :name('The'));                    # Partial alliance name, and ambiguous.  Throws exception.
+#say "{$tu.name} is described as {$tu.description} and currently exerts {$tu.influence} influence.";
+#say "MEMBERS:";
+#for $tu.members -> $m {
+#    say "\t{$m.name} has ID {$m.id}.";
+#}
+#say "SSs:";
+#for $tu.space_stations -> $ss {
 #    say "\t{$ss.name} has ID {$ss.id} and lives at ({$ss.x}, {$ss.y}).";
 #}
 #''.say;

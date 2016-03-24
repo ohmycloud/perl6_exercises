@@ -3,16 +3,11 @@
 
 if True {# {{{
 
-    class Jontest {
-        has %.hash;
-
-        method name { say "--{%.hash}--"; %!hash<name> }
+    sub foo (Str $a where {$a.chars >= 3}) {
+        say $a;
     }
 
-
-    my %hash = ( name => 'Jon' );
-    my $j = Jontest.new(:%hash);
-    say $j.name;
+    foo('bl');
 
 }# }}}
 
