@@ -21,13 +21,13 @@ any model that does the Comms role also does the Model role, those models
 I<will> have $.account attributes pointing at GL::Account objects.
 
 So, eg if you're working in the Profile module, instead of calling:
- %!json_parsed   = self.send(
+ %!json   = self.send(
   :$!endpoint_name, :method('view_profile'),
   [$!account.session_id]
  );
 
 You should prefer to make that same call on the Profile's $.account attribute:
- %!json_parsed   = $.account.send(
+ %!json   = $.account.send(
   :$!endpoint_name, :method('view_profile'),
   [$!account.session_id]
  );

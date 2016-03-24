@@ -2,6 +2,9 @@
 
 - Need to add logging
 
+- In the Alliance model, we need a constructor that can find an alliance 
+  profile by name.  Now, we're forced to look them up by ID, which is silly.
+
 Classes to add {#{{{
 
     - Empire.pm

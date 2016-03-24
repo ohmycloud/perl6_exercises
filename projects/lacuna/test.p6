@@ -8,8 +8,8 @@ use Games::Lacuna;
 
 
 my $base_dir        = callframe(0).file.IO.dirname.IO.absolute.IO;
-#my $config_section  = <pt_real>;
-my $config_section  = <pt_sitter>;
+my $config_section  = <pt_real>;
+#my $config_section  = <pt_sitter>;
 #my $config_section  = <us1_sitter>;
 
 
@@ -51,9 +51,9 @@ say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance
 
 ### Get my public profile (23598 is me on PT.)
 #my $pub_profile = Games::Lacuna::Model::Profile.new(:account($a), :empire_id(23598));
-#say "ID: " ~ $pub_profile.id;
-#say "Name: " ~ $pub_profile.name;
-#say "Founded on: " ~ $pub_profile.date_founded.Date;
+#say "ID: {$pub_profile.id}";
+#say "Name: {$pub_profile.name}";
+#say "Founded on: {$pub_profile.date_founded.Date}";
 #say "Most recently logged in: {$pub_profile.last_login.in-timezone(-14400)}.";
 ### Profile.alliance gives full access to the member's alliance object.
 #say "{$pub_profile.name} is a member of {$pub_profile.alliance.name}";
@@ -70,12 +70,12 @@ say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance
 ### I have not done an exhaustive check of all attributes here.  Typos are 
 ### possible.
 #my $priv_profile = Games::Lacuna::Model::Profile.new(:account($a));
-#say $priv_profile.endpoint_name;
-#say $priv_profile.skip_facebook_wall_posts;
-#say $priv_profile.skip_incoming_ships;
-#say $priv_profile.skip_happiness_warnings;
-#say $priv_profile.email;
-#say $priv_profile.sitter_password;
+#say "endpoint name: " ~ $priv_profile.endpoint_name;
+#say "skip facebook? " ~ so $priv_profile.skip_facebook_wall_posts;
+#say "skip incoming? " ~ so $priv_profile.skip_incoming_ships;
+#say "skip happy warn? " ~ so $priv_profile.skip_happiness_warnings;
+#say "email: " ~ $priv_profile.email;
+#say "sitter:  " ~ $priv_profile.sitter_password;
 #say "MEDALS";
 #for $priv_profile.medals -> $m {
 #    if $m.name ~~ m:i/'of the week'/ {
@@ -98,6 +98,7 @@ say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance
 #    say "\t{$ss.name} has ID {$ss.id} and lives at ({$ss.x}, {$ss.y}).";
 #}
 #''.say;
+#exit;
 
 ### Get another alliance's profile by ID
 #my $culture = Games::Lacuna::Model::Alliance.new(:account($a), :alliance_id(26));
@@ -112,6 +113,7 @@ say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance
 #}
 #''.say;
 #exit;
+
 
 
 
@@ -145,9 +147,8 @@ if True {# {{{
     ### Planets
     ###
     
-    my $p = Games::Lacuna::Model::Body.new( :account($a), :body_name('bmots07') );
-    say "{$p.empire.name} is me.  Alignment is '{$p.empire.alignment}'.";     # alignment == 'self'
-
+    #my $p = Games::Lacuna::Model::Body.new( :account($a), :body_name('bmots07') );
+    #say "{$p.empire.name} is me.  Alignment is '{$p.empire.alignment}'.";     # alignment == 'self'
     #say "{$p.name} has concentrations of {$p.ore<gold>} gold and {$p.ore<bauxite>} bauxite.";
     #say "{$p.name} is under the control of {$p.station.name}." if $p.station;
     #unless $p.skip_incoming_ships {
@@ -156,10 +157,10 @@ if True {# {{{
     #        say "Ship {$s.id} will arrive on {$s.date_arrives}.";
     #    }
     #    ### .incoming_own_ships is easiest to test by just sending yourself a 
-    #    ### smuggler, but incoming_enemy_ships and incoming_ally_ships both work 
-    #    ### the same way.
+    #    ### smuggler, but incoming_enemy_ships and incoming_ally_ships both 
+    #    ### work the same way.
     #}
-
+    #''.say;
 
     ###
     ### Several different ways of getting at buildings on the planet
@@ -178,7 +179,7 @@ if True {# {{{
     ### By coord location (single object)
     #say "Building at (0,0) on {$p.name}:";
     #my $pcc1 = $p.buildings(:x(0), :y(0));
-    #say "\t{$pcc1.name} with ID {$pcc1.id} is at ({$pcc1.x}, {$pcc1.y}).";
+    #say "\t{$pcc1.name} with ID {$pcc1.id} is at ({$pcc1.x}, {$pcc1.y}) and goes through endpoint {$pcc1.url}.";
     #''.say;
 
     ### By ID (single object)
@@ -191,19 +192,18 @@ if True {# {{{
     ### 
     ### Stations
     ###
-
-    my $s = Games::Lacuna::Model::Body.new( :account($a), :body_name('SASS bmots 01') );
-    say "{$s.name} is controlled by {$s.alliance.name}.";
-    say "{$s.name} is exerting {$s.influence.spent} of its total {$s.influence.total} influence.";
-    ''.say;
+    #my $s = Games::Lacuna::Model::Body.new( :account($a), :body_name('SASS bmots 01') );
+    #say "{$s.name} is controlled by {$s.alliance.name}.";
+    #say "{$s.name} is exerting {$s.influence.spent} of its total {$s.influence.total} influence.";
+    #''.say;
 
     ### 
     ### We can get the buildings on a station the same way we get the ones on 
     ### a planet.
     ###
-    say "All buildings on {$s.name}:";
-    for $s.buildings -> $b { say "\t{$b.name} level {$b.level} is at ({$b.x}, {$b.y})."; }
-    ''.say;
+    #say "All buildings on {$s.name}:";
+    #for $s.buildings -> $b { say "\t{$b.name} level {$b.level} is at ({$b.x}, {$b.y})."; }
+    #''.say;
 
 }# }}}
 

@@ -3,13 +3,16 @@
 
 if True {# {{{
 
-    my @nums = <1 2 3 4 5>;
-    say @nums;
+    class Jontest {
+        has %.hash;
 
-    my @odd = @nums.grep({$_%2});
-    say @odd;
+        method name { say "--{%.hash}--"; %!hash<name> }
+    }
 
-    say "FooBar".lc;
+
+    my %hash = ( name => 'Jon' );
+    my $j = Jontest.new(:%hash);
+    say $j.name;
 
 }# }}}
 

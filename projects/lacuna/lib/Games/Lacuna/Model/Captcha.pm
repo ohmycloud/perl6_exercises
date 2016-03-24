@@ -51,13 +51,13 @@ class Games::Lacuna::Model::LoggedInCaptcha does Games::Lacuna::Model::CaptchaRo
 
 
     method fetch() {#{{{
-        %!json_parsed   = $.account.send(
+        %!json   = $.account.send(
             :$.endpoint_name, :method('fetch'),
             [$.account.session_id]
         );
-        die Games::Lacuna::Exception.new(%.json_parsed) if %.json_parsed<error>;
-        $!guid          = %.json_parsed<result><guid>;
-        $!image_url     = URI.new( %.json_parsed<result><url> );
+        die Games::Lacuna::Exception.new(%.json) if %.json<error>;
+        $!guid          = %.json<result><guid>;
+        $!image_url     = URI.new( %.json<result><url> );
         my $resp        = $.http_get( $.image_url );
         $!image_content = $resp.body;
     }#}}}
@@ -89,7 +89,7 @@ class Games::Lacuna::Model::LoggedInCaptcha does Games::Lacuna::Model::CaptchaRo
         you'll need to re-call fetch().
     }
     method solve(Str $solution --> Bool) {#{{{
-        %!json_parsed   = $!account.send(
+        %!json   = $!account.send(
             :$.endpoint_name, :method('solve'),
             ($.account.session_id, $.guid, $solution)
         );
@@ -98,7 +98,7 @@ class Games::Lacuna::Model::LoggedInCaptcha does Games::Lacuna::Model::CaptchaRo
         $!image_content = Nil;
         ### The server does not return true or false.  It throws an error if 
         ### the solution is wrong, and returns true if it was correct.
-        return False if %!json_parsed<error>;
+        return False if %!json<error>;
         return True;
     }#}}}
 }#}}}

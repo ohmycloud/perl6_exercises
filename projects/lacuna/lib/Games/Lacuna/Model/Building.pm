@@ -7,10 +7,10 @@ role Games::Lacuna::Model::Building::Working does Games::Lacuna::Model::NonCommM
     has Int $.seconds_remaining;
     has Games::Lacuna::DateTime $.start;
     has Games::Lacuna::DateTime $.end;
-    method new (:%json_parsed)  { self.bless(:%json_parsed); }
-    method seconds_remaining    { return $!seconds_remaining if defined $!seconds_remaining or not defined %.json_parsed<seconds_remaining>; $!seconds_remaining = %.json_parsed<seconds_remaining>.Int; }
-    method start                { return $!start if defined $!start or not defined %.json_parsed<start>; $!start = Games::Lacuna::DateTime.from_tle(%.json_parsed<start>); }
-    method end                  { return $!end if defined $!end or not defined %.json_parsed<end>; $!end = Games::Lacuna::DateTime.from_tle(%.json_parsed<end>); }
+    method new (:%json)  { self.bless(:%json); }
+    method seconds_remaining    { return $!seconds_remaining if defined $!seconds_remaining or not defined %.json<seconds_remaining>; $!seconds_remaining = %.json<seconds_remaining>.Int; }
+    method start                { return $!start if defined $!start or not defined %.json<start>; $!start = Games::Lacuna::DateTime.from_tle(%.json<start>); }
+    method end                  { return $!end if defined $!end or not defined %.json<end>; $!end = Games::Lacuna::DateTime.from_tle(%.json<end>); }
 }#}}}
 role Games::Lacuna::Model::Building::Cost does Games::Lacuna::Model::NonCommModel {#{{{
     has Int $.food      = 0;
@@ -19,13 +19,13 @@ role Games::Lacuna::Model::Building::Cost does Games::Lacuna::Model::NonCommMode
     has Int $.waste     = 0;
     has Int $.ore       = 0;
     has Int $.time      = 0;    # Int seconds
-    method new (:%json_parsed)  { self.bless(:%json_parsed); }
-    method food     { return $!food if defined $!food or not defined %.json_parsed<food>; $!food = %.json_parsed<food>.Int; }
-    method water    { return $!water if defined $!water or not defined %.json_parsed<water>; $!water = %.json_parsed<water>.Int; }
-    method energy   { return $!energy if defined $!energy or not defined %.json_parsed<energy>; $!energy = %.json_parsed<energy>.Int; }
-    method waste    { return $!waste if defined $!waste or not defined %.json_parsed<waste>; $!waste = %.json_parsed<waste>.Int; }
-    method ore      { return $!ore if defined $!ore or not defined %.json_parsed<ore>; $!ore = %.json_parsed<ore>.Int; }
-    method time     { return $!time if defined $!time or not defined %.json_parsed<time>; $!time = %.json_parsed<time>.Int; }
+    method new (:%json)  { self.bless(:%json); }
+    method food     { return $!food if defined $!food or not defined %.json<food>; $!food = %.json<food>.Int; }
+    method water    { return $!water if defined $!water or not defined %.json<water>; $!water = %.json<water>.Int; }
+    method energy   { return $!energy if defined $!energy or not defined %.json<energy>; $!energy = %.json<energy>.Int; }
+    method waste    { return $!waste if defined $!waste or not defined %.json<waste>; $!waste = %.json<waste>.Int; }
+    method ore      { return $!ore if defined $!ore or not defined %.json<ore>; $!ore = %.json<ore>.Int; }
+    method time     { return $!time if defined $!time or not defined %.json<time>; $!time = %.json<time>.Int; }
 }#}}}
 class Games::Lacuna::Model::Building::PendingBuild does Games::Lacuna::Model::Building::Working { }
 class Games::Lacuna::Model::Building::Work does Games::Lacuna::Model::Building::Working { }
@@ -38,10 +38,10 @@ class Games::Lacuna::Model::Building::Downgrade does Games::Lacuna::Model::NonCo
     ### also has a 'reason' attribute, and it's a class, not a string, where 
     ### here we only get a string.  So I'm changing the name to avoid 
     ### confusion.  Hopefully.
-    method can      { return $!can if defined $!can or not defined %.json_parsed<can>; $!can = %.json_parsed<can>.Int.Bool; }
-    method because  { return $!because if defined $!because or not defined %.json_parsed<reason>; $!because = %.json_parsed<reason>; }
-    method image    { return $!image if defined $!image or not defined %.json_parsed<image>; $!image = %.json_parsed<image>; }
-    submethod BUILD (:%!json_parsed) { }
+    method can      { return $!can if defined $!can or not defined %.json<can>; $!can = %.json<can>.Int.Bool; }
+    method because  { return $!because if defined $!because or not defined %.json<reason>; $!because = %.json<reason>; }
+    method image    { return $!image if defined $!image or not defined %.json<image>; $!image = %.json<image>; }
+    submethod BUILD (:%!json) { }
 }#}}}
 class Games::Lacuna::Model::Building::Upgrade does Games::Lacuna::Model::NonCommModel {#{{{
     class Reason {#{{{
@@ -53,7 +53,7 @@ class Games::Lacuna::Model::Building::Upgrade does Games::Lacuna::Model::NonComm
         }
     }#}}}
     class Production {#{{{
-        has %.p;
+        has %.json;
         has Int $.food_hour;
         has Int $.food_capacity;
         has Int $.energy_hour;
@@ -66,40 +66,40 @@ class Games::Lacuna::Model::Building::Upgrade does Games::Lacuna::Model::NonComm
         has Int $.waste_capacity;
         has Int $.happiness_hour;
 
-        method food_hour        { return $!food_hour if defined $!food_hour or not defined %!p<food_hour>; $!food_hour = %!p<food_hour>.Int; }
-        method food_capacity    { return $!food_capacity if defined $!food_capacity or not defined %!p<food_capacity>; $!food_capacity = %!p<food_capacity>.Int; }
-        method energy_hour      { return $!energy_hour if defined $!energy_hour or not defined %!p<energy_hour>; $!energy_hour = %!p<energy_hour>.Int; }
-        method energy_capacity  { return $!energy_capacity if defined $!energy_capacity or not defined %!p<energy_capacity>; $!energy_capacity = %!p<energy_capacity>.Int; }
-        method ore_hour         { return $!ore_hour if defined $!ore_hour or not defined %!p<ore_hour>; $!ore_hour = %!p<ore_hour>.Int; }
-        method ore_capacity     { return $!ore_capacity if defined $!ore_capacity or not defined %!p<ore_capacity>; $!ore_capacity = %!p<ore_capacity>.Int; }
-        method water_hour       { return $!water_hour if defined $!water_hour or not defined %!p<water_hour>; $!water_hour = %!p<water_hour>.Int; }
-        method water_capacity   { return $!water_capacity if defined $!water_capacity or not defined %!p<water_capacity>; $!water_capacity = %!p<water_capacity>.Int; }
-        method waste_hour       { return $!waste_hour if defined $!waste_hour or not defined %!p<waste_hour>; $!waste_hour = %!p<waste_hour>.Int; }
-        method waste_capacity   { return $!waste_capacity if defined $!waste_capacity or not defined %!p<waste_capacity>; $!waste_capacity = %!p<waste_capacity>.Int; }
-        method happiness_hour   { return $!happiness_hour if defined $!happiness_hour or not defined %!p<happiness_hour>; $!happiness_hour = %!p<happiness_hour>.Int; }
+        method food_hour        { return $!food_hour if defined $!food_hour or not defined %!json<food_hour>; $!food_hour = %!json<food_hour>.Int; }
+        method food_capacity    { return $!food_capacity if defined $!food_capacity or not defined %!json<food_capacity>; $!food_capacity = %!json<food_capacity>.Int; }
+        method energy_hour      { return $!energy_hour if defined $!energy_hour or not defined %!json<energy_hour>; $!energy_hour = %!json<energy_hour>.Int; }
+        method energy_capacity  { return $!energy_capacity if defined $!energy_capacity or not defined %!json<energy_capacity>; $!energy_capacity = %!json<energy_capacity>.Int; }
+        method ore_hour         { return $!ore_hour if defined $!ore_hour or not defined %!json<ore_hour>; $!ore_hour = %!json<ore_hour>.Int; }
+        method ore_capacity     { return $!ore_capacity if defined $!ore_capacity or not defined %!json<ore_capacity>; $!ore_capacity = %!json<ore_capacity>.Int; }
+        method water_hour       { return $!water_hour if defined $!water_hour or not defined %!json<water_hour>; $!water_hour = %!json<water_hour>.Int; }
+        method water_capacity   { return $!water_capacity if defined $!water_capacity or not defined %!json<water_capacity>; $!water_capacity = %!json<water_capacity>.Int; }
+        method waste_hour       { return $!waste_hour if defined $!waste_hour or not defined %!json<waste_hour>; $!waste_hour = %!json<waste_hour>.Int; }
+        method waste_capacity   { return $!waste_capacity if defined $!waste_capacity or not defined %!json<waste_capacity>; $!waste_capacity = %!json<waste_capacity>.Int; }
+        method happiness_hour   { return $!happiness_hour if defined $!happiness_hour or not defined %!json<happiness_hour>; $!happiness_hour = %!json<happiness_hour>.Int; }
 
-        method new (:%json_parsed)  { self.bless(:%json_parsed); }
+        method new (:%json)  { self.bless(:%json); }
     }#}}}
 
     has Bool $.can;
     has Reason $.reason;
     has Games::Lacuna::Model::Building::Cost $.cost;
     has Production $.production;
-    method can          { return $!can if defined $!can or not defined %.json_parsed<can>; $!can = %.json_parsed<can>.Int.Bool; }
-    method reason       { return $!reason if defined $!reason or not defined %.json_parsed<reason>; $!reason = Reason.new(%.json_parsed<reason>); }
-    method cost         { return $!cost if defined $!cost or not defined %.json_parsed<cost>; $!cost = Games::Lacuna::Model::Building::Cost.new(%.json_parsed<cost>); }
-    method production   { return $!production if defined $!production or not defined %.json_parsed<production>; $!production = Production.new(%.json_parsed<production>); }
-    submethod BUILD (:%!json_parsed) { }
+    method can          { return $!can if defined $!can or not defined %.json<can>; $!can = %.json<can>.Int.Bool; }
+    method reason       { return $!reason if defined $!reason or not defined %.json<reason>; $!reason = Reason.new(%.json<reason>); }
+    method cost         { return $!cost if defined $!cost or not defined %.json<cost>; $!cost = Games::Lacuna::Model::Building::Cost.new(%.json<cost>); }
+    method production   { return $!production if defined $!production or not defined %.json<production>; $!production = Production.new(%.json<production>); }
+    submethod BUILD (:%!json) { }
 }#}}}
-
 role Games::Lacuna::Model::Building::BuildingRole does Games::Lacuna::Model {#{{{
-    has %.p;                        # convenience -- just %.json_parsed<result><body>.  Handled by BUILD.
     has Int $.id;
     has Str $.name;
     has Str $.image;
     has Int $.level;
     has Int $.x;
     has Int $.y;
+    has Str $.url;          # eg "/apple"
+    has Str $.type;         # derived from $.url; removes the slash.  eg "apple"
     has Int $.food_hour;
     has Int $.food_capacity;
     has Int $.energy_hour;
@@ -119,51 +119,53 @@ role Games::Lacuna::Model::Building::BuildingRole does Games::Lacuna::Model {#{{
     has Games::Lacuna::Model::Building::Downgrade $.downgrade;
     has Games::Lacuna::Model::Building::Upgrade $.upgrade;
 
-    method id               { return $!id if defined $!id or not defined %!p<id>; $!id = %!p<id>.Int; }
-    method name             { return $!name if defined $!name or not defined %!p<name>; $!name = %!p<name>; }
-    method image            { return $!image if defined $!image or not defined %!p<image>; $!image = %!p<image>; }
-    method level            { return $!level if defined $!level or not defined %!p<level>; $!level = %!p<level>.Int; }
-    method x                { return $!x if defined $!x or not defined %!p<x>; $!x = %!p<x>.Int; }
-    method y                { return $!y if defined $!y or not defined %!p<y>; $!y = %!p<y>.Int; }
-    method food_hour        { return $!food_hour if defined $!food_hour or not defined %!p<food_hour>; $!food_hour = %!p<food_hour>.Int; }
-    method food_capacity    { return $!food_capacity if defined $!food_capacity or not defined %!p<food_capacity>; $!food_capacity = %!p<food_capacity>.Int; }
-    method energy_hour      { return $!energy_hour if defined $!energy_hour or not defined %!p<energy_hour>; $!energy_hour = %!p<energy_hour>.Int; }
-    method energy_capacity  { return $!energy_capacity if defined $!energy_capacity or not defined %!p<energy_capacity>; $!energy_capacity = %!p<energy_capacity>.Int; }
-    method ore_hour         { return $!ore_hour if defined $!ore_hour or not defined %!p<ore_hour>; $!ore_hour = %!p<ore_hour>.Int; }
-    method ore_capacity     { return $!ore_capacity if defined $!ore_capacity or not defined %!p<ore_capacity>; $!ore_capacity = %!p<ore_capacity>.Int; }
-    method water_hour       { return $!water_hour if defined $!water_hour or not defined %!p<water_hour>; $!water_hour = %!p<water_hour>.Int; }
-    method water_capacity   { return $!water_capacity if defined $!water_capacity or not defined %!p<water_capacity>; $!water_capacity = %!p<water_capacity>.Int; }
-    method waste_hour       { return $!waste_hour if defined $!waste_hour or not defined %!p<waste_hour>; $!waste_hour = %!p<waste_hour>.Int; }
-    method waste_capacity   { return $!waste_capacity if defined $!waste_capacity or not defined %!p<waste_capacity>; $!waste_capacity = %!p<waste_capacity>.Int; }
-    method happiness_hour   { return $!happiness_hour if defined $!happiness_hour or not defined %!p<happiness_hour>; $!happiness_hour = %!p<happiness_hour>.Int; }
-    method efficiency       { return $!efficiency if defined $!efficiency or not defined %!p<efficiency>; $!efficiency = %!p<efficiency>.Int; }
-    method repair_costs     { return $!repair_costs if defined $!repair_costs or not defined %!p<repair_costs>; $!repair_costs = Games::Lacuna::Model::Building::RepairCosts.new(%!p<repair_costs>); }
-    method pending_build    { return $!pending_build if defined $!pending_build or not defined %!p<pending_build>; $!pending_build = Games::Lacuna::Model::Building::RepairCosts.new(%!p<pending_build>); }
-    method work             { return $!work if defined $!work or not defined %!p<work>; $!work = Games::Lacuna::Model::Building::RepairCosts.new(%!p<work>); }
-    method downgrade        { return $!downgrade if defined $!downgrade or not defined %!p<downgrade>; $!downgrade = Games::Lacuna::Model::Building::RepairCosts.new(%!p<downgrade>); }
-    method upgrade          { return $!upgrade if defined $!upgrade or not defined %!p<upgrade>; $!upgrade = Games::Lacuna::Model::Building::RepairCosts.new(%!p<upgrade>); }
+    method id               { return $!id if defined $!id or not defined %.json<id>; $!id = %.json<id>.Int; }
+    method name             { return $!name if defined $!name or not defined %.json<name>; $!name = %.json<name>; }
+    method image            { return $!image if defined $!image or not defined %.json<image>; $!image = %.json<image>; }
+    method level            { return $!level if defined $!level or not defined %.json<level>; $!level = %.json<level>.Int; }
+    method x                { return $!x if defined $!x or not defined %.json<x>; $!x = %.json<x>.Int; }
+    method y                { return $!y if defined $!y or not defined %.json<y>; $!y = %.json<y>.Int; }
+    method url              { return $!url if defined $!url or not defined %.json<url>; $!url = %.json<url>; }
+    method food_hour        { return $!food_hour if defined $!food_hour or not defined %.json<food_hour>; $!food_hour = %.json<food_hour>.Int; }
+    method food_capacity    { return $!food_capacity if defined $!food_capacity or not defined %.json<food_capacity>; $!food_capacity = %.json<food_capacity>.Int; }
+    method energy_hour      { return $!energy_hour if defined $!energy_hour or not defined %.json<energy_hour>; $!energy_hour = %.json<energy_hour>.Int; }
+    method energy_capacity  { return $!energy_capacity if defined $!energy_capacity or not defined %.json<energy_capacity>; $!energy_capacity = %.json<energy_capacity>.Int; }
+    method ore_hour         { return $!ore_hour if defined $!ore_hour or not defined %.json<ore_hour>; $!ore_hour = %.json<ore_hour>.Int; }
+    method ore_capacity     { return $!ore_capacity if defined $!ore_capacity or not defined %.json<ore_capacity>; $!ore_capacity = %.json<ore_capacity>.Int; }
+    method water_hour       { return $!water_hour if defined $!water_hour or not defined %.json<water_hour>; $!water_hour = %.json<water_hour>.Int; }
+    method water_capacity   { return $!water_capacity if defined $!water_capacity or not defined %.json<water_capacity>; $!water_capacity = %.json<water_capacity>.Int; }
+    method waste_hour       { return $!waste_hour if defined $!waste_hour or not defined %.json<waste_hour>; $!waste_hour = %.json<waste_hour>.Int; }
+    method waste_capacity   { return $!waste_capacity if defined $!waste_capacity or not defined %.json<waste_capacity>; $!waste_capacity = %.json<waste_capacity>.Int; }
+    method happiness_hour   { return $!happiness_hour if defined $!happiness_hour or not defined %.json<happiness_hour>; $!happiness_hour = %.json<happiness_hour>.Int; }
+    method efficiency       { return $!efficiency if defined $!efficiency or not defined %.json<efficiency>; $!efficiency = %.json<efficiency>.Int; }
+    method repair_costs     { return $!repair_costs if defined $!repair_costs or not defined %.json<repair_costs>; $!repair_costs = Games::Lacuna::Model::Building::RepairCosts.new(%.json<repair_costs>); }
+    method pending_build    { return $!pending_build if defined $!pending_build or not defined %.json<pending_build>; $!pending_build = Games::Lacuna::Model::Building::RepairCosts.new(%.json<pending_build>); }
+    method work             { return $!work if defined $!work or not defined %.json<work>; $!work = Games::Lacuna::Model::Building::RepairCosts.new(%.json<work>); }
+    method downgrade        { return $!downgrade if defined $!downgrade or not defined %.json<downgrade>; $!downgrade = Games::Lacuna::Model::Building::RepairCosts.new(%.json<downgrade>); }
+    method upgrade          { return $!upgrade if defined $!upgrade or not defined %.json<upgrade>; $!upgrade = Games::Lacuna::Model::Building::RepairCosts.new(%.json<upgrade>); }
+
+    method type             { return $!type if defined $!type; $!type = $.url.substr(1); }
 
 }#}}}
+
+
 
 class Games::Lacuna::Model::Building::OwnBuilding does Games::Lacuna::Model::Building::BuildingRole {#{{{
-    submethod BUILD (:$!account, :%!json_parsed) {
-        %!p = %!json_parsed
-    }
-
 }#}}}
+
 
 
 #|{
     Factory class.
 
     Depending upon arguments, returns one of:
-        Games::Lacuna::Model::Building  WHAT??????
+        Games::Lacuna::Model::Building::OwnBuilding
 
 #}
 class Games::Lacuna::Model::Building {
 
     multi method new (%data, :$account!) {#{{{
-        return Games::Lacuna::Model::Building::OwnBuilding.new( :$account, :json_parsed(%data) );
+        return Games::Lacuna::Model::Building::OwnBuilding.new( :$account, :json(%data) );
     }#}}}
 
 }

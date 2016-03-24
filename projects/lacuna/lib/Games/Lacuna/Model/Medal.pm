@@ -55,11 +55,11 @@ class Games::Lacuna::Model::Medal does Games::Lacuna::Model::NonCommModel {#{{{
     has Bool $.public;
     has Int $.times_earned;
 
-    method id           { return $!id if defined $!id or not defined %!json_parsed<id>; $!id = %!json_parsed<id>.Int; }
-    method name         { return $!name if defined $!name or not defined %!json_parsed<name>; $!name = %!json_parsed<name>; }
-    method image        { return $!image if defined $!image or not defined %!json_parsed<image>; $!image = %!json_parsed<image>; }
-    method date         { return $!date if defined $!date or not defined %!json_parsed<date>; $!date = Games::Lacuna::DateTime.from_tle(%!json_parsed<date>); }
-    method times_earned { return $!times_earned if defined $!times_earned or not defined %!json_parsed<times_earned>; $!times_earned = %!json_parsed<times_earned>.Int; }
+    method id           { return $!id if defined $!id or not defined %!json<id>; $!id = %!json<id>.Int; }
+    method name         { return $!name if defined $!name or not defined %!json<name>; $!name = %!json<name>; }
+    method image        { return $!image if defined $!image or not defined %!json<image>; $!image = %!json<image>; }
+    method date         { return $!date if defined $!date or not defined %!json<date>; $!date = Games::Lacuna::DateTime.from_tle(%!json<date>); }
+    method times_earned { return $!times_earned if defined $!times_earned or not defined %!json<times_earned>; $!times_earned = %!json<times_earned>.Int; }
 
 =for comment
     %medal<public> is either 0 or 1.  But TLE, for whatever reason, returns 
@@ -68,7 +68,7 @@ class Games::Lacuna::Model::Medal does Games::Lacuna::Model::NonCommModel {#{{{
     Since string zero is now True, we have to cast that <public> value to an 
     Int before checking on its Boolean-ness.
 
-    method public       { return $!public if defined $!public or not defined %!json_parsed<public>; $!public = %!json_parsed<public>.Int.Bool; }
+    method public       { return $!public if defined $!public or not defined %!json<public>; $!public = %!json<public>.Int.Bool; }
 }#}}}
 
 

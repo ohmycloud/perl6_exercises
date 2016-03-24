@@ -8,9 +8,9 @@ class Games::Lacuna::Model::Alliance::Member does Games::Lacuna::Model::NonCommM
     has Int $.id;
     has Str $.name;
 
-    submethod BUILD (:%!json_parsed!) { }
-    method id   { return $!id if defined $!id or not defined %!json_parsed<id>; $!id = %!json_parsed<id>.Int; }
-    method name { return $!name if defined $!name or not defined %!json_parsed<name>; $!name = %!json_parsed<name>; }
+    submethod BUILD (:%!json!) { }
+    method id   { return $!id if defined $!id or not defined %!json<id>; $!id = %!json<id>.Int; }
+    method name { return $!name if defined $!name or not defined %!json<name>; $!name = %!json<name>; }
 }#}}}
 class Games::Lacuna::Model::Alliance::SS does Games::Lacuna::Model::NonCommModel {#{{{
     has Int $.id;
@@ -18,15 +18,14 @@ class Games::Lacuna::Model::Alliance::SS does Games::Lacuna::Model::NonCommModel
     has Int $.x;
     has Int $.y;
 
-    submethod BUILD (:%!json_parsed!) { }
-    method id   { return $!id if defined $!id or not defined %!json_parsed<id>; $!id = %!json_parsed<id>.Int; }
-    method name { return $!name if defined $!name or not defined %!json_parsed<name>; $!name = %!json_parsed<name>; }
-    method x   { return $!x if defined $!x or not defined %!json_parsed<x>; $!x = %!json_parsed<x>.Int; }
-    method y   { return $!y if defined $!y or not defined %!json_parsed<y>; $!y = %!json_parsed<y>.Int; }
+    submethod BUILD (:%!json!) { }
+    method id   { return $!id if defined $!id or not defined %!json<id>; $!id = %!json<id>.Int; }
+    method name { return $!name if defined $!name or not defined %!json<name>; $!name = %!json<name>; }
+    method x   { return $!x if defined $!x or not defined %!json<x>; $!x = %!json<x>.Int; }
+    method y   { return $!y if defined $!y or not defined %!json<y>; $!y = %!json<y>.Int; }
 }#}}}
 
-class Games::Lacuna::Model::Alliance::MyAlliance does Games::Lacuna::Model {#{{{
-    has %.p;                        # convenience -- just %.json_parsed<result><profile>.  Handled by BUILD.
+class Games::Lacuna::Model::Alliance::FullAlliance does Games::Lacuna::Model {#{{{
     has Int $.id;
     has Str $.name;
     has Str $.description;
@@ -50,38 +49,38 @@ class Games::Lacuna::Model::Alliance::MyAlliance does Games::Lacuna::Model {#{{{
         {*};
         $!account       = $account;
         $!endpoint_name = 'alliance';
-        %!json_parsed   = $account.send(
+        my %rv          = $account.send(
             :$!endpoint_name, :method('view_profile'),
             [$account.session_id, $!id]
         );
-        die Games::Lacuna::Exception.new(%!json_parsed) if %!json_parsed<error>;
-        try { %!p = %!json_parsed<result><profile> };
+        die Games::Lacuna::Exception.new(%rv) if %rv<error>;
+        %!json = %rv<result><profile>;
     }#}}}
     multi submethod BUILD (:$account!, :$alliance_id!) {#{{{
-        $!id = $alliance_id;
+        $!id = $alliance_id.Int;
     }#}}}
     multi submethod BUILD (:$account!) {#{{{
         $!id = $account.alliance_id;
     }#}}}
 
-    method id               { return $!id if defined $!id or not defined %!p<id>; $!id = %!p<id>.Int; }
-    method name             { return $!name if defined $!name or not defined %!p<name>; $!name = %!p<name>; }
-    method description      { return $!description if defined $!description or not defined %!p<description>; $!description = %!p<description>; }
-    method leader_id        { return $!leader_id if defined $!leader_id or not defined %!p<leader_id>; $!leader_id = %!p<leader_id>.Int; }
-    method date_created     { return $!date_created if defined $!date_created or not defined %!p<date_created>; $!date_created = Games::Lacuna::DateTime.from_tle(%!p<date_created>); }
-    method influence        { return $!influence if defined $!influence or not defined %!p<influence>; $!influence = %!p<influence>.Int; }
+    method id               { return $!id if defined $!id or not defined %!json<id>; $!id = %!json<id>.Int; }
+    method name             { return $!name if defined $!name or not defined %!json<name>; $!name = %!json<name>; }
+    method description      { return $!description if defined $!description or not defined %!json<description>; $!description = %!json<description>; }
+    method leader_id        { return $!leader_id if defined $!leader_id or not defined %!json<leader_id>; $!leader_id = %!json<leader_id>.Int; }
+    method date_created     { return $!date_created if defined $!date_created or not defined %!json<date_created>; $!date_created = Games::Lacuna::DateTime.from_tle(%!json<date_created>); }
+    method influence        { return $!influence if defined $!influence or not defined %!json<influence>; $!influence = %!json<influence>.Int; }
 
     method members {
-        return @!members if @!members.elems > 0 or not defined %!p<members>;
-        for %!p<members>.values -> %m {
-            @!members.push( Games::Lacuna::Model::Alliance::Member.new(:json_parsed(%m)) );
+        return @!members if @!members.elems > 0 or not defined %!json<members>;
+        for %!json<members>.values -> %m {
+            @!members.push( Games::Lacuna::Model::Alliance::Member.new(:json(%m)) );
         }
         @!members;
     }
     method space_stations {
-        return @!space_stations if @!space_stations.elems > 0 or not defined %!p<space_stations>;
-        for %!p<space_stations>.values -> %s {
-            @!space_stations.push( Games::Lacuna::Model::Alliance::SS.new(:json_parsed(%s)) );
+        return @!space_stations if @!space_stations.elems > 0 or not defined %!json<space_stations>;
+        for %!json<space_stations>.values -> %s {
+            @!space_stations.push( Games::Lacuna::Model::Alliance::SS.new(:json(%s)) );
         }
         @!space_stations;
     }
@@ -90,8 +89,8 @@ class Games::Lacuna::Model::Alliance::MyAlliance does Games::Lacuna::Model {#{{{
 class Games::Lacuna::Model::Alliance::PartialAlliance does Games::Lacuna::Model::NonCommModel {#{{{
     has Int $.id;
     has Str $.name;
-    method id               { return $!id if defined $!id or not defined %!json_parsed<id>; $!id = %!json_parsed<id>.Int; }
-    method name             { return $!name if defined $!name or not defined %!json_parsed<name>; $!name = %!json_parsed<name>; }
+    method id               { return $!id if defined $!id or not defined %.json<id>; $!id = %.json<id>.Int; }
+    method name             { return $!name if defined $!name or not defined %.json<name>; $!name = %.json<name>; }
 }#}}}
 
 #|{
@@ -99,21 +98,25 @@ class Games::Lacuna::Model::Alliance::PartialAlliance does Games::Lacuna::Model:
 
             $some_alliance      = Games::Lacuna::Model::Alliance.new( :$account, :$alliance_id );
             $my_alliance        = Games::Lacuna::Model::Alliance.new( :$account );
-            $partial_alliance   = Games::Lacuna::Model::Alliance.new( :$json_parsed );
+            $partial_alliance   = Games::Lacuna::Model::Alliance.new( :$json );
 
     A partial alliance is just a subset of Alliance-related data that 
     sometimes gets handed back in another request.
 #}
 class Games::Lacuna::Model::Alliance {#{{{
 
+    ### CHECK
+    ### We absolutely need a way to look up an alliance by name, not just 
+    ### their ID.
+
     multi method new (:$account!, :$alliance_id!) {#{{{
-        return Games::Lacuna::Model::MyAlliance.new(:$account, :$alliance_id);
+        return Games::Lacuna::Model::Alliance::FullAlliance.new(:$account, :$alliance_id);
     }#}}}
     multi method new (:$account!) {#{{{
-        return Games::Lacuna::Model::MyAlliance.new(:$account);
+        return Games::Lacuna::Model::Alliance::FullAlliance.new(:$account);
     }#}}}
-    multi method new (:%json_parsed!) {#{{{
-        return Games::Lacuna::Model::Alliance::PartialAlliance.new(:%json_parsed);
+    multi method new (:%json!) {#{{{
+        return Games::Lacuna::Model::Alliance::PartialAlliance.new(:%json);
     }#}}}
  
 }#}}}
