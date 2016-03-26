@@ -1,0 +1,14 @@
+
+Junctions were not covered in the tutorial with the rest of the stuff in ../, 
+but I just found reference to them and this seemed as good a place as any to 
+put my notes.
+
+    https://perl6advent.wordpress.com/2009/12/13/day-13-junctions/
+
+A junction is a variable that can have multiple values.
+
+
+The junctive operations (see test.p6) run in what's called "junctive 
+autothreading".  So junctions thread out on their own for performance.  You 
+don't have to do anything for this to happen.
+
