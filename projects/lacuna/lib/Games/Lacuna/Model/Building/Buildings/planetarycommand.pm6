@@ -4,16 +4,6 @@ use Games::Lacuna::Model::Building::BuildingRole;
 class Games::Lacuna::Model::Building::Buildings::planetarycommand does Games::Lacuna::Model::Building::BuildingRole {
     use Games::Lacuna::Exception;
 
-    method view() {
-        ### I want to be able to call PARENT.view(), but can't figure out how 
-        ### to do that, so I've had to rename the method to "role_view" in the 
-        ### BuildingRole.
-        ###
-        ### PCC gets an additional 'planet' hash added to the view.
-        ### https://us1.lacunaexpanse.com/api/PlanetaryCommand.html#view_%28_session_id%2C_building_id_%29
-        my %rv = $.role_view;
-        say %rv.keys;
-    }
     method view_plans( --> Array ) {#{{{
         use Games::Lacuna::Model::Plan;
         my %rv = $.account.send(

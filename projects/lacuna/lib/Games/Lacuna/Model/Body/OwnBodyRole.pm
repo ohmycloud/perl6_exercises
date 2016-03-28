@@ -108,16 +108,27 @@ role Games::Lacuna::Model::Body::OwnBodyRole does Games::Lacuna::Model does Game
         @!incoming_ally_ships;
     }#}}}
 
-    #|{
-        These always return lists.  Even if you search by name of a unique 
-        building (eg Planetary Command Center), you'll get back an array of 
-        one element.
-            my @all_bldgs   = $p.buildings();                               # Array.
-            my @saws        = $p.buildings('shield against weapons');       # Seq.  Name is case insensitive.
 
-        These always returns single Games::Lacuna::Model::Building::OwnBuilding objects.
-            my $pcc         = $p.buildings( :x(0), :y(0) );
-            my $whatever    = $p.buildings( :id(12345) );
+    ### Both the buildings() and building() return OwnBuilding objects.  These 
+    ### objects contain only general methods common to all buildings.
+    ###
+    ### To get at a building's specific methods (eg the PCC's view_plans() 
+    ### method), you have to first enter() the building:
+    ###         my $pcc     = $planet.building(:name('planetary command center'));
+    ###         my $obj     = $pcc.enter();
+    ###         my @plans   = $obj.view_plans();
+
+
+    #|{
+        These always return Arrays.
+ 
+        Some building types can be built multiple times on a planet (eg space 
+        port, shipyard, etc).  That's what this is for.
+
+        If you're looking for a single unique building (eg the Planetary 
+        Command Center), you want building(), not buildings().
+            my @all_bldgs   = $p.buildings();
+            my @saws        = $p.buildings('shield against weapons');           # name is CI.
     #}
     multi method buildings() {#{{{
         return @!buildings if @!buildings.elems > 0;    # no defined check on %.json<buildings>.
@@ -134,14 +145,32 @@ role Games::Lacuna::Model::Body::OwnBodyRole does Games::Lacuna::Model does Game
         }
         return @!buildings;
     }#}}}
-    multi method buildings(Str $name --> Seq) {#{{{
-        return @.buildings.grep({ $_.name.lc eqv $name.lc });
+    multi method buildings(Str $name --> Array) {#{{{
+        ### grep() returns a sequence.  Put it into an array and return that, 
+        ### for consistency.
+        my @b = @.buildings.grep({ $_.name.lc eqv $name.lc });
     }#}}}
-    multi method buildings(Int :$x!, Int :$y! ) {#{{{
+
+
+    #|{
+        These always returns single Games::Lacuna::Model::Building::OwnBuilding objects.
+            my $pcc         = $p.buildings( :x(0), :y(0) );
+            my $pcc         = $p.buildings( :name('planetary command center') );    # name is CI
+            my $whatever    = $p.buildings( :id(12345) );
+
+        If you search by name for a non-unique building, you're going to get 
+        the first one that shows up, which may not be the one you want:
+            my $saw         = $p.buildings( :name('shield against weapons') );    # Some saw, who knows which one.
+
+    #}
+    multi method building(Int :$x!, Int :$y! ) {#{{{
         return @.buildings.grep({ $_.x eqv $x && $_.y eqv $y })[0];
     }#}}}
-    multi method buildings(Int :$id! ) {#{{{
+    multi method building(Int :$id! ) {#{{{
         return @.buildings.grep({ $_.id eqv $id })[0];
+    }#}}}
+    multi method building(Str :$name) {#{{{
+        return @.buildings.grep({ $_.name.lc eqv $name.lc })[0];
     }#}}}
  
 

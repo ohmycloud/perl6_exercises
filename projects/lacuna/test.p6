@@ -225,15 +225,10 @@ if False {# {{{
 if True {   # PCC # {{{
 
     my $planet  = Games::Lacuna::Model::Body.new( :account($a), :body_name('bmots07') );        # cannot create an instance of this type...
-    say $planet.name;
-
-    my $pcc     = $planet.buildings(:x(0), :y(0));
+    my $pcc     = $planet.building(:name('planetary command center'));
     say "{$pcc.name} with ID {$pcc.id} is at ({$pcc.x}, {$pcc.y}) and goes through url {$pcc.url}.";
-    exit;
 
-
-
-    #my $obj     = $pcc.object();
+    my $obj     = $pcc.enter();
 
     #my @plans = $obj.view_plans;
     #say "PLANS:";
@@ -243,14 +238,12 @@ if True {   # PCC # {{{
     #''.say;
 
     ### Make sure you've got at least one supply chain inc.
-    #my @chains = $obj.view_incoming_supply_chains;
-    #say "CHAINS:";
-    #for @chains -> $c {
-    #    say "\t{$c.resource_hour.Str} of {$c.resource_type} is incoming from {$c.from_body.name} at {$c.percent_transferred}% efficiency.";
-    #}
-    #''.say;
-
-    #say "Cooldown subsidy successful" if $obj.subsidize_pod_cooldown;
+    my @chains = $obj.view_incoming_supply_chains;
+    say "CHAINS:";
+    for @chains -> $c {
+        say "\t{$c.resource_hour.Str} of {$c.resource_type} is incoming from {$c.from_body.name} at {$c.percent_transferred}% efficiency.";
+    }
+    ''.say;
 
 }# }}}
 

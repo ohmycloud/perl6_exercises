@@ -7,19 +7,14 @@
 
 
 
-Only GL::Account does Comms now.  GL::Model no longer does Comms.
+See
+    - test.p6
+    - Model/Buildings/Buildings.pm6 (this contains comments about the problem)
+
+    It looks like I can only have so many "use" statements in a given module?
 
 
 
-
-- I'm having a tough time breaking Building.pm out into constituent modules.  
-  I put everything back (into the single Building.pm), and test.p6 now works 
-  again.
-    - But I really need to get that broken out.
-    - While working on that, see Body/OwnBodyRole.  It's creating a Body 
-      object, which is part of what's causing the problem.  It might be worth 
-      creating a temporary Body class actually inside OwnBodyRole until I can 
-      get the Building stuff straightened out.
 
 
 

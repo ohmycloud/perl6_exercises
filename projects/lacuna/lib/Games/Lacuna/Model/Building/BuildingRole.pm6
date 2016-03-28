@@ -62,19 +62,6 @@ role Games::Lacuna::Model::Building::BuildingRole does Games::Lacuna::Model {
 
     method type             { return $!type if defined $!type; $!type = $.url.substr(1); }
 
-    method role_view( --> Hash ) {
-        ### CHECK
-        ### view() returns a big nasty hash that I could spend the time 
-        ### turning into something more object-y, but which I haven't bothered 
-        ### with yet.
-        my %rv = $.account.send(
-            :endpoint_name($.type), :method('view'),
-            [$.account.session_id, $.id]
-        );
-        die Games::Lacuna::Exception.new(%rv) if %rv<error>;
-        %rv<result>;
-    }
-
 }
 
 
