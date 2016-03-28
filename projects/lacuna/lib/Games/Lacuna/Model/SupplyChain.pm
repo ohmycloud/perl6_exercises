@@ -1,5 +1,5 @@
 
-use Games::Lacuna::Model;
+use Games::Lacuna::Model::NonCommModel;
 
 ### CHECK
 ###

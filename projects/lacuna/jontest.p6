@@ -3,22 +3,17 @@
 
 if True {# {{{
 
-    class MyOne {
-        method foo() {
-            return "this is One.foo";
-        }
-    }
+use lib 'lib';
 
-    class MyTwo is MyOne {
-        method foo() {
-            #say self.parent;
-            #say self.parents;
-            #my $s = $.parent.foo() ~ " and this is Two.foo";
-        }
-    }
+use Games::Lacuna::Model::Body;
+use Games::Lacuna::Model::Body::OwnPlanet;
+use Games::Lacuna::Model::Body::ForeignPlanet;
 
-    my $t = MyTwo.new;
-    say $t.foo;
+my $jontest = Games::Lacuna::Model::Body::Foo.new( :body_name('bmots07') );
+say $jontest.body_name; exit;
+
+say "foo";
+
 
 }# }}}
 

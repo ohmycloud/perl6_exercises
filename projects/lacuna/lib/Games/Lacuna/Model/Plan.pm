@@ -1,5 +1,5 @@
 
-use Games::Lacuna::Model;
+use Games::Lacuna::Model::NonCommModel;
 
 class Games::Lacuna::Model::Plan does Games::Lacuna::Model::NonCommModel {#{{{
     has Int $.quantity;

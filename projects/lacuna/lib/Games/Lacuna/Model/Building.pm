@@ -2,6 +2,14 @@
 use Games::Lacuna::Exception;
 use Games::Lacuna::DateTime;
 use Games::Lacuna::Model;
+use Games::Lacuna::Model::NonCommModel;
+
+use Games::Lacuna::Model::Building::OwnBuilding;
+
+#`{
+
+
+
 
 role Games::Lacuna::Model::Building::Working does Games::Lacuna::Model::NonCommModel {#{{{
     has Int $.seconds_remaining;
@@ -229,6 +237,7 @@ class Games::Lacuna::Model::Building::OwnBuilding does Games::Lacuna::Model::Bui
 }#}}}
 
 
+#}
 
 
 

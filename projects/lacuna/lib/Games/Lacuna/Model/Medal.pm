@@ -1,6 +1,6 @@
 
 use Games::Lacuna::DateTime;
-use Games::Lacuna::Model;
+use Games::Lacuna::Model::NonCommModel;
 
 =begin pod
 

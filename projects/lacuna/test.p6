@@ -224,9 +224,16 @@ if False {# {{{
 ### Building testing
 if True {   # PCC # {{{
 
-    my $planet  = Games::Lacuna::Model::Body.new( :account($a), :body_name('bmots07') );
+    my $planet  = Games::Lacuna::Model::Body.new( :account($a), :body_name('bmots07') );        # cannot create an instance of this type...
+    say $planet.name;
+
     my $pcc     = $planet.buildings(:x(0), :y(0));
-    my $obj     = $pcc.object();
+    say "{$pcc.name} with ID {$pcc.id} is at ({$pcc.x}, {$pcc.y}) and goes through url {$pcc.url}.";
+    exit;
+
+
+
+    #my $obj     = $pcc.object();
 
     #my @plans = $obj.view_plans;
     #say "PLANS:";
@@ -243,7 +250,7 @@ if True {   # PCC # {{{
     #}
     #''.say;
 
-    say "Cooldown subsidy successful" if $obj.subsidize_pod_cooldown;
+    #say "Cooldown subsidy successful" if $obj.subsidize_pod_cooldown;
 
 }# }}}
 
