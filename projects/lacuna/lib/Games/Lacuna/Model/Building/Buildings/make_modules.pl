@@ -1,9 +1,8 @@
 #!/usr/bin/env perl
 
-my @mods = qw(
-    algae
-    apple
-    atmosphericevaporator
+use v5.10;
+
+my @beach = qw(
     beach1
     beach2
     beach3
@@ -17,6 +16,11 @@ my @mods = qw(
     beach11
     beach12
     beach13
+);
+my @boring = qw(
+    algae
+    apple
+    atmosphericevaporator
     bean
     beeldeban
     bread
@@ -47,15 +51,6 @@ my @mods = qw(
     lagoon
     lake
     lapis
-    lcota
-    lcotb
-    lcotc
-    lcotd
-    lcote
-    lcotf
-    lcotg
-    lcoth
-    lcoti
     luxuryhousing
     malcud
     metaljunkarches
@@ -66,7 +61,6 @@ my @mods = qw(
     pancake
     pie
     pilottraining
-    planetarycommand
     propulsion
     pyramidjunksculpture
     ravine
@@ -97,6 +91,19 @@ my @mods = qw(
     waterreclamation
     waterstorage
     wheat
+);
+my @lcot = qw(
+    lcota
+    lcotb
+    lcotc
+    lcotd
+    lcote
+    lcotf
+    lcotg
+    lcoth
+    lcoti
+);
+my @callable = qw(
     archaeology
     capitol
     development
@@ -111,6 +118,7 @@ my @mods = qw(
     network19
     observatory
     park
+    planetarycommand
     security
     shipyard
     spaceport
@@ -118,10 +126,14 @@ my @mods = qw(
     themepark
     trade
     transporter
+);
+my @training = qw(
     inteltraining
     mayhemtraining
     politicstraining
     thefttraining
+);
+my @glyph = qw(
     algaepond
     amalgusmeadow
     beeldebannest
@@ -147,6 +159,8 @@ my @mods = qw(
     templeofthedrajilites
     thedillonforge
     volcano
+);
+my @ss = qw(
     artmuseum
     culinaryinstitute
     ibs
@@ -156,15 +170,35 @@ my @mods = qw(
     stationcommand
     warehouse
 );
+my @all = ( @beach, @boring, @lcot, @callable, @training, @glyph, @ss );
 
-for my $m(@mods) {
-    make_module($m);
-}
+#for my $m(@all) { make_module($m); }
+
+make_group_module('Beach.pm6', @beach);
+make_group_module('Boring.pm6', @boring);
+make_group_module('LCOT.pm6', @lcot);
+make_group_module('Callable.pm6', @callable);
+make_group_module('Training.pm6', @training);
+make_group_module('Glyph.pm6', @glyph);
+make_group_module('SS.pm6', @ss);
 
 
 
+sub make_group_module {#{{{
+    my $file_name   = shift;
+    my @classes     = @_;
 
-sub make_module {
+    open my $g, '>', $file_name or die $!;
+    say $g "use Games::Lacuna::Model::Building::BuildingRole;";
+    say $g '';
+    for my $c(@classes) {
+        say $g "class Games::Lacuna::Model::Building::Buildings::$c does Games::Lacuna::Model::Building::BuildingRole {}";
+    }
+    say $g '';
+    close $g;
+
+}#}}}
+sub make_module {#{{{
     my $m = shift;
 
     open my $f, '>', "$m.pm6" or die $!;
@@ -173,9 +207,5 @@ use Games::Lacuna::Model::Building::BuildingRole;
 class Games::Lacuna::Model::Building::Buildings::$m does Games::Lacuna::Model::Building::BuildingRole {}
     ";
     close $m;
-}
-
-
-
-
+}#}}}
 

@@ -7,12 +7,42 @@
 
 
 
-See
-    - test.p6
-    - Model/Buildings/Buildings.pm6 (this contains comments about the problem)
+I'm to the point of wanting to include a separate class for each building in 
+the game.  But what's happening is that I can only use X number of classes.
 
-    It looks like I can only have so many "use" statements in a given module?
+I create all the building classes (2 lines of code each), and then use a 
+loader module (Buildings.pm6) to load in all of those classes.  I've had to go 
+through that loading module and comment out "use" lines.  I've found that 
+there's a point where I can run the test.p6 code fine.  But if I uncomment one 
+more "use" line, test.p6 blows up with:
+    You cannot create an instance of this type
+      in block <unit> at ./test.p6 line 227
 
+Line 227 is
+    my $planet = Games::Lacuna::Model::Body.new( :account($a), :body_name('bmots07') );
+
+I've tried:
+    - Breaking up Buildings.pm6 into multiple smaller group loader modules 
+      (one for SS modules, one for LCOTs, one for callable buldings, etc - 
+      this is the state the code is in now), and then having Buildings.pm6 
+      itself load those sub loader modules.  Same problem.
+    - I got the code to the point of "one more 'use' statement blows shit up".  
+      I then uncommented one more 'use' statement, but changed the namespace 
+      of the class it was declaring to BuildingsFoo::modulename.pm6.  Same 
+      problem.
+    - I just updated to the 2016.03 version of Rakudo, but the results are 
+      exactly the same.
+    
+
+I could try and reduce the number of classes - do something other than 
+one-class-per-building, but that'd be a bandaid workaround.  The problem is 
+that I don't understand why p6 balks at too many 'use' statements.  I'm hoping 
+it's just an implementation bug.
+
+Another option is to get rid of all of the classes listed in Boring.pm6.  
+Those are building classes that don't do anything past what a regular Building 
+does.  Again, this is a bandaid to fix a problem that shouldn't be happening, 
+but I would like to get this working.
 
 
 

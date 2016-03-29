@@ -43,6 +43,10 @@ INSTALLING {#{{{
     I didn't want to go with the Ubuntu package, figuring it'd probably be 
     out-of-date (most Rakudo docs seem to support that idea).
 
+    Rakudo is the compiler.  Rakudo Star is the distribution, which includes 
+    the compiler and "additional resources including a selection of modules".
+
+
     Rakudobrew {#{{{
 
         https://github.com/tadzik/rakudobrew
@@ -105,27 +109,36 @@ INSTALLING {#{{{
     }#}}}
     Star {#{{{
 
+        - I keep /home/jon/.rakudo/ as a symlink to whichever version of 
+          Rakudo I want to use.
+
+
         - Download the latest from
                 http://rakudo.org/downloads/star/
             - Just download it to your home directory and untar it right 
               there.
-        - If ~/.rakudo exists, back it up.
-        - Move the un-tarred rakudo-star-yyyy.mm dir to ~/.rakudo/
 
         - Do the following:
-            $ cd ~/.rakudo/
-            $ perl Configure.pl --backend=moar --gen-moar
-                - Took 1-2 minutes on samwise, 1 minute on gandalf
-                - Some warnings/errors will probably occur.  That's OK, let it 
-                  go.
+            $ cd into the newly-untarred directory
+            $ perl Configure.pl --prefix=/home/jon/.rakudo<VERSION> --gen-moar
             $ make
                 - ~4 minutes on samwise, 1:30 on gandalf
             $ make install
-                - This doesn't just install, it also goes on to (presumably, 
-                  download first, and then) compile a bunch of modules (p6 
-                  core, maybe?).
-                - ~5 minutes on gandalf
+                - If installing Rakudo Star, this installs the compiler, then 
+                  goes on to download and compile a bunch of modules as well.
+                - ~5 minutes on gandalf for star, a few seconds for plain 
+                  Rakudo.
 
+
+        - If you installed straight Rakudo, and not Rakudo Star, you're going 
+          to need to install various prereq libraries.  Normally you'd use 
+          panda for that, but you haven't got panda installed at this point 
+          either.  So, to install panda:
+            - cd ~/work/rakudo/panda
+                - I've already cloned the panda repo from 
+                  https://github.com/tadzik/panda
+            - git pull origin master
+            - perl6 bootstrap.pl
 
         - My config.fish file has that ~/.rakudo/ dir in its PATH
             - There are actually 2 subdirs that need to be in the PATH; 

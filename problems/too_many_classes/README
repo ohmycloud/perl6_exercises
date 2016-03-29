@@ -1,0 +1,9 @@
+
+
+This is an attempt to replicate (more simply) the problem I'm having in my 
+Lacuna client with loading too many classes.
+
+So far, I haven't been able to get this to blow up.  I ran it with 1000 loaded 
+classes, but with 5000 it was taking to long and I eventually sent a sigint.
+
+
