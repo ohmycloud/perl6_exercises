@@ -4,8 +4,13 @@ use v5.10;
 
 
 
-my $max = 1000;
-make_modules($max);
+#my $max = 1000;
+#make_modules($max);
+
+
+
+### clean up after yourself
+#del_modules();
 
 
 sub make_modules {#{{{
@@ -24,5 +29,9 @@ sub make_modules {#{{{
     }
     close $g;
 
+}#}}}
+sub del_modules {#{{{
+    unlink for glob("lib/Loader/*.pm6");
+    say "Don't forget to remove the 'use' statements from lib/Loader.pm6.";
 }#}}}
 
