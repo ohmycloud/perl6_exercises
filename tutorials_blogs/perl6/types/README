@@ -1,0 +1,179 @@
+
+http://blogs.perl.org/users/zoffix_znet/2016/04/perl-6-types-made-for-humans.html
+
+Gradual Typing {#{{{
+    
+    Your code can use types or not; up to you.  Using type declarations once 
+    does not commit you to using them from then on.
+
+            my $a           = 'foo';
+            my Str $b       = 'bar';
+            my Str:_ $c     = 'baz';
+            my Str:D $d     = 'baz';
+            my Str:U $e;
+
+    All of those declarations can be used in your program in whatever order 
+    you want.
+
+}#}}}
+Smileys {#{{{
+
+        "Smileys" get tacked on after the declaration
+            my Str:_ $c     = 'baz';        # Default - same as not using a smiley at all.
+            my Str:D $d     = 'baz';        # String; must be defined
+            my Str:U $e;                    # String; must be undefined
+
+        so...
+            $e = 'blarg';
+        produces an error.  So I'm not real sure why you'd want to use that 
+        "must be undefined" smiley.
+    
+}#}}}
+Built-in and Native types {#{{{
+
+    Native types should reduce memory usage and increase performance.
+
+    
+    Most of my tutorial code that uses types uses built-in types
+            my Str $a = 'foo';
+            my Int $b = 3;
+        etc.
+
+    But you can also use C-style native types
+            my int $a = 3;
+
+        Other available native types:
+            int, int8, int16, int32, int64,  uint, uint8, uint16, uint32, 
+            uint64, num, num32, num64
+
+        Types with numbers (eg int8, int16) indicate available bits.  
+        Numberless types (eg int, num) are platform-independent.
+
+    Zoffix says that there are some sub-byte types (int1, int2, int4) planned 
+    for future implementation but he doesn't say what exactly they will be.
+
+
+    To get an idea of what kinds of performance improvements you can get using 
+    native types:
+
+            my Int $x = 0;                  # Built-in Int
+            $x++ while $x < 30000000;
+            say now - INIT now;             # 3.44146994
+
+
+            my int $y = 0;                  # Native int
+            $y++ while $y < 30000000;
+            say now - INIT now;             # 0.1621305
+
+        That's a big difference.
+                
+
+}#}}}
+Subsets - User-defined types {#{{{
+    
+    These live somewhere between built-in types that don't quite do what you 
+    want and Classes that are heavier than what you need.
+
+            subset Prime of Int where *.is-prime;
+            my Prime $x = 3;        # Fine
+            my Prime $x = 4;        # GONNNNG - Type check failed in assignment
+
+        Don't actually use this subset btw.  It's here to make a point, not to 
+        be good code.
+            subset Password of Str where { .chars >= 8 and m/<[A..Z]>/ and m/<[!@#$%^&*()]>/ }
+            my Password $a;
+            $a = 'foo';             # GONNNNG - Type check failed
+            $a = 'foobarbaz';       # GONNNNG - Type check failed
+            $a = 'foobarbazA';      # GONNNNG - Type check failed
+            $a = 'foobarbazA!';     # Huzzah!
+
+
+
+    This next thing isn't really a type at all, but a way of using multi subs 
+    to test a variable.
+
+    I've played with "multi" before, but always "multi sub" or "multi method".  
+    Looks like you can use "multi" by itself and my guess is that it defaults 
+    to "sub".
+        multi Prime (Int $ where *.is-prime --> 'Yup' ) {}
+        multi Prime (Any                    --> 'Nope') {}
+
+        say Prime 3;        # Yup
+        say Prime 4;        # Nope
+        say Prime 'foo';    # Nope
+
+}#}}}
+Better error messages {#{{{
+    
+    So far, any time we assign to one of our custom types, we get the same 
+    error message.
+
+    For our complicated Password type, this may not be helpful:
+        Type check failed in assignment to $a; expected Password but got Str 
+        ("foo")
+
+
+
+    OK, so which rule did our assignment break?  Our Password type is complex, 
+    so make it clearer what broke:
+
+            subset Password of Str where {
+                    (.chars >= 8 or warn "Must be 8 or more characters")
+                and (m/<[A..Z]>/ or warn "Must include a capital letter" )
+                and (m/<[!@#$%^&*()]>/ or warn "Must include a special character" )
+            }
+
+            my Password $a;
+            $a = 'foo';             # Must be 8 or more characters
+            $b = 'foobarbaz';       # Must include a capital letter
+            $c = 'foobarbazA';      # Must include a special character
+            $d = 'foobarbazA!';     # Huzzah!
+
+    Chaining all of the individual where clauses together in a single 
+    expression with booleans like that short-circuits at the first failure so 
+    we don't get all of the warnings, just the first one.
+    
+        So this:
+            my Password $a = 'foo';
+
+        Produces just this:
+            Must be 8 or more characters  in block  at ./test.p6 line 5
+            Type check failed in assignment to $a; expected Password but got Str ("foo")
+              in block <unit> at ./test.p6 line 15
+
+
+
+    If we wanted _all_ of the messages that apply, just use separate 
+    expressions:
+            subset Password of Str where {
+                .chars >= 8 or warn "Must be 8 or more characters";
+                m/<[A..Z]>/ or warn "Must include a capital letter";
+                m/<[!@#$%^&*()]>/ or warn "Must include a special character";
+            }
+
+        So this:
+            my Password $a = 'foo';
+
+        Produces all of this:
+            Must be 8 or more characters  in block  at ./test.p6 line 5
+            Must include a capital letter  in block  at ./test.p6 line 6
+            Must include a special character  in block  at ./test.p6 line 7
+            Type check failed in assignment to $a; expected Password but got Str ("foo")
+              in block <unit> at ./test.p6 line 15
+
+
+}#}}}
+Pack it all up {#{{{
+    
+    Stick all of your types into a module (eg MyTypes.pm):
+            unit module MyTypes;
+            subset Prime of Int where *.is-prime;
+            subset Password of Str where { .chars >= 8 and m/<[A..Z]>/ and m/<[!@#$%^&*()]>/ }
+
+    Elsewhere...
+            use MyTypes;
+            my Password $luggage = 'OneTwoThreeFourFive!';
+            my Prime    $three   = 3;
+
+}#}}}
+

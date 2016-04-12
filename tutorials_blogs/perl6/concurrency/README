@@ -63,6 +63,27 @@ Low-level APIs {#{{{
     probably won't bother making a test script, but do want to at least read 
     the section once so it's been pasteurized.
 }#}}}
+Hyper Sequences (Thread a regular loop) {#{{{
+
+    This was tacken from Zoffix's blog
+        http://blogs.perl.org/users/zoffix_znet/2016/04/perl-6-is-slower-than-my-fat-momma.html
+
+    Docs on .race
+        http://docs.perl6.org/routine/race
+
+    These are very easy to implement. They take a regular loop and thread the 
+    thing.  See ./hyper_sequence.p6
+
+    .race() used in that code is an Iterable method.  It does not 
+    (necessarily) preserve order.  The simple example in ./hyper_sequence.p6 
+    implies that it does, but if you increase the number of things you're 
+    iterating over and increase the batch size, you'll get output out of 
+    order.
+
+    The .race docs indicate that .hyper (http://docs.perl6.org/routine/hyper) 
+    does preserve order.  Use whichever makes sense.
+
+}#}}}
 
 
 ### Info from places other than the tut

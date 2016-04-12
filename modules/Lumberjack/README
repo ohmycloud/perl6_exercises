@@ -1,0 +1,18 @@
+
+Another logging framework.
+
+INSTALLING {#{{{
+    - panda install Lumberjack
+        - This failed.
+        - In checking the errors, it complained about missing Staticish.
+
+    - panda install Staticish
+        - This worked fine.
+
+    - panda install Lumberjack
+        - This time, it worked fine.
+
+    It looks like some part of the panda environment needs some work with re: 
+    prereqs.  But not the end of the world.
+}#}}}
+
