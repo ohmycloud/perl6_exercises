@@ -1,0 +1,24 @@
+
+
+
+
+
+INSTALL {#{{{
+
+    Requires libncurses.so in /usr/lib.  At work, all I had to do was
+        panda install NCurses
+
+    But it's likely I'd already installed libncurses at some point in the 
+    past.  So if the panda install above doesn't work, start with
+        sudo apt-get install libncurses5
+
+    and then panda update and try the panda install again.
+
+
+
+    If you've got libncurses.so on your machine somewhere other than /usr/lib, 
+    you can specify its location by setting PERL6_NCURSES_LIB env var.
+
+}#}}}
+
+

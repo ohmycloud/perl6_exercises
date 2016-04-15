@@ -21,7 +21,6 @@ versions of the basic immutable types.
 
 Constructor versus Coercer {# {{{
 
-
     I originally had a note here stating that the constructors were broken, 
     but I was just mis-understanding them.  They work fine:
             my $sh = SetHash.new( 'red', 'green', 'blue', 'red', 'red');
@@ -83,8 +82,6 @@ Set/SetHash (no dupes, no order, "is it in there?") {# {{{
     is to be able to say "is red one of your favorite colors?".  We don't care 
     how often it's listed.
 
-
-
             my $fav_colors = Set.new( 'red', 'green', 'blue', 'red', 'red' );
             say $fav_colors;        # set(red, green, blue)
 
@@ -128,7 +125,6 @@ Set/SetHash (no dupes, no order, "is it in there?") {# {{{
             ).SetHash;
 
             say $one<red>;          # True
-
 
     You cannot get the original hex code back out of the SetHash.  But the 
     more I look at that example, the more I think it's completely fucking 
