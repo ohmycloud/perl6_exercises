@@ -1,7 +1,7 @@
 
-
-
-
+There's very little documentation along with this module.  The module code 
+itself is serving as my docs:
+    https://github.com/azawawi/perl6-ncurses/blob/master/lib/NCurses.pm6
 
 INSTALL {#{{{
 
@@ -20,5 +20,4 @@ INSTALL {#{{{
     you can specify its location by setting PERL6_NCURSES_LIB env var.
 
 }#}}}
-
 

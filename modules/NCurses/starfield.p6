@@ -2,12 +2,6 @@
 
 use NCurses;
 
-use lib 'lib';
-use Star;
-
-
-
-
 =begin pod
 
     The original code also use the straight for loop
@@ -22,13 +16,11 @@ use Star;
     visual difference between the standard for loop and the threaded one.
 
 
-
     If the user re-sizes the screen after starting the program, nothing is 
     currently being done to change $max_x or $max_y.  In a perfect world, we'd 
     deal with that.
         Actually, when I resize my term, the program sees that as keyboard 
         input (huzzuh?) and ends.
-
 
 
     Also, once a star is created, its speed is set and never changes.  So two 
@@ -40,7 +32,25 @@ use Star;
 
 constant numstars   = 100;
 constant sleeptime  = .05;
+constant max-speed = 4;
 
+class Star {# {{{
+    has Int $.max_x;
+    has Int $.max_y;
+    has Int $.x;
+    has Int $.y;
+    has Int $.speed;
+
+    submethod BUILD(:$!max_x, :$!max_y) {
+        $!x     = (^$!max_x).pick;          # random x from 0 to < screen-x
+        $!y     = (^$!max_y).pick;          # random y from 0 to < screen-y
+        $!speed = (1 .. max-speed).pick;    # random speed from 1 to max-speed (inclusive)
+    }
+
+    method move {
+        $!x = ($!x >= $!speed) ?? $!x - $!speed !! $.max_x;
+    }
+}# }}}
 
 
 
