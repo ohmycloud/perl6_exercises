@@ -49,6 +49,8 @@ INSTALLING {#{{{
 
     Rakudobrew {#{{{
 
+        I've stopped using this.  Skip down to the Star section below.
+
         https://github.com/tadzik/rakudobrew
 
         $ git clone git@github.com:tadzik/rakudobrew.git ~/.rakudobrew
@@ -118,9 +120,18 @@ INSTALLING {#{{{
             - Just download it to your home directory and untar it right 
               there.
 
+        - Back up your existing rakudo
+            - cd ~
+            - rm -rf .rakudoBAK (if one exists)
+            - mv .rakudo .rakudoBAK
+
         - Do the following:
-            $ cd into the newly-untarred directory
-            $ perl Configure.pl --prefix=/home/jon/.rakudo<VERSION> --gen-moar
+            - Download (right into your home directory) the latest from
+                    http://rakudo.org/downloads/star/
+            - Untar the archive, and rename the resulting directory from 
+              "rakudo-star-<VERSION>" to just ".rakudo/"
+            $ cd .rakudo
+            $ perl Configure.pl --prefix=/home/jon/.rakudo --gen-moar
             $ make
                 - ~4 minutes on samwise, 1:30 on gandalf
             $ make install
@@ -128,6 +139,21 @@ INSTALLING {#{{{
                   goes on to download and compile a bunch of modules as well.
                 - ~5 minutes on gandalf for star, a few seconds for plain 
                   Rakudo.
+
+        - Other modules not included in Star that I use in various places.
+            - First, update panda with
+                $ panda update
+            - Now, install modules with "panda install <modulename>".
+                - Config::Simple    (lacuna)
+                    - This depends on Data::Dump, which is failing its test 
+                      suite 04/2016.  I installed Config::Simple in my 
+                      previous versions of rakudo, so something has changed.
+                    - So I installed Data::Dump with no tests
+                        $ panda --notests install Data::Dump
+                            - Yes, the args have to be in that fucked up 
+                              order.
+                    - After forcing Data::Dump, installing Config::Simple 
+                      still failed.
 
 
         - If you installed straight Rakudo, and not Rakudo Star, you're going 
