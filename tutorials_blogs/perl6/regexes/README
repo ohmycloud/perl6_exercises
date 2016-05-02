@@ -220,6 +220,18 @@ Unicode properties {#{{{
     There's a nice long list of unicode properties at
         http://doc.perl6.org/language/regexes#Unicode_properties
 
+    But here are a few:
+        <:N>        Number
+        <:Nd>       Number, digit   (unclear how this differs from <:N>)
+        <:Lu>       Letter, uppercase
+        <:Ll>       Letter, lowercase
+        <:P>        Punctuation
+        <:Pd>       Punctuation, dash
+        <:Ps>       Punctuation, open   ('s'tart)   (eg left paren, left brace, etc)
+        <:Pe>       Punctuation, closed ('e'nd)     (eg right paren, right brace, etc)
+        <:S>        Symbol
+        <:Sc>       Symbol, currency ($, €, £)
+
     For eg, the unicode property "Lu" matches an uppercase letter, and would 
     be used like this:
             say "a" ~~ / <:Lu> /;       # Nil

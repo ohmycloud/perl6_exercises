@@ -207,7 +207,7 @@ implementing Perl 6.c.
 This is rakudo version 2015.11-357-g587f700 built on MoarVM version 2015.11-34-gc3eea17 implementing Perl v6.b.
 
 }#}}}
-TUTORIALS, DOCS {#{{{
+TUTORIALS, DOCS, WEBSITES {#{{{
 
     http://doc.perl6.org/language.html
         This page is a list of links to different perl6 tutorials and docs 
@@ -219,6 +219,11 @@ TUTORIALS, DOCS {#{{{
         CHECK
         A nice-looking intro tutorial that I want to go through after 
         finishing going through the main docs.
+
+        Not as thorough as a full-on tutorial, but a very good introduction, 
+        well laid-out.  When you're trying to remember how to do something 
+        simple that you just can't remember the syntax for and the full 
+        tutorial is proving hard to search, this is a good resource.
 
 }#}}}
 BLOGS, IRC, etc {{{{

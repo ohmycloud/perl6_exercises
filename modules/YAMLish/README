@@ -1,0 +1,15 @@
+
+There is a YAML module, but it only has a dump method, no load (so it can 
+write yaml but not read it, which is utterly useless).
+
+YAMLish can't parse the example YAML file given on the YAML website
+    http://www.yaml.org/start.html
+which is not great news.
+
+However, I don't need all of the funk in that example, so I've pared it down 
+to what's in "in.yml", and YAMLish _can_ parse that.
+
+
+And although I can see a bunch of to-yaml() multi subs declared in the YAMLish 
+source, none of them are being exported, so I can't use them.
+

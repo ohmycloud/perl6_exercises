@@ -1,0 +1,14 @@
+
+Investigating as a replacement for Config::Simple, which broke with the 
+04/2016 Rakudo update.
+
+
+
+The lacuna.cfg I used with Config::Simple is almost readable by TOML.  I had 
+to add double-quotes around the values, which C::S didn't need, and then TOML 
+worked.
+
+The biggest problem I see is that the p6 TOML module has a from-toml() 
+function, but no to-toml().  My config file needs to be re-writable so I can 
+keep the session ID up to date (at least).
+

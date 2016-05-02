@@ -117,49 +117,38 @@ CATCH blocks {#{{{
     Try::Tiny et al.
     
     Instead, the CATCH block catches an exception that occurred in its 
-    containing block
-    
-    But that exception does still occur for the purposes of that containing 
-    block, so this doesn't work as you'd expect:
-            die "foobar";
-            CATCH {
-                default {
-                    say "I caught $_"
-                }
-            }
-            say "still here";           # never hits
-
-        ...that whole mess is in the outermost lexical scope.  The "die" runs 
-        for the purposes of its lexical scope, so the upshot is that our 
-        program dies and we never get to that last 'say'.
-
-
-    You'd need to wrap that die in its own scope:
-            {
-                say "This will display since we haven't died yet."
-                die "foobar";
-                say "This won't display because this block already died.";
+    containing block.
+            my Str $name;
+            try {
+                $name = 123;            # 123 is not a Str, so this will blow up.
+                say "Hello " ~ $name;
 
                 CATCH {
-                    ### Catch any exceptions that happened in the same scope
-                    ### As the CATCH block itself.
                     default {
-                        say "I caught $_"
+                        say "Name must be a string";
                     }
                 }
             }
-            say "Still here outside the block";     # hits.
+
+    So if anything goes wrong in a block, and that block contains a CATCH 
+    block, that CATCH will be triggered.
 
 
 
-
-    Throw and catch a specific exception:
+    The CATCH will try to respond to specific exception types (in the X:: 
+    namespace):
             {
+
                 die X::IO::DoesNotExist.new(:path("foo/bar"), :trying("zombie copy"));
+
+                ### or this format is identical:
+                # X::IO::DoesNotExist.new(:path("foo/bar"), :trying("zombie copy")).throw;
+
                 CATCH {
-                    when X::IO {
-                        say "We got an IO exception.";
-                    }
+                    when X::IO      { say "We got an IO exception."; }
+                    when X::OS      { say "We got an OS exception."; }
+                    when X::AdHoc   { say "We got an AdHoc exception (die)."; }
+                    default         { say "we got an exceptional exception." }
                 }
             }
             say "back to main"
@@ -169,27 +158,26 @@ CATCH blocks {#{{{
             back to main
 
 
-
-
-    You could add a default block to the above to catch all exceptions:
-            {
-                die X::IO::DoesNotExist.new(:path("foo/bar"), :trying("zombie copy"));
-                CATCH {
-                    when X::IO::Copy {
-                        say "We got a copy exception.";
-                    }
-                    default {
-                        say "We got some exception we weren't expecting."
+    X::AdHoc
+        die('message') throws an AdHoc exception.
+                try {
+                    die "blargle";
+                    CATCH {
+                        when X::AdHoc { say "your code died." }     # hits
                     }
                 }
-            }
 
-        Since we threw an IO::DoesNotExist but tried to catch an IO::Copy, the 
-        default block will hit.
+        You can still instantiate an AdHoc exception if needed:
+                try {
+                    X::AdHoc.new(payload => "blargle").throw;
+                    CATCH {
+                        when X::AdHoc { say "your code died." }     # hits
+                    }
+                }
 
 
 
-    We can get more info out of our exception:
+     Getting more info from an exception:
             die X::IO::DoesNotExist.new(:path("foo/bar"), :trying("zombie copy"));
             CATCH {
                 when X::IO {
