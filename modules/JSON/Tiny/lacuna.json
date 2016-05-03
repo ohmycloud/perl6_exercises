@@ -1,0 +1,1 @@
+{ "DEFAULT" : { "api_key" : "perl6 default api key", "server" : "us1", "user" : "tmtowtdi" }, "pt_sitter" : { "pass" : "hi vas", "server" : "pt", "user" : "tmtowtdi" }, "us1_sitter" : { "pass" : "window printer spring", "server" : "us1", "user" : "tmtowtdi" }, "pt_real" : { "pass" : "bookshelf lamp", "server" : "pt", "user" : "tmtowtdi" } }

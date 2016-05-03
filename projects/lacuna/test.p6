@@ -26,7 +26,7 @@ say "I am logged in to {$a.empire_name} whose ID is {$a.empire_id}.  My alliance
 #say "I own the following stations: {$a.mystations<ids>.keys}";
 #say "My alliance owns the following stations: {$a.ourstations<ids>.keys}";
 ''.say;
-#exit;
+exit;
 
 
 ### Get and display a captcha image, check the solution.

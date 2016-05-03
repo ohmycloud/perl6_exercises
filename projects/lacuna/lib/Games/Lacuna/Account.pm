@@ -1,5 +1,4 @@
 
-use Config::Simple;
 use JSON::Tiny;
 use Net::HTTP::GET;
 use Net::HTTP::POST;
@@ -92,12 +91,12 @@ class Games::Lacuna::Account does Games::Lacuna::Comms {
     }#}}}
 
     #|{
-        Sets the config file as an IO::Path object and returns it.
+        Sets the config_file attribute as an IO::Path object and returns it.
         Creates the file if it does not already exist and dies if that 
         creation is not possible.
 
         With no args passed, assumes that the config file should exist as 
-        $.base_dir/config/lacuna.cfg.  Both the file and the config/ directory 
+        $.base_dir/config/lacuna.json.  Both the file and the config/ directory 
         will be created if needed.
 
         Also accepts a full (Str) path.  Will create that path and file if 
@@ -124,37 +123,38 @@ class Games::Lacuna::Account does Games::Lacuna::Comms {
         return $!config_file;
     }#}}}
     multi method config_file() {#{{{
-        $!config_file   = IO::Path.new( $.base_dir.Str ~ '/config/lacuna.cfg' );
+        $!config_file   = IO::Path.new( $.base_dir.Str ~ '/config/lacuna.json' );
     }#}}}
     multi method config_file(Str $path) {#{{{
         $!config_file    = IO::Path.new( $path );
     }#}}}
 
     method load_config() {#{{{
-        my $conf = Config::Simple.read($.config_file.Str, :f<ini>);
+        my %conf = from-json( slurp $.config_file.Str );
         if $.config_section ne 'DEFAULT' {
             ### Copy anything this config_section doesn't explicitly set from 
             ### the DEFAULT config_section except for the session_id.
             for <user pass api_key server> -> $a {
-                $conf{$.config_section}{$a} ||= $conf<DEFAULT>{$a};
+                %conf{$.config_section}{$a} ||= %conf<DEFAULT>{$a};
             }
         }
-        $!user          = $conf{$.config_section}<user>         || q<>;
-        $!pass          = $conf{$.config_section}<pass>         || q<>;
-        $!server        = $conf{$.config_section}<server>       || q<>;
-        $!api_key       = $conf{$.config_section}<api_key>      || q<>;
-        $!session_id    = $conf{$.config_section}<session_id>   || q<>;
+
+        $!user          = %conf{$.config_section}<user>         || q<>;
+        $!pass          = %conf{$.config_section}<pass>         || q<>;
+        $!server        = %conf{$.config_section}<server>       || q<>;
+        $!api_key       = %conf{$.config_section}<api_key>      || q<>;
+        $!session_id    = %conf{$.config_section}<session_id>   || q<>;
     }#}}}
     method save_config() {#{{{
-        my $conf = Config::Simple.read($!config_file.Str, :f<ini>);
-        $conf{$.config_section}<user>       = $!user;
-        $conf{$.config_section}<pass>       = $!pass;
-        $conf{$.config_section}<server>     = $!server;
-        $conf{$.config_section}<api_key>    = $!api_key;
+        my %conf = from-json( slurp $.config_file.Str );
+        %conf{$.config_section}<user>       = $!user;
+        %conf{$.config_section}<pass>       = $!pass;
+        %conf{$.config_section}<server>     = $!server;
+        %conf{$.config_section}<api_key>    = $!api_key;
         ### If we don't have a $!session_id we're not logged in (we probably 
         ### just called logout), so delete the key entirely.
-        $conf{$.config_section}<session_id> = $!session_id or $conf{$.config_section}<session_id>:delete;
-        $conf.write;
+        %conf{$.config_section}<session_id> = $!session_id or %conf{$.config_section}<session_id>:delete;
+        spurt $.config_file, to-json(%conf);
     }#}}}
 
     #|{
