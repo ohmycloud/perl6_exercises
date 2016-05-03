@@ -32,6 +32,18 @@ I've tried:
       problem.
     - I just updated to the 2016.03 version of Rakudo, but the results are 
       exactly the same.
+
+
+Usage trace:
+    Body.pm uses OwnPlanet.pm
+    OwnPlanet.pm uses OwnBodyRole.pm
+    OwnBodyRole.pm uses OwnBuilding.pm
+    OwnBuilding.pm uses Buildings.pm
+
+    Buildings.pm is then loading all of the individual building classes.  
+    Right now I have those broken up into groups (Callable, Boring, Glyph, 
+    etc), which are their own loader-type modules, and Buildings.pm is 
+    actually loading those.
     
 
 I could try and reduce the number of classes - do something other than 
