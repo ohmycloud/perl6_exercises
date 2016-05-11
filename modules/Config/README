@@ -1,0 +1,16 @@
+
+There are a bunch of different candidates here.
+
+
+
+I'd prefer Config::Simple, since it allows INI format, and both reads and 
+writes.     
+
+I was using it, but it hasn't been updated since January and it now fails its 
+own tests.
+
+
+Config::TOML's format is vaguely similar to INI format, and it allows both 
+reads and writes, so that's probably what you want.
+
+

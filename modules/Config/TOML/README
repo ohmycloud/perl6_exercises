@@ -3,12 +3,26 @@ Investigating as a replacement for Config::Simple, which broke with the
 04/2016 Rakudo update.
 
 
+05/11/2016
+This module now includes a to-toml() function, which it didn't before, so it 
+once again looks useful.
 
-The lacuna.cfg I used with Config::Simple is almost readable by TOML.  I had 
-to add double-quotes around the values, which C::S didn't need, and then TOML 
-worked.
 
-The biggest problem I see is that the p6 TOML module has a from-toml() 
-function, but no to-toml().  My config file needs to be re-writable so I can 
-keep the session ID up to date (at least).
+NEWLINE GOTCHA {#{{{
+    I can read the config file using slurp(), and pass the resulting string to 
+    from-toml() to get a hash out of it.  Great.
+
+    However, this does not work:
+            spurt $config_file, to-toml(%config);
+
+    That's because to-toml() does not append a newline to the end of the 
+    string it produces, which means that the $config_file ends up without a 
+    final newline.  So the next time I try to parse that same file, 
+    from-toml() will produce a "failed to parse" exception -- that final 
+    newline is required.
+
+    So, when writing, just get a filehandle and write to that using say():
+            my $fh = $config_file.IO.open :w;
+            $fh.say( to-toml(%config) );
+}#}}}
 

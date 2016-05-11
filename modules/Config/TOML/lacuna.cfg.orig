@@ -2,6 +2,7 @@
 api_key = "perl6 default section API key"
 server = "pt"
 user = "tmtowtdi"
+
 [pt]
-session_id = 1463003862
+session_id = "blargle"
 user = "tmtowtdi"

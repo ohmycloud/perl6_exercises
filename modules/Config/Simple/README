@@ -3,6 +3,10 @@ I was using this for the config file for my lacuna project.  But the April
 2016 Rakudo update broke Data::Dump, which is being used by Config::Simple, so 
 it broke as well.
 
+05/11/2016
+    Data::Dump has been fixed, but Config::Simple still fails to pass its own 
+    tests.
+
 Config::TOML does install under this new Rakudo, and its config file syntax is 
 similar enough to the INI format I was using with Config::Simple, so I'm now 
 looking at switching to that.

@@ -59,7 +59,19 @@ but I would like to get this working.
 
 
 
+Config File {#{{{
+    I was originally using Config::Simple, which both parses and writes INI 
+    format files, which is what I want the config file to be.
 
+    But the 04/2016 Rakudo update broke Config::Simple.  None of the other 
+    Config:: modules are able to both read and write whatever format they're 
+    using (most can only read it).  I absolutely need to be able to re-write 
+    my config file.
+
+    I've punted and am currently just storing the config file in JSON format.  
+    It's not very human-friendly right now, but it works.  I'll want to do 
+    something to make that file more human-readable at some point.
+}#}}}
 Classes to add {#{{{
 
     - Empire.pm

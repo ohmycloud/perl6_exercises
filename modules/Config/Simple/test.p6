@@ -8,7 +8,7 @@ use Config::Simple;
     A little rough maybe, but does what I want to do (both read and write ini files.)
 =end pod
 
-if False {  # INI file (read existing and re-write) # {{{
+if True {  # INI file (read existing and re-write) # {{{
     my $filename = 'one.ini';
 
     my $conf = Config::Simple.read($filename, :f<ini>);

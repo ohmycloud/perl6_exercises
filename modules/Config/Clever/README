@@ -1,0 +1,8 @@
+
+05/11/2016
+It installed OK, but it seems to be just a JSON file reader that looks in a 
+specific directory and conditionally loads specific files.
+
+It can read such a file, but can't write it back out again.  Seems like I'd be 
+better off just using JSON than this, so I haven't bothered testing it at all.
+
