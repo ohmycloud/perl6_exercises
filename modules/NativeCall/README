@@ -1,0 +1,20 @@
+
+http://blogs.perl.org/users/zoffix_znet/2016/05/perl-6-nativecall-look-ma-im-a-c-programmer-1.html
+
+NativeCall is part of the standard p6 distribution, and allows you to make 
+calls out to functions defined in accessible C libraries.
+
+Standard Library {#{{{
+    With no arguments, the function you're trying to access is assumed to be 
+    in the standard library.
+
+    see ./fork.p6
+}#}}}
+Some other library {#{{{
+    When using functions from other-than-the-standard-library, we have to tell 
+    NativeCall which library the functions come from
+
+    See ./cd_troll.p6.
+}#}}}
+
+

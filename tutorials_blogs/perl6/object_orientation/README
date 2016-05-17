@@ -67,8 +67,9 @@ Determining the type of an object {#{{{
 
         The tut suggests that this comparison indicates that the LHS contains 
         the RHS.  But "Int" is certainly not a superset that contains the 
-        subset "Real"; the opposite is true.  Either I'm not totally 
-        understanding this or the tut is poorly worded.
+        subset "Real", and the code above reads to me as
+                if Int is a type of Real { ... }
+        So I'm probably just misreading the tut.
     
 }#}}}
 Classes {#{{{
@@ -109,7 +110,7 @@ Attributes {#{{{
                 has $.origin;
             }
         Using that "." twigil does two things:
-            - Declares a (private!) attribute named $!origin
+            - Declares a (private !) attribute named $!origin
             - Declares an accessor method that's essentially this:
                 method origin { return $!origin }
 
@@ -372,8 +373,8 @@ Object Construction {#{{{
 
     BUILD() gets called with the named arguments passed in by the user.
             class Example {
-                has $.foo;
-                has $.bar;
+                has $.foo = 'foo';
+                has $.bar = 'bar';
                 method BUILD (:$foo, :$bar) {
                     say $foo;
                     say $bar;
@@ -391,11 +392,11 @@ Object Construction {#{{{
         were declared.
 
     NOTE that the output shown above is from the two "say" lines inside BUILD, 
-    just for example's sake.  At this point, if we tried to do this:
+    just for example's sake.  At this point, the .foo and .bar attributes have 
+    not been assigned to:
             say $e.foo;
             say $e.bar;
-
-        Our output for that would be:
+        Outputs:
             (Any)
             (Any)
 

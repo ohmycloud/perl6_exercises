@@ -10,6 +10,8 @@ if False {   # Read
     my $cfg = slurp $config_file;
     my %toml = from-toml($cfg);
     say %toml;
+    say %toml<DEFAULT><api_key>;
+
 }
 if False {   # Write
     my %hash = (
@@ -26,7 +28,8 @@ if True {   # Read, modify, re-write
 
     %toml{'pt'}{'session_id'} = time;
 
-    my $fh = $config_file.IO.open :w;
-    $fh.say( to-toml(%toml) );
+    spurt $config_file, to-toml(%toml) ~ "\n";
+    #my $fh = $config_file.IO.open :w;
+    #$fh.say( to-toml(%toml) );
 }
 

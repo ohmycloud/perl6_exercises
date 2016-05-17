@@ -13,7 +13,7 @@ start_color();
 
 
 ### This perl6 implementation of ncurses gives us 7 color pair slots.  It 
-### looks like that number (7) is arbitrary.
+### looks like that number (7) is arbitrary to the NCurses module.
 ### 
 ### In the C implementation, you just pass an integer to init_pair() and then 
 ### pass that same int as an argument to COLOR_PAIR() to specify which color 

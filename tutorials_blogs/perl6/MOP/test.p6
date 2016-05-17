@@ -6,6 +6,7 @@ class MyClass {
 
 my $c = MyClass.new;
 
+
 say $c.WHAT;            # (MyClass)
 say $c.WHO;             # MyClass
 say $c.WHERE;           # 139830765374168   (memory location?)

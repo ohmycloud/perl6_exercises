@@ -1,5 +1,12 @@
 
 
+I've moved (copied) this entire project into its own repo.  I'm leaving this 
+directory here for now, but it should eventually just go away entirely.
+
+
+
+
+
 - Need to add logging
 
 - Need to change all module extensions to ".pm6" and delete my vim modelines.

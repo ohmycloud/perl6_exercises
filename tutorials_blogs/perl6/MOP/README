@@ -69,19 +69,19 @@ Metamethods List {#{{{
     This is a list of available metamethods and what they output for a simple 
     class.
 
-            class MyClass {
+            class MyNamespace::MyClass {
                 method x { "this is user-defined method 'x'." }
             }
 
-            my $c = MyClass.new;
+            my $c = MyNamespace::MyClass.new;
 
             say $c.WHAT;            # (MyClass)
-            say $c.WHO;             # MyClass
+            say $c.WHO;             # MyNamespace::MyClass
             say $c.WHERE;           # 139830765374168
             say $c.HOW;             # Perl6::Metamodel::ClassHOW.new
             say $c.WHY;             # (Any)
             say $c.DEFINITE;        # True
-            say $c.VAR;             # MyClass.new
+            say $c.VAR;             # MyNamespace::MyClass.new( actual args passed to create this object )
 
             ### Shows two objects of the same class have different WHICH 
             ### values:
