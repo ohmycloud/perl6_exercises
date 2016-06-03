@@ -5,6 +5,9 @@
 # MoarVM precomp dirs
 .precomp/
 
+# panda cache(?) dirs
+.panda-work/
+
 /blib/
 /.build/
 _build/
