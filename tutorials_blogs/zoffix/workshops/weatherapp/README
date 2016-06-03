@@ -1,0 +1,38 @@
+
+Waiting on part 4
+
+
+Part I {#{{{
+    http://perl6.party/post/Perl-6-Hands-On-Workshop--Weatherapp--Part-1
+
+    No code at all, just initialization.  Setting up a git repo, deciding our 
+    requirements, signing up for an API key, etc.
+}#}}}
+Part II {#{{{
+    http://perl6.party/post/Perl-6-Hands-On-Workshop--Weatherapp--Part-2
+
+    Another whole blog post on the importance of design documents.  I mean, I 
+    get it, but I want to use this is a p6 tutorial, not a daily 
+    "how-to-make-da-software".
+}#}}}
+Part III {#{{{
+    http://perl6.party/post/Perl-6-Hands-On-Workshop--Weatherapp--Part-3
+
+    Still no module code, but he sets up his testing structure, and uses some 
+    test modules I haven't fiddled with yet, so there's value here.
+
+    Test with
+        prove -e 'perl6 -Ilib' -vr t/
+
+    He's using TDD.  OK.  Installing (via panda):
+        Test::When
+        Test::META
+}#}}}
+
+API {#{{{
+    My API key
+        245ab8901be060d13e97ee4a6ba6697a
+
+    My login info is in keepassx.
+}#}}}
+
