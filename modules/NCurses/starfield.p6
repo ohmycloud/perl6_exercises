@@ -31,7 +31,7 @@ use NCurses;
 =end pod
 
 constant numstars   = 100;
-constant sleeptime  = .05;
+constant sleeptime  = .010;
 constant max-speed = 4;
 
 class Star {# {{{
@@ -71,7 +71,7 @@ my Star @stars = gather { take Star.new(:$max_x, :$max_y) for ^numstars }
 curs_set(0);
 repeat {
     clear;
-    for @stars.race( batch => 16) -> $star {
+    for @stars.race( batch => 8) -> $star {
     #for @stars -> $star {
         $star.move;
         mvaddstr( $star.y, $star.x, '.' );
