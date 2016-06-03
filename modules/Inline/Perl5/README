@@ -1,3 +1,71 @@
 
-Won't install under 5.18 or a brand-new 5.22.1.
+Be sure that the perl5 you're using right now is "shared_5.22.2" before trying 
+to mess with any Inline::Perl5 stuff.
+
+
+Much of the info in ./ came from
+        https://www.youtube.com/watch?v=CEs1g94qNso
+    Stefan Seifert
+
+
+
+Scripts {
+    
+    - dancer_test.p6
+    - csv_test.p6
+        - Read in that order.
+        - They both work fine, but the code is a little clunky.
+
+    - md5_test.p6
+        - Gets rid of the $p5 object altogether
+        - Actually imports a Perl5 module which is then usable from within the 
+          perl6 script, and using perl6 syntax.
+
+    - subclassing.p6
+        - about 13.22 in the video
+        - Doesn't actually do anything, just shows that your p6 class can 
+          subclass a p5 class.
+    
+}
+DBIx::Class {#{{{
+    Example code at 16:48 in the video.
+}#}}}
+promises {#{{{
+    Starting at 20.00 in vid.
+
+    He mentions that this is currently pretty bleading edge and he wouldn't 
+    use it in production, but good to be able to see the example.
+}#}}}
+INSTALL {#{{{
+    
+
+When you install (and presumably when you go to use) Inline::Perl5, you have 
+to be using a Perl5 built with -Duseshrplib.
+
+There's a recent thread on Perlmonks where a guy says he got Inline::Perl5 
+installed via panda using perl 5.22.0.  5.22.2 is currently available via 
+perlbrew, so now I'm trying that.
+    perlbrew install perl-5.22.2 -Duseshrplib --as shared_5.22.2
+
+Success!
+
+
+
+
+I originally tried to install 5.24 that way:
+    perlbrew install perl-5.24.0 -Duseshrplib --as shared_5.24.0
+
+After installing and using that as my active perl5, the "panda install 
+Inline::Perl5" still took a shit.  It produced this in an infinite loop:
+    (in cleanup) Method 'DESTROY' not found for invocant of class 'X::Method::NotFound' at (eval 1) line 16 during global destruction.
+    (in cleanup) Method 'DESTROY' not found for invocant of class 'X::Method::NotFound' at (eval 1) line 16 during global destruction.
+    (in cleanup) Method 'DESTROY' not found for invocant of class 'X::Method::NotFound' at (eval 1) line 16 during global destruction.
+    (in cleanup) Method 'DESTROY' not found for invocant of class 'X::Method::NotFound' at (eval 1) line 16 during global destruction.
+    (in cleanup) Method 'DESTROY' not found for invocant of class 'X::Method::NotFound' at (eval 1) line 16 during global destruction.
+    (in cleanup) Method 'DESTROY' not found for invocant of class 'X::Method::NotFound' at (eval 1) line 16 during global destruction.
+    ...
+
+After seeing that, and finding the perlmonks thread re: 5.22, I switched.
+
+}#}}}
 
