@@ -256,7 +256,7 @@ Where block, subsets {#{{{
             }
 
 
-    See "more on subsets" below for some other examples I pulled from a 
+    See "More on subsets" below for some other examples I pulled from a 
     youtube video.
 
 }#}}}
@@ -1015,7 +1015,7 @@ Re-Dispatching (callwith/same, nextwith/same) {#{{{
 
 
 }#}}}
-Re-Dispatching (multi routines with shared code) {
+Re-Dispatching (multi routines with shared code) {#{{{
     
     https://doc.perl6.org/language/functions#proto
 
@@ -1077,7 +1077,7 @@ Re-Dispatching (multi routines with shared code) {
 
 
 
-}
+}#}}}
 Coercion Types (Type Casting) {#{{{
     From the docs:
         Coercion types can help you to have a specific type inside a routine, 

@@ -58,7 +58,7 @@ if $j_pro ~~ Employee       { say "j_pro is a Employee."; }
 if $j_pro ~~ Programmer     { say "j_pro is a Programmer."; }
 ''.say;
 
-### .WHAT returns the type object, giving us the exact type of $j_pro.
+### .WHAT returns the type object, giving us the type of $j_pro.
 say $j_pro.WHAT;    # (Programmer)
 
 ### .perl returns, essentially, Dumper output, which can be eval'd.
