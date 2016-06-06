@@ -1,5 +1,8 @@
 #!/usr/bin/env perl6
 
+### From a vid featuring zoffix:
+### https://www.youtube.com/watch?v=paa3niF72Nw
+
 if True {   # lazy infinite list
 
     ### The second argument below is NOT the amount we're incrementing by.
@@ -38,4 +41,5 @@ if True {   # lazy infinite list
     ### itself.
 
 }
+
 
