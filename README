@@ -172,6 +172,15 @@ INSTALLING {#{{{
 
 
 }#}}}
+REFERENCE {#{{{
+    
+    http://perl6intro.com/
+
+    I've got this listed below, but don't use it enough.  It's not a full 
+    reference, but it's nicely laid out, and when you're doing that "shit I 
+    can't remember how to do X" thing, you can often find X here.
+
+}#}}}
 pragma {#{{{
     
     You can start your p6 program with:
@@ -189,20 +198,6 @@ pragma {#{{{
     Upshot is that I'm generally not bothering with this, but you can if you 
     like.
 }#}}}
-INSTALL HISTORY {#{{{
-
-    "perl6 -v" from different versions I've installed.
-    
-    - 01/07/2017
-This is Rakudo version 2015.12-136-ga84d4ed built on MoarVM version 2015.12
-implementing Perl 6.c.
-        
-        - I moved v6.b to ~/.rakudobrew_orig/ when I installed v6.c.
-    
-    - ~12/2015
-This is rakudo version 2015.11-357-g587f700 built on MoarVM version 2015.11-34-gc3eea17 implementing Perl v6.b.
-
-}#}}}
 TUTORIALS, DOCS, WEBSITES {#{{{
 
     http://doc.perl6.org/language.html
@@ -212,7 +207,6 @@ TUTORIALS, DOCS, WEBSITES {#{{{
         The whole "doc.perl6.org" is pretty damn useful :)
 
     http://perl6intro.com/
-        CHECK
         A nice-looking intro tutorial that I want to go through after 
         finishing going through the main docs.
 
@@ -279,6 +273,20 @@ FAQ, Glossary ***CHECK*** {#{{{
     Perl* terms (eg DWIM, Damian Conway, etc), but there are some that are 
     p6-specific, so at least glance through.
         http://doc.perl6.org/language/glossary
+
+}#}}}
+INSTALL HISTORY {#{{{
+
+    "perl6 -v" from different versions I've installed.
+    
+    - 01/07/2017
+This is Rakudo version 2015.12-136-ga84d4ed built on MoarVM version 2015.12
+implementing Perl 6.c.
+        
+        - I moved v6.b to ~/.rakudobrew_orig/ when I installed v6.c.
+    
+    - ~12/2015
+This is rakudo version 2015.11-357-g587f700 built on MoarVM version 2015.11-34-gc3eea17 implementing Perl v6.b.
 
 }#}}}
 UNIMPLEMENTED *** {
