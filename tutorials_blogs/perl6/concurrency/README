@@ -29,11 +29,21 @@ Supplies {#{{{
     https://i.ytimg.com/vi/5AplRigbvtI/hqdefault.jpg
 
     A Supply is an "asynchronous data streaming mechanism".
+    A multi-consumer message stream.
 
-    In my own words (which may not be entirely accurate), a supply feels like 
-    a multi-consumer message queue.
-        But then, that's also what Channels look like, so I think I'm wrong 
-        about that for Supplies.
+    
+    The difference between a Supply and a Channel
+        A Supply is a data stream with multiple subscribers, all of whom will 
+        get the same message.  Think of it as an RSS feed.  All subscribers to 
+        that feed get the same data.
+
+        A Channel is a thread-safe queue for sending values to consumers.  
+        Think of this as a file processor.  Your producer can read records 
+        from an input file, then write them to a Channel to be processed.  Any 
+        number of consumers can then read from the channel to process those 
+        records.  Each consumer will get a DIFFERENT record from the queue.
+            See ROOT/projects/process_file_in_chunks/channel_process.p6
+
 
     See also the Supplies section from JW's video, notes are below.
 
@@ -43,6 +53,18 @@ Supplies {#{{{
 Channels {#{{{
 
     A thread-safe queue that can have multiple readers and writers.
+
+    The difference between a Supply and a Channel
+        A Supply is a data stream with multiple subscribers, all of whom will 
+        get the same message.  Think of it as an RSS feed.  All subscribers to 
+        that feed get the same data.
+
+        A Channel is a thread-safe queue for sending values to consumers.  
+        Think of this as a file processor.  Your producer can read records 
+        from an input file, then write them to a Channel to be processed.  Any 
+        number of consumers can then read from the channel to process those 
+        records.  Each consumer will get a DIFFERENT record from the queue.
+            See ROOT/projects/process_file_in_chunks/channel_process.p6
 
     A channel is a fifo.  After a message has been read once, it's gone.  To 
     allow multiple readers to read a single message, use a Supply instead.

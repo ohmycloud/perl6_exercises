@@ -1,42 +1,9 @@
 #!/usr/bin/env perl6 
 
 
+### Timer results bottom this file.
 
-#|{
-    Meant to read large files.
 
-    get() returns a certain number of lines from the file each time.  The last 
-    iteration may contain fewer than that given number.
-
-    Logic:
-        $chunksize is the number of lines the user wants returned each time.
-        $max_read is how many lines to read from the file at a time.
-            Currently that's being set to 10 times larger than whatever 
-            $chunksize the user requested.  That's a bit naive.
-
-        When get() is called:
-            - Return bool False if we're already finished with everything.
-
-            - If our current buffer size is smaller than the chunksize the 
-              user requested and we're not finished reading the file yet:
-
-                - Read in $max_read additional lines from the file, and append 
-                  those to our buffer.
-                    - If we (eg) have 4 lines left in the file, but our 
-                      $max_read is set to 10, the last 6 lines read will be of 
-                      type Any.  We just want the four actual Str types, so 
-                      grep out the Anys.
-                    - If we've reached EOF, close the file.
-
-            - Our internal buffer should now be larger than the requested 
-              chunksize if the file is not empty yet.  If that's not the case, 
-              we know the file _is_ empty, and the chunk of lines we're about 
-              to return is the last chunk - there's nothing left.
-                - So set $!done to True.
-
-            - Return the first $chunksize lines out of our internal buffer.
-
-}
 class FileBuffer {
     has Int         $.chunksize;
     has Int         $.max_read;
@@ -45,8 +12,6 @@ class FileBuffer {
     has Bool        $.done;
     has Str         @.lines;
 
-    has $.supplier;
-    has $.supply;
     has $.channel;
 
     submethod BUILD(Int :$chunksize = 10, Str :$file) {
@@ -56,56 +21,121 @@ class FileBuffer {
         $!fh        = open $!file;
         $!done      = False;
 
-        
-        $!supplier  = Supplier.new;
-        $!supply    = $!supplier.Supply;
-        $!channel   = $!supply.Channel;
+        $!channel   = Channel.new;
 
     }
 
     method get() {
-        while ( $.fh.opened ) {
+        while $.fh.opened {
             my @lines = grep { .WHAT ~~ Str }, $.fh.get xx $.max_read;
-            await (@lines).map: -> $l {
-                start { $.supplier.emit($l); }
+            while @lines.elems {
+                if @lines.elems <= $.chunksize and $.fh.opened {
+                    @lines.append( grep { .WHAT ~~ Str }, $.fh.get xx $.max_read );
+                    $.fh.close if $.fh.eof;
+                }
+
+
+                ### I need to send $.chunksize records out over the channel.
+                ### I then need to remove those records from the @lines array.
+                ###
+                ### I've tried 3 different methods of doing that.  Comments on 
+                ### the speed of each are bottom this file.
+
+
+
+                ### loop/splice
+                ### Send a certain number of @lines, then splice out the 
+                ### @lines we just sent.  Differs from the other splice 
+                ### attempt because this is resizing @lines from the end.
+                #loop ( my $i = 0; $i < $.chunksize; $i++ ){
+                #    last unless defined @lines[$i];
+                #    $.channel.send( @lines[$i] );
+                #}
+                #@lines = splice @lines, $.chunksize;
+                
+                ### splice
+                ### out the lines to send.  I think this is slow because it's 
+                ### resizing @lines from the front.
+                my @send = splice @lines, 0, $.chunksize;
+                for @send -> $r {
+                    $.channel.send( $r );
+                }
+
+                ### shift
+                ### Just shift off one rec at a time from @lines.
+                ### This seems to me like it should be slow since it's 
+                ### resizing @lines each time, but it's as fast as anything 
+                ### else.  I suppose shift may be more optimized than splicing 
+                ### an arbitrary number from the front.
+                #$.channel.send( shift @lines );
             }
-            $.fh.close if $.fh.eof;
+            $.channel.close;
         }
     }
 }
 
 
-my $fb  = FileBuffer.new( :file('data.txt'), :chunksize(3) );
-my $ofh = open 'output.txt', :w;
+my $fb  = FileBuffer.new( :file('data.txt'), :chunksize(1000) );
 
-
-### Set up the record processor/outputter first.
-my $p = start {
-    react  {
-        whenever $fb.channel -> $record {
-            process_record( $record, $ofh );
-        }
-    }
-}
-
-### Now that the reader is prepared to react to changes on the channel, we can 
-### start getting records.
 my $start = now;
-$fb.get();
+$fb.get;
+my @promises;
+for 1..48 -> $n {
+    @promises.push( Promise.start({process_records($fb, $n)}) );
+}
+await @promises;
 say "that took {now - $start} seconds.";
 
 
+sub process_records($fb, Int $n) {
+
+    ### For whatever reason, chdir first works ok...
+    chdir "/home/jon/work/rakudo/projects/process_file_in_chunks/out_channel";
+    my $fh = open "{$n}.txt", :w;
+        ### This still blows up sometimes.  And the output files are still 
+        ### occasionally corrupt.  I dunno why.
+
+    
 
 
-sub process_record(Str $rec, IO::Handle $fh) {
-    $fh.say($rec);
+    ### ...but attempting to open the files with a path like this bombs out 
+    ### eventually.  Maybe the threads' CWD is not necessarily ./ ?
+    #my $fh = open "out_channel/{$n}.txt", :w;
+
+    ### I originally tried opening the output files in the for loop that's 
+    ### creating the promises above, and passing the handles in here, but that 
+    ### also eventually bombs out (SIGABRT).
+
+    for $fb.channel.list -> $rec {
+        $fh.say($rec);
+        sleep .01;
+    }
 }
 
 
-### 100 line file       - that took 0.04614289 seconds.
-### 1000 line file      - that took 0.0455532 seconds.
-### 1 mill line file    - that took 196.708738 seconds.   (well, shit.)
+### 5000 line file, chunksize 1000, .01 sleep
 
+### I don't think the variance below means anything.  I just ran the same 
+### version of the script twice in a row with no changes in the code, and got 
+### 5.2 secs the first time and 4.6 the next.
 
+###
+### shift
+###
+### 16 promises:    5.1 seconds
+### 32 promises:    4.8 seconds
+### 128 promises:   4.7 seconds
+###
+### loop/splice
+###
+### 16 promises:    5.3 seconds
+### 32 promises:    5.3 seconds
+### 128 promises:   5.3 seconds
+###
+### splice
+###
+### 16 promises:    4.7 seconds
+### 32 promises:    4.4 seconds
+### 128 promises:   4.8 seconds
 
 

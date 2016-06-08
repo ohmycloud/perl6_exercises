@@ -1,62 +1,79 @@
 
-I wanted to try reading and processing a large file using a buffer, as well as 
-using supplies and channels.
+I wanted to try reading a large file using a buffer, and then processing its 
+records asynchronously.
 
 
-OUTPUT {#{{{
-    
-        for @lines      -> $l { $out_handle.say($l) }
-        for @lines.race -> $l { $out_handle.say($l) }
+Output - to thread or not to thread? {#{{{
 
-    When my "record processing" sub is doing nothing but accepting a record 
-    and filehandle and writing the one into the other, non-concurrency is much 
-    faster.
+    The following shows that if the "process_and_create_output" sub takes .01 
+    second per rec, concurrency doesn't help.  But if that process sub becomes 
+    expensive enough to take .1 second per rec, the concurrency does help.
 
-    However, when my "record processing" sub is actually doing something on each 
-    record (a .5 second sleep), using the race is faster.
-
-    The simple processor, doing a 100 line file with a .5 second sleep after 
-    each "print to output" produced:
-            without race:           50 seconds (as expected)
-            with race, 64 batch:    32 seconds
-            with race, 32 batch:    16 seconds
-            with race, 16 batch:    16 seconds
-            with race,  8 batch:    14 seconds
-            with race,  4 batch:    14 seconds
+    simple processor
+        5000 line file with a .01 second sleep:
+            No concurrencty:        13 seconds
+            with race, 64 batch:    13 seconds
+            with race, 32 batch:    13 seconds
+            with race, 16 batch:    13 seconds
+            with race,  8 batch:    13 seconds
+            with race,  4 batch:    13 seconds
             with race,  2 batch:    13 seconds
             with race,  1 batch:    13 seconds
 
+        1000 line file with a .1 second sleep:
+            with race, 64 batch:    6.4 seconds
+            with race, 32 batch:    3.2 seconds
+            with race, 16 batch:    3.2 seconds
+            with race,  8 batch:    2.8 seconds
+            with race,  4 batch:    2.8 seconds
+            with race,  2 batch:    2.6 seconds
+            with race,  1 batch:    2.5 seconds
+
 
 }#}}}
-
 scripts {
 
     make_file.p6
-        Creates the data file being used by the other scripts.  Modify its loop to 
-        change the size of the file.
-
-
+        Creates "data.txt", which the scripts below are all using as their 
+        input file.
+        Modify $max to change the size of the file.
 
     simple_process.p6
-        Standard stuff.  while(in) { print to out }.
-        1 mill line file    - that took 7.276396 seconds.
+        Standard stuff.  while(in) { print to out; sleep $sleep_time }.
 
-    process_file.p6
-        Uses a FileBuffer class.  Reads chunks of lines from the file and returns 
-        the chunks.
-        1 mill line file, no race   - that took 33.1089904 seconds.
+        With no concurrency, this takes (line_cnt * sleep_time) seconds (derp).
 
+        With concurrency on a 5000 line file, it's 13 seconds, regardless of 
+        the batch size on the loop.
 
+    buffer_process.p6
+        Uses a FileBuffer class to read records.  Reads chunks of lines from 
+        the file and returns the chunks.
+
+        Those records are then processed using a concurrent for loop.
+
+        For a 5000 line file with a chunksize of 1000, this is equal in speed 
+        to the simple_process.  However, that's with only 5000 lines in the 
+        input and may not be representative.  Need to try with a bigger file.
 
     channel_process.p6
-        Writer is reading the file by chunks and emitting to a supply.
-        Reader is reading lines off that supply's channel.
+        Uses a modified version of the FileBuffer class from buffer_process.p6 
+        to read records and then write them to a channel.
 
-        I don't fully understand channels or supplies, or this is just not 
-        what they're for, or both.  The time on this was so out there that I 
-        stopped testing with it.
+        Multiple consumers then read those records from the channel and 
+        process them.  The multiple consumers are handled via Promises.
 
-        1 mill line file    - that took 196.708738 seconds.   (well, shit.)
+        This is about 2.5 times faster than either of the others.
+
+***
+        However, the problem with this version is that all of the consumers 
+        were originally trying to write their results to the same filehandle, 
+        which ends up all jacked up.
+        
+        I've started in trying to get all consumers to write to their own 
+        files, but that's causing some kinda weird funk that I don't 
+        understand right now.  Come back to this.
+***
 
 }
 
