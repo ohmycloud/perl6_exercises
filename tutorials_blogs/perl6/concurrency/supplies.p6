@@ -2,8 +2,8 @@
 
 if False { # Live Supply #{{{
 
-    ### On Supplier adds data to a stream, and multiple consumers can tap into 
-    ### that supply.
+    ### One Supplier adds data to a stream, and multiple consumers can tap 
+    ### into that supply.
     ###
     ### This is a sort of multiple-receiver message queue.
 

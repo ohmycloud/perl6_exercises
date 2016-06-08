@@ -64,11 +64,84 @@ class FileBuffer {
 }
 
 
-my $fb = FileBuffer.new( :file('test.txt'), :chunksize(1003) );
+my $fb  = FileBuffer.new( :file('data.txt'), :chunksize(100) );
+my $ofh = open 'output.txt', :w;
 
+my $start = now;
 while not $fb.done {
     my @rows = $fb.get();
-    say @rows.elems;
-    say '------';
+
+    #say "Working on {@rows.elems}-row chunk.";
+
+    for @rows.race( batch => 64 ) -> $rec {
+        process_record($rec, $ofh);
+        sleep .1
+    }
 }
+say "that took {now - $start} seconds.";
+
+### 1 mill line file, 20 batch  - that took 75.73000341 seconds.
+### 1 mill line file, 64 batch  - that took 76.7370083 seconds.
+### 1 mill line file, no race   - that took 33.1089904 seconds.
+
+
+###
+### 5,000 line file, chunksize 100, .1 sec sleep during process_record
+###
+### with race, 64 batch:    321 seconds
+### with race, 32 batch:    seconds
+### with race, 16 batch:    seconds
+### with race,  8 batch:    140.9 seconds
+### with race,  4 batch:    seconds
+### with race,  2 batch:    seconds
+### with race,  1 batch:    seconds
+
+
+
+
+###
+### 1000 line file, chunksize 10, .1 sec sleep during process_record
+###
+### without race:           didn't bother, it's going to take 100 seconds.
+### with race, 64 batch:    10 seconds
+### with race, 32 batch:    10 seconds
+### with race, 16 batch:    10 seconds
+### with race,  8 batch:    8 seconds
+### with race,  4 batch:    4 seconds
+### with race,  2 batch:    4 seconds
+### with race,  1 batch:    3 seconds
+
+###
+### 1000 line file, chunksize 100, .1 sec sleep during process_record
+###
+### without race:           didn't bother, it's going to take 100 seconds.
+### with race, 64 batch:    6.4 seconds
+### with race, 32 batch:    3.2 seconds
+### with race, 16 batch:    3.2 seconds
+### with race,  8 batch:    2.8 seconds
+### with race,  4 batch:    2.8 seconds
+### with race,  2 batch:    2.6 seconds
+### with race,  1 batch:    2.5 seconds
+
+
+
+###
+### 100 line file, .5 sec sleep during process_record
+###
+
+### 100 line file, .5 sec sleep, no race   - 50 secs, as expected
+### 100 line file, .5 sec sleep, 8 batch   - 40 secs
+### 100 line file, .5 sec sleep, 4 batch   - 20 secs
+### 100 line file, .5 sec sleep, 2 batch   - 20 secs
+### 100 line file, .5 sec sleep, 1 batch   - 15 secs
+
+
+
+sub process_record(Str $rec, IO::Handle $fh) {
+    $fh.say($rec);
+}
+
+
+
+
 

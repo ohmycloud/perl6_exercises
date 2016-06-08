@@ -1,0 +1,62 @@
+
+I wanted to try reading and processing a large file using a buffer, as well as 
+using supplies and channels.
+
+
+OUTPUT {#{{{
+    
+        for @lines      -> $l { $out_handle.say($l) }
+        for @lines.race -> $l { $out_handle.say($l) }
+
+    When my "record processing" sub is doing nothing but accepting a record 
+    and filehandle and writing the one into the other, non-concurrency is much 
+    faster.
+
+    However, when my "record processing" sub is actually doing something on each 
+    record (a .5 second sleep), using the race is faster.
+
+    The simple processor, doing a 100 line file with a .5 second sleep after 
+    each "print to output" produced:
+            without race:           50 seconds (as expected)
+            with race, 64 batch:    32 seconds
+            with race, 32 batch:    16 seconds
+            with race, 16 batch:    16 seconds
+            with race,  8 batch:    14 seconds
+            with race,  4 batch:    14 seconds
+            with race,  2 batch:    13 seconds
+            with race,  1 batch:    13 seconds
+
+
+}#}}}
+
+scripts {
+
+    make_file.p6
+        Creates the data file being used by the other scripts.  Modify its loop to 
+        change the size of the file.
+
+
+
+    simple_process.p6
+        Standard stuff.  while(in) { print to out }.
+        1 mill line file    - that took 7.276396 seconds.
+
+    process_file.p6
+        Uses a FileBuffer class.  Reads chunks of lines from the file and returns 
+        the chunks.
+        1 mill line file, no race   - that took 33.1089904 seconds.
+
+
+
+    channel_process.p6
+        Writer is reading the file by chunks and emitting to a supply.
+        Reader is reading lines off that supply's channel.
+
+        I don't fully understand channels or supplies, or this is just not 
+        what they're for, or both.  The time on this was so out there that I 
+        stopped testing with it.
+
+        1 mill line file    - that took 196.708738 seconds.   (well, shit.)
+
+}
+

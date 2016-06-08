@@ -37,13 +37,7 @@ if False { # Combine a promise with a channel read (list method)#{{{
     my $channel = Channel.new;
 
     ### This promise syntax is different from what was covered in the Promise 
-    ### bit of the tut. 
-    ### 
-    ### (Of course!  It only makes sense to introduce uncovered syntax 
-    ### elsewhere in your tutorial!  I don't know why so many @#$% technical 
-    ### tuts do this sort of shit).
-    ###
-    ### Anyway, accept that this is creating a promise 10 times.
+    ### bit of the tut.  This is creating a promise 10 times.
     ###
     ### Also note that we're not going to sleep (2 * 10) seconds here, or 2 
     ### seconds per each of the 10 iterations.  The promises run concurrently, 
@@ -109,7 +103,7 @@ if False { # .poll(), .closed()#{{{
 
     ''.say;
 }#}}}
-if False { # Channel from a Supply#{{{
+if True { # Channel from a Supply#{{{
 
     ### You can also get a Channel from a Supply.
     ### 
@@ -119,6 +113,7 @@ if False { # Channel from a Supply#{{{
     my $supply      = $supplier.Supply;
     my $channel     = $supply.Channel;
 
+    ### Reader
     my $p = start {
         react  {
             whenever $channel -> $item {
@@ -127,6 +122,7 @@ if False { # Channel from a Supply#{{{
         }
     }
 
+    ### Writer
     await (^10).map: -> $r {
         start {
             sleep $r;
