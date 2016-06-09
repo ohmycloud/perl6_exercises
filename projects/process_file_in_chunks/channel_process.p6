@@ -56,10 +56,10 @@ class FileBuffer {
                 ### splice
                 ### out the lines to send.  I think this is slow because it's 
                 ### resizing @lines from the front.
-                my @send = splice @lines, 0, $.chunksize;
-                for @send -> $r {
-                    $.channel.send( $r );
-                }
+                #my @send = splice @lines, 0, $.chunksize;
+                #for @send -> $r {
+                #    $.channel.send( $r );
+                #}
 
                 ### shift
                 ### Just shift off one rec at a time from @lines.
@@ -67,7 +67,7 @@ class FileBuffer {
                 ### resizing @lines each time, but it's as fast as anything 
                 ### else.  I suppose shift may be more optimized than splicing 
                 ### an arbitrary number from the front.
-                #$.channel.send( shift @lines );
+                $.channel.send( shift @lines );
             }
             $.channel.close;
         }
@@ -79,32 +79,20 @@ my $fb  = FileBuffer.new( :file('data.txt'), :chunksize(1000) );
 
 my $start = now;
 $fb.get;
+my $max_writers = 20;
 my @promises;
-for 1..48 -> $n {
-    @promises.push( Promise.start({process_records($fb, $n)}) );
+for 1..$max_writers -> $n {
+    @promises.push( start {process_records($fb, $n)} );
 }
 await @promises;
 say "that took {now - $start} seconds.";
 
 
 sub process_records($fb, Int $n) {
-
-    ### For whatever reason, chdir first works ok...
-    chdir "/home/jon/work/rakudo/projects/process_file_in_chunks/out_channel";
-    my $fh = open "{$n}.txt", :w;
-        ### This still blows up sometimes.  And the output files are still 
-        ### occasionally corrupt.  I dunno why.
-
-    
-
-
-    ### ...but attempting to open the files with a path like this bombs out 
-    ### eventually.  Maybe the threads' CWD is not necessarily ./ ?
-    #my $fh = open "out_channel/{$n}.txt", :w;
-
-    ### I originally tried opening the output files in the for loop that's 
-    ### creating the promises above, and passing the handles in here, but that 
-    ### also eventually bombs out (SIGABRT).
+    my $fh = open "output/foo_{$n}.txt", :w;
+    if $fh ~~ Failure {
+        say "blarg.  Broke on $n.";
+    }
 
     for $fb.channel.list -> $rec {
         $fh.say($rec);
@@ -112,6 +100,10 @@ sub process_records($fb, Int $n) {
     }
 }
 
+
+### the counts below were from before I started trying to get every call to 
+### process_records to produce its own unique output file.  That created its 
+### own problems; see the README for details.
 
 ### 5000 line file, chunksize 1000, .01 sleep
 

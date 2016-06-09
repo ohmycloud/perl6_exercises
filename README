@@ -42,70 +42,17 @@ INSTALLING {#{{{
     Rakudo is the compiler.  Rakudo Star is the distribution, which includes 
     the compiler and "additional resources including a selection of modules".
 
+    I messed with Rakudobrew at first, but have fallen back to installing 
+    either the Star dist or, if the new version of Rakudo has come out and I'm 
+    itching to try it and the matching Star dist hasn't come out yet, I just 
+    install Rakudo and manually install the various modules that make up the 
+    Star dist.
 
-    Rakudobrew {#{{{
-
-        I've stopped using this.  Skip down to the Star section below.
-
-        https://github.com/tadzik/rakudobrew
-
-        $ git clone git@github.com:tadzik/rakudobrew.git ~/.rakudobrew
-            - add ~/.rakudobrew/bin/ to your PATH
-
-        - If you pulled my latest fish config file from github and started a new 
-        shell, you can skip this next step; it's in that file.
-            $ rakudobrew init
-                This produces output, telling you how to auto-initialize on login.  
-                Presumably the instructions given will init rakudo without 
-                producing the pesky output.
-
-        $ rakudobrew build moar
-            Builds and installs the MoarVM.  It doesn't matter where you're 
-            sitting on the filesystem when you do this.  Takes a few minutes.
-
-        $ rakudobrew build-panda
-            Builds and installs panda.  YES, THE HYPHEN NEEDS TO BE THERE.  Yes, 
-            it's inconsistent.  Panda seems to be the rakudo moral equivalent of 
-            cpan.  Takes a few minutes, less than building moar.
-
-        $ panda install Task::Star
-            "Meta-package for modules included in Rakudo Star"
-
-            In my first rakudo installation (v6.b), this produced an error on 
-            installing Grammar::Debugger.  Task::Star is a list of modules to 
-            install, and I'm concerned that the entire list stopped getting 
-            installed when the Grammar::Debugger error was encountered.
+    And, I've been keeping my notes up-to-date in Evernote rather than here, 
+    so go check that.  The notes below should eventually go away.
 
 
-            However, in my second rakudo installation (v6.c, the Christmas 2015 
-            "production-ready" perl6), installing Task::Star worked without issue, 
-            so the rest of this note became unnecessary.
-
-
-            Task::Star comes from here:
-                https://github.com/tadzik/Task-Star
-            You can see the list of modules it's supposed to install in META.info.
-
-            If you find that you need other modules that should have been included 
-            in Task::Star but didn't get installed because of the 
-            Grammar::Debugger explosion, you can install them individually as 
-            needed:
-                $ panda install JSON::Tiny
-                $ panda install HTTP::Easy
-                etc
-
-        Anyway, Task::Star errors aside, "perl6" should now be in your path.
-            $ which perl6
-            /home/jon/.rakudobrew/bin/perl6
-            
-        Test!
-            $ perl6 hello.p6
-            Hello, World!
-
-            Yay!
-
-    }#}}}
-    Star {#{{{
+    Star or Compiler {#{{{
 
         - I keep /home/jon/.rakudo/ as a symlink to whichever version of 
           Rakudo I want to use.
@@ -167,6 +114,68 @@ INSTALLING {#{{{
               they're both there.
             - Make sure you've got my latest fish config setup pulled from 
               github, and your terminal should be able to find perl6.
+
+    }#}}}
+    Rakudobrew {#{{{
+
+        I've stopped using this.  Skip down to the Star section below.
+
+        https://github.com/tadzik/rakudobrew
+
+        $ git clone git@github.com:tadzik/rakudobrew.git ~/.rakudobrew
+            - add ~/.rakudobrew/bin/ to your PATH
+
+        - If you pulled my latest fish config file from github and started a new 
+        shell, you can skip this next step; it's in that file.
+            $ rakudobrew init
+                This produces output, telling you how to auto-initialize on login.  
+                Presumably the instructions given will init rakudo without 
+                producing the pesky output.
+
+        $ rakudobrew build moar
+            Builds and installs the MoarVM.  It doesn't matter where you're 
+            sitting on the filesystem when you do this.  Takes a few minutes.
+
+        $ rakudobrew build-panda
+            Builds and installs panda.  YES, THE HYPHEN NEEDS TO BE THERE.  Yes, 
+            it's inconsistent.  Panda seems to be the rakudo moral equivalent of 
+            cpan.  Takes a few minutes, less than building moar.
+
+        $ panda install Task::Star
+            "Meta-package for modules included in Rakudo Star"
+
+            In my first rakudo installation (v6.b), this produced an error on 
+            installing Grammar::Debugger.  Task::Star is a list of modules to 
+            install, and I'm concerned that the entire list stopped getting 
+            installed when the Grammar::Debugger error was encountered.
+
+
+            However, in my second rakudo installation (v6.c, the Christmas 2015 
+            "production-ready" perl6), installing Task::Star worked without issue, 
+            so the rest of this note became unnecessary.
+
+
+            Task::Star comes from here:
+                https://github.com/tadzik/Task-Star
+            You can see the list of modules it's supposed to install in META.info.
+
+            If you find that you need other modules that should have been included 
+            in Task::Star but didn't get installed because of the 
+            Grammar::Debugger explosion, you can install them individually as 
+            needed:
+                $ panda install JSON::Tiny
+                $ panda install HTTP::Easy
+                etc
+
+        Anyway, Task::Star errors aside, "perl6" should now be in your path.
+            $ which perl6
+            /home/jon/.rakudobrew/bin/perl6
+            
+        Test!
+            $ perl6 hello.p6
+            Hello, World!
+
+            Yay!
 
     }#}}}
 

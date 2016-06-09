@@ -65,15 +65,143 @@ scripts {
 
         This is about 2.5 times faster than either of the others.
 
-***
-        However, the problem with this version is that all of the consumers 
-        were originally trying to write their results to the same filehandle, 
-        which ends up all jacked up.
-        
-        I've started in trying to get all consumers to write to their own 
-        files, but that's causing some kinda weird funk that I don't 
-        understand right now.  Come back to this.
-***
+        To my eyes, at least, what this program is attempting to do is Good 
+        and Right and Logical.  But it's producing some weird, buggy 
+        behaviors, and therefore this method just can't be used at this point.  
+
+        See the section in this file below for details on the bugs.
+
+    error/
+        This contains some scripts meant to show the error channel_process.p6 
+        is encountering in as little code as possible.
 
 }
+
+
+channel_process.p6 errors {#{{{
+
+    This script has two main moving parts.
+
+
+
+    The Reader opens the input file and reads lines from it, then prints those 
+    lines to a Channel.
+
+    If you look inside the Reader code (the FileBuffer class, get() method), 
+    you'll see 3 chunks of code doing the same thing, 2 of which will be 
+    commented out.  All 3 of those code chunks work.  I was playing with the 
+    three to see which one was more efficient, but stopped messing with that 
+    when I realized there were problems with the Writer code. 
+
+    The point is that the Reader is not a problem, even though it contains a 
+    decent amount of commented-out code.
+
+
+
+    The Writer code consists of a process_records() sub, which opens an output 
+    file, then begins reading lines from the Channel, and prints those lines 
+    to its output file.
+
+    I'm creating a bunch of calls to that process_records() sub using 
+    Promises.  Those sub callse are each passed a unique Int so that the name 
+    of the output file they open will be unique across all of the Promises.  
+    The idea is to join those files together later.
+
+    The chunk of code causing the problems is pretty simple:
+                my $fb  = FileBuffer.new( :file('data.txt'), :chunksize(1000) );
+                $fb.get;                        # calls the Reader code
+                my $max_writers = 40;
+                my @promises;
+                for 1..$max_writers -> $n {
+                    @promises.push( start {process_records($fb, $n)} );
+                }
+                await @promises;
+
+        Errors that indicate a line number point at the "await @promises" 
+        line.
+
+    There are two different Bad behaviors coming out of that.  As far as I can 
+    tell, both appear to be bugs in either Rakudo or MoarVM.
+
+    BAD THING 1: {#{{{
+        Reproducing:
+            This does not always happen.  If you set up the Conditions as 
+            listed and don't get the specified error, just try again.  It 
+            seems to happen at least 50% of the time, so you shouldn't have to 
+            repeat this too many times to get the error.
+
+        Conditions:
+            - $max_writers is set to a lower number.  Start with 20.
+            - The output directory is empty, so when the calls to 
+              process_records() open their files for write, those files do not 
+              already exist.
+
+        Error displayed:
+                Earlier failures:
+                Failed to open file /home/jon/work/rakudo/projects/process_file_in_chunks/out_channel/foo_7.txt: no such file or directory
+                in any  at /home/jon/.rakudo/share/perl6/runtime/CORE.setting.moarvm line 1
+                in sub process_records at ./channel_process.p6 line 95
+                in block  at ./channel_process.p6 line 86
+
+                Final error:
+                Cannot call say(Failure: Str); none of these signatures match:
+                    (Mu $: *%_)
+                in block <unit> at ./channel_process.p6 line 89
+
+            That error obviously makes no sense.  The full path in the error, 
+            out to out_channel/, certainly does exist and is wx, which is 
+            demonstrated by the fact that most of the calls to 
+            process_records() _were_ able to create their files.  Just ls 
+            out_channel after an error run to see that there are output files 
+            in there.
+
+        Solution II (bad):
+            Use a non-concurrent sub to make sure that all of the output files 
+            actually exist before calling a bunch of process_records() 
+            Promises.
+                for 1..$max_writers -> $n {
+                    my $fn = "out_channel/{$n}.txt";
+                    shell( "touch $fn" );
+                }
+
+            If you run the script as it currently exists (without that 
+            non-concurrent file-creation sub above) multiple times in a row, 
+            without clearing out out_channel/ in between, you'll eventually 
+            get to the point where all of the output files exist in 
+            out_channel/.  After that happens, subsequent runs work just fine.
+
+            Adding that non-concurrent sub to create the empty files would fix 
+            this problem.  It'd also be a Horrible Workaround that should not 
+            need to be in there.
+
+    }#}}}
+    BAD THING 2: {#{{{
+        Conditions:
+            - $max_writers is set to a higher number.  Start with 80.
+            - This error happens most of the time even when the output 
+              directory already has files in it, but appears to happen every 
+              time when it doesn't, so empty out out_channel/ first.
+
+        Error displayed:
+                fish: Job 1, “./channel_process.p6 ” terminated by signal SIGABRT (Abort)
+
+            One time (but only once), I got two lines of error text:
+                fish: Job 1, “./channel_process.p6 ” terminated by signal SIGABRT (Abort)
+                double free or corruption (fasttop)
+
+            The "double free..." error is not verbatim.  I googled for it, 
+            only using part of the error text.  Now that I want to copy the 
+            full error text into here, it's out of my scrollback.
+
+        Solution:
+            Use a smaller $max_writers value.  That's it.  I don't know what's 
+            actually causing this or how to reasonably fix it other than 
+            reducing $max_writers.
+
+    }#}}}
+
+}#}}}
+
+
+
 
