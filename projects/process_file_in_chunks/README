@@ -38,23 +38,74 @@ scripts {
         input file.
         Modify $max to change the size of the file.
 
+    five_process.pl
+        Perl5.  Does the same job everything else in here does, using p5 code 
+        as I'd write it IRL (which means using Text::CSV_XS).
+
+        This note compares the PP version to the XS version.  There's only one 
+        p5 script.  You just need to edit it slightly to switch between 
+        versions.
+            To use the XS version:
+                05 use Text::CSV;
+                .. ...
+                10 my $csv = Text::CSV->new({ eol => "\012" });
+
+            To use the PP version:
+                05 use Text::CSV_PP;
+                .. ...
+                10 my $csv = Text::CSV_PP->new({ eol => "\012" });
+
+        XS:
+            10,000 line file - 0.51 seconds.
+        PP:
+            10,000 line file - 4.12 seconds.
+
+
+        If you're wanting to compare the speed of p6 versus p5, the _PP 
+        version of this script shows that p6 is slower, but not hugely slower.
+                    p5 only:        4.12 seconds
+                    p6 fastest:     6.8 seconds
+
+        That's great and all, but IRL I would absolutely not use the _PP 
+        version of Text::CSV, I'd use the _XS version.  So for right now, p6 
+        isn't even in the same ballpark as p5 for this sort of thing.
+
+        However, comparing the p6 to the p5 with XS isn't totally fair to p6 
+        if you're just talking about how fast p5 is versus how fast p6 is.
+
+        If a p6 version of Text::CSV appears that uses NativeCall to call a c 
+        library the way the p5 XS version does, the p6 code may well be back 
+        to being close.
+
+        BUT, while we're "being fair", remember that the fastest p6 version 
+        listed is using multiple threads for output, while the p5 version is a 
+        simple single-threaded affair.  The p6 simple_process using no 
+        concurrency takes 12.9 seconds, which is 3 times slower than the PP p5 
+        version (and around 26 times slower than the XS version).
+
+        Plus, none of the p6 versions are using a CSV module at all, just 
+        split() and join().
+
     simple_process.p6
-        Standard stuff.  while(in) { print to out; sleep $sleep_time }.
+        Standard stuff.  while(in) { split, process, join, print to out; }.
 
-        With no concurrency, this takes (line_cnt * sleep_time) seconds (derp).
+        The record processing routine is taking the input (1..100 in csv) and 
+        running fizzbuzz on each num, then re-CSVing the result.
+            10,000 line file, 16.9 seconds
 
-        With concurrency on a 5000 line file, it's 13 seconds, regardless of 
-        the batch size on the loop.
+        Originally, my record processing routine was just sleeping for .01 
+        seconds and then printing out the record.  These counts are for that:
+            With no concurrency, this takes (line_cnt * sleep_time) seconds (derp).
+            With concurrent processing on a 5000 line file, it's 13 seconds, regardless of the batch size on the loop.
+            With concurrent processing on a 100_000 line file, it's 256 seconds. 
 
     buffer_process.p6
         Uses a FileBuffer class to read records.  Reads chunks of lines from 
         the file and returns the chunks.
+        Those records are then processed using a concurrent for loop.  
 
-        Those records are then processed using a concurrent for loop.
-
-        For a 5000 line file with a chunksize of 1000, this is equal in speed 
-        to the simple_process.  However, that's with only 5000 lines in the 
-        input and may not be representative.  Need to try with a bigger file.
+        This was a step on the way to channel_process.p6, but is slower and 
+        doesn't really stand up on its own so I stopped messing with it.
 
     channel_process.p6
         Uses a modified version of the FileBuffer class from buffer_process.p6 
@@ -63,13 +114,19 @@ scripts {
         Multiple consumers then read those records from the channel and 
         process them.  The multiple consumers are handled via Promises.
 
-        This is about 2.5 times faster than either of the others.
+        The record processing routine is taking the input (1..100 in csv) and 
+        running fizzbuzz on each num, then re-CSVing the result.
+            10,000 line file, chunksize 1000, 6.8 seconds
 
-        To my eyes, at least, what this program is attempting to do is Good 
-        and Right and Logical.  But it's producing some weird, buggy 
-        behaviors, and therefore this method just can't be used at this point.  
+        Originally, my record processing routine was just sleeping for .01 
+        seconds and then printing out the record.  These counts are for that:
+            For a 5000 line file with a chunksize of 1000, takes 3.5 seconds.
+            With a 100_000 line file, chunksize 1000, it's 73.65 seconds (3.5 times faster than the simple process).
 
-        See the section in this file below for details on the bugs.
+        As-is, this program works and is by far the fastest of these scripts.  
+        But it's not without its funk.  See the "channel_process.p6 errors" 
+        section below, and the errors/ directory which contains some scripts 
+        that demonstrate the problem.
 
     error/
         This contains some scripts meant to show the error channel_process.p6 

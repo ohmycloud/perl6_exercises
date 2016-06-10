@@ -2,20 +2,42 @@
 
 
 my $ifh = open 'data.txt';
-my $ofh = open 'output.txt', :w;
+my $ofh = open 'output/simple_process.txt', :w;
 
 my $start = now;
 for $ifh.lines -> $line {
-#for $ifh.lines.race(batch => 1) -> $line {
+#for $ifh.lines.race(batch => 16) -> $line {
     process_record($line, $ofh);
 }
 say "that took {now - $start} seconds.";
 
 
 sub process_record(Str $rec, IO::Handle $fh) {
-    $fh.say($rec);
-    sleep .01
+    my $out = (map { fizzbuzz($_.Int) }, [$rec.split(',')]).join(',');
+
+
+    ### More funk.  say() should work fine.  But when it's in use, sometimes 
+    ### the newline gets misplaced.  We still end up with the right amount of 
+    ### data and the right number of lines, but it looks like this:
+    ###     out
+    ###     out
+    ###     outout
+    ###
+    ###     out
+    ###     out
+    ### ...where "out" should appear once on each line.
+    ###
+    ### Simply using "print" with a newline fixes this.
+
+    $fh.print("$out\n");
+    #$fh.say($out);
 }
+sub fizzbuzz(Int $n) returns Str {# {{{
+    return 'fizzbuzz' unless $n % 15;
+    return 'buzz' unless $n % 5;
+    return 'fizz' unless $n % 3;
+    return $n.Str;
+}# }}}
 
 
 ###
