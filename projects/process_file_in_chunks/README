@@ -76,6 +76,15 @@ scripts {
         If a p6 version of Text::CSV appears that uses NativeCall to call a c 
         library the way the p5 XS version does, the p6 code may well be back 
         to being close.
+            I found this: https://sourceforge.net/projects/libcsv/?source=typ_redirect
+            I installed it at home with no problem.  It produced 
+            /usr/local/lib/libcsv.so (along with some other libcsv* files in 
+            that same directory).  Haven't played with it yet.
+            I unzipped it into ./libcsv-3.0.3/.  Install is just
+                $ ./configure && make && make check
+                $ sudo make install
+                Huh.  Text::CSV::LibCSV is a thing.  It's on cpan.
+            I have more notes in libcsv's README.
 
         BUT, while we're "being fair", remember that the fastest p6 version 
         listed is using multiple threads for output, while the p5 version is a 
