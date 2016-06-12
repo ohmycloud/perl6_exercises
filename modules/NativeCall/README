@@ -18,3 +18,17 @@ Some other library {#{{{
 }#}}}
 
 
+libcsv {
+    
+    https://sourceforge.net/projects/libcsv/?source=typ_redirect
+
+    INSTALL:
+        ./configure --libdir=/usr/lib
+            Otherwise it wants to install into /usr/local/lib and NativeCall 
+            apparently does not look in there.
+        make
+        make check
+        sudo make install
+
+}
+

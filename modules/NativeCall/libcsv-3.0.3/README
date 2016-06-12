@@ -28,12 +28,3 @@ Ruby - SimpleCSV by Ken Date
        Rcsv by Artur Pyrogovskyi
        https://github.com/fiksu/rcsv
 
-
-JDB
----
-"./configure && make && make check && make install" installs to 
-/usr/local/lib/ which it appears that NativeCall does not search in.  I copied 
-libcsv.so.3 to /usr/lib/ and my test script then worked.  
-
-There's gotta be a way to tell NativeCall to look in other places, but I dunno 
-what that way is yet.
