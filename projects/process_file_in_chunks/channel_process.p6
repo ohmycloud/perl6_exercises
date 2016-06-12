@@ -157,6 +157,19 @@ say "That took {now - $start} seconds.";
 ### if you look at the timings for other numbers of writers, shift tends to 
 ### edge out the other two.  So, if anything is faster, it's likely shift.
 
+
+### The same script run under two different opt levels:
+### perl6 --optimize=3 channel_process.p6
+###     16.068
+### perl6 --optimize=0 channel_process.p6
+###     16.268
+###
+### Two more runs with diff opt levels show times close enough that it 
+### definitely looks like the opt level is not making a difference.  opt3 
+### profile does show a little more optimization than the opt0 profile, but 
+### not enough to make a difference, at least in this program.
+
+
 ###
 ### shift
 ###

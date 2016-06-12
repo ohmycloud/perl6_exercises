@@ -9,6 +9,10 @@ use NativeCall;
 ### With my knowledge of c (which is approaching zero), I'm starting to think 
 ### that this getting this CSV library working using NativeCall might be too 
 ### much for me to start with.
+###
+### HOWEVER, see these links before giving up:
+###     https://perl6advent.wordpress.com/2010/12/15/day-15-calling-native-libraries-from-perl-6/
+###     https://perl6advent.wordpress.com/2015/12/21/day-21-nativecall-backs-and-beyond-c/
 
 
 
