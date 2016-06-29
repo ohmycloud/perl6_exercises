@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>~/work/rakudo/modules/Text/VimColour/input.pl.html</title>
+<meta name="Generator" content="Vim/7.4">
+<meta name="plugin-version" content="vim7.4_v1">
+<meta name="syntax" content="perl">
+<meta name="settings" content="no_progress,use_css,pre_wrap,no_foldcolumn,prevent_copy=">
+<meta name="colorscheme" content="none">
+<style type="text/css">
+<!--
+pre { white-space: pre-wrap; font-family: monospace; color: #000000; background-color: #ffffff; }
+body { font-family: monospace; color: #000000; background-color: #ffffff; }
+* { font-size: 1em; }
+.Type { color: #008000; text-decoration: underline; }
+.Statement { color: #008080; font-weight: bold; }
+.PreProc { color: #c000c0; text-decoration: underline; }
+.Constant { color: #0000c0; text-decoration: underline; }
+.Comment { color: #c00000; font-weight: bold; }
+.Error { color: #8080ff; background-color: #ffffff; }
+.Identifier { color: #804000; text-decoration: underline; }
+-->
+</style>
+
+<script type='text/javascript'>
+<!--
+
+-->
+</script>
+</head>
+<body>
+<pre id='vimCodeElement'>
+<span class="PreProc">#!/usr/bin/env perl</span>
+
+<span class="Statement">use </span><span class="Constant">v</span><span class="Constant">5.20</span>;                      <span class="Comment"># or later to get signatures</span>
+<span class="Statement">use utf8</span>;                       <span class="Comment"># so literals and identifiers can be in UTF-8</span>
+<span class="Statement">use warnings</span>;                   <span class="Comment"># on by default</span>
+<span class="Statement">use warnings</span>  <span class="Constant">qw(</span><span class="Constant">FATAL utf8</span><span class="Constant">)</span>;   <span class="Comment"># fatalize encoding glitches</span>
+<span class="Statement">use open</span>      <span class="Constant">qw(</span><span class="Constant">:std :utf8</span><span class="Constant">)</span>;   <span class="Comment"># undeclared streams in UTF-8</span>
+
+<span class="Statement">use feature</span> <span class="Constant">qw(</span><span class="Constant">signatures</span><span class="Constant">)</span>;
+<span class="Statement">no warnings</span> <span class="Constant">qw(</span><span class="Constant">experimental::signatures</span><span class="Constant">)</span>;
+
+<span class="Comment">### Good ol fashioned perl5.</span>
+
+<span class="Statement">my</span> <span class="Identifier">@colors</span> = <span class="Constant">qw(</span><span class="Constant">red orange green blue</span><span class="Constant">)</span>;
+<span class="Statement">for</span> <span class="Statement">my</span> <span class="Identifier">$c</span>(<span class="Identifier">@colors</span>) {
+    <span class="Statement">say</span> <span class="Constant">&quot;</span><span class="Constant">--&gt;</span><span class="Identifier">$_</span><span class="Constant">&lt;--</span><span class="Constant">&quot;</span>;
+}
+
+<span class="Statement">my</span> <span class="Identifier">%h</span> = (
+    <span class="Constant">foo</span> =&gt; <span class="Constant">'</span><span class="Constant">bar</span><span class="Constant">'</span>,
+    <span class="Constant">john</span> =&gt; <span class="Constant">'</span><span class="Constant">koch</span><span class="Constant">'</span>,
+    <span class="Constant">jon</span> =&gt; <span class="Constant">'</span><span class="Constant">barton</span><span class="Constant">'</span>,
+    <span class="Constant">kermit</span> =&gt; <span class="Constant">'</span><span class="Constant">jackson</span><span class="Constant">'</span>,
+);
+
+<span class="Statement">while</span>( <span class="Statement">my</span>(<span class="Identifier">$n</span>,<span class="Identifier">$v</span>) = <span class="Statement">each</span> <span class="Identifier">%h</span> ) {
+    <span class="Statement">say</span> <span class="Constant">&quot;</span><span class="Constant">-</span><span class="Identifier">$n</span><span class="Constant">- -</span><span class="Identifier">$v</span><span class="Constant">-</span><span class="Constant">&quot;</span>;
+}
+
+
+<span class="Statement">sub </span><span class="Identifier">how_about_signatures</span><span class="Type">($</span><span class="Error">str, $def = 'default'</span><span class="Type">) </span>{
+    <span class="Statement">say</span> <span class="Constant">&quot;</span><span class="Constant">I got </span><span class="Identifier">$str</span><span class="Constant"> and </span><span class="Identifier">$def</span><span class="Constant">.</span><span class="Constant">&quot;</span>;
+}
+
+
+</pre>
+</body>
+</html>
+<!-- vim: set foldmethod=manual : -->

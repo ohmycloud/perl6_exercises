@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>~/work/rakudo/modules/Text/VimColour/AmbigParamResolution.java.html</title>
+<meta name="Generator" content="Vim/7.4">
+<meta name="plugin-version" content="vim7.4_v1">
+<meta name="syntax" content="java">
+<meta name="settings" content="no_progress,use_css,pre_wrap,no_foldcolumn,prevent_copy=">
+<meta name="colorscheme" content="none">
+<style type="text/css">
+<!--
+pre { white-space: pre-wrap; font-family: monospace; color: #000000; background-color: #ffffff; }
+body { font-family: monospace; color: #000000; background-color: #ffffff; }
+* { font-size: 1em; }
+.Constant { color: #0000c0; text-decoration: underline; }
+.Statement { color: #008080; font-weight: bold; }
+.PreProc { color: #c000c0; text-decoration: underline; }
+.Type { color: #008000; text-decoration: underline; }
+.Comment { color: #c00000; font-weight: bold; }
+.Error { color: #8080ff; background-color: #ffffff; }
+-->
+</style>
+
+<script type='text/javascript'>
+<!--
+
+-->
+</script>
+</head>
+<body>
+<pre id='vimCodeElement'>
+<span class="PreProc">import</span> java.io.PrintStream;
+
+
+<span class="Comment">/*</span>
+<span class="Comment"> * Two interfaces, two overloaded run() methods, and two run() calls, passing </span>
+<span class="Comment"> * different data types to each.</span>
+<span class="Comment"> *</span>
+<span class="Comment"> * Works as expected.</span>
+<span class="Comment"> */</span>
+
+
+<span class="Type">interface</span> Executable {
+    <span class="Type">int</span> execute( <span class="Type">int</span> a );
+}
+<span class="Type">interface</span> StringExecutable {
+    String execute( String a );
+}
+
+
+<span class="Type">class</span> Runner {
+    <span class="Type">public</span> <span class="Type">void</span> run(Executable e) {
+        <span class="Type">int</span> retval = e.execute( <span class="Constant">7</span> );
+        System.out.println( <span class="Constant">&quot;Int retval is: &quot;</span> + retval );
+    }
+
+    <span class="Type">public</span> <span class="Type">void</span> run(StringExecutable e) {
+        String retval = e.execute( <span class="Constant">&quot;Hello&quot;</span> );
+        System.out.println( <span class="Constant">&quot;String retval is: &quot;</span> + retval );
+    }
+}
+
+
+<span class="Type">class</span> AmbigParamResolution {
+
+    <span class="Type">public</span> <span class="Type">static</span> <span class="Type">void</span> main( String[] args ) {
+        Runner runner = <span class="Statement">new</span> Runner();
+
+        runner.run( (<span class="Type">int</span> a)<span class="Error"> -&gt;</span> {
+            System.out.println(<span class="Constant">&quot;Calling our runner with an int&quot;</span>);
+            <span class="Statement">return</span> <span class="Constant">7</span> + a;
+        });
+
+        runner.run( (String a)<span class="Error"> -&gt;</span> {
+            System.out.println(<span class="Constant">&quot;Calling our runner with a string&quot;</span>);
+            <span class="Statement">return</span> a + <span class="Constant">&quot; foobar&quot;</span>;
+        });
+
+    }
+}
+
+</pre>
+</body>
+</html>
+<!-- vim: set foldmethod=manual : -->
