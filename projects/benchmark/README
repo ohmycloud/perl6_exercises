@@ -1,0 +1,42 @@
+
+This directory was copied from ../process_files_in_chunks/.  ./bench.p6 used 
+to be channel_process.p6, just renamed and modified.
+
+
+This is not meant to be a real benchmark that you'd publish somewhere.  It 
+just shows major differences in runtime of this particular script.
+
+
+To run it, simply:
+    $ ./bench.p6
+
+
+
+
+2016.07.1 {#{{{
+    That took 9.429807 seconds.
+    That took 9.70532788 seconds.
+    That took 9.5742182 seconds.
+}#}}}
+2016.06 {#{{{
+    That took 13.4562380 seconds.
+    That took 14.11713923 seconds.
+    That took 14.18581810 seconds.
+}#}}}
+2016.05 {#{{{
+    That took 16.72274615 seconds.
+    That took 16.53702586 seconds.
+    That took 17.09463550 seconds.
+}#}}}
+2016.04 {#{{{
+    That took 48.2805361 seconds.
+    That took 47.9116557 seconds.
+}#}}}
+2016.03 {#{{{
+    That took 51.2564353 seconds.
+    That took 51.96196187 seconds.
+}#}}}
+
+
+There have obviously been huge improvements.
+
