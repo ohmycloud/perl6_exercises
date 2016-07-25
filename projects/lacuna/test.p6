@@ -222,7 +222,7 @@ if False {# {{{
 }# }}}
 
 ### Building testing
-if True {   # PCC # {{{
+if False {   # PCC # {{{
 
     my $planet  = Games::Lacuna::Model::Body.new( :account($a), :body_name('bmots07') );        # cannot create an instance of this type...
     my $pcc     = $planet.building(:name('planetary command center'));

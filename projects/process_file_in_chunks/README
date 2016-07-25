@@ -9,9 +9,12 @@ Output - to thread or not to thread? {#{{{
     second per rec, concurrency doesn't help.  But if that process sub becomes 
     expensive enough to take .1 second per rec, the concurrency does help.
 
+    The sleeps mentioned below are meant to simulate the subs doing actual 
+    work that would have taken .01 or .1 second.
+
     simple processor
         5000 line file with a .01 second sleep:
-            No concurrencty:        13 seconds
+            No concurrency:         13 seconds
             with race, 64 batch:    13 seconds
             with race, 32 batch:    13 seconds
             with race, 16 batch:    13 seconds

@@ -1,10 +1,17 @@
 
-This directory was copied from ../process_files_in_chunks/.  ./bench.p6 used 
-to be channel_process.p6, just renamed and modified.
-
 
 This is not meant to be a real benchmark that you'd publish somewhere.  It 
 just shows major differences in runtime of this particular script.
+
+
+This directory was copied from ../process_files_in_chunks/.  ./bench.p6 used 
+to be channel_process.p6, just renamed and modified.
+
+The "work" being done on the data file was a simple "sleep" at one point, but 
+that's changed.
+    - each line of data is a CSV record, containing the ints 1..100 inclusive.
+    - each record gets parsed, and each field gets passed to a fizzbuzz() 
+      function that does what you'd expect.
 
 
 To run it, simply:
@@ -12,6 +19,10 @@ To run it, simply:
 
 
 
+The numbers below are all with a 10,000 line input file, 16 writers, and a 
+chunk_size of 1000.
+
+System monitor shows all 8 CPUs pegged throughout all runs.
 
 2016.07.1 {#{{{
     That took 9.429807 seconds.
@@ -33,10 +44,21 @@ To run it, simply:
     That took 47.9116557 seconds.
 }#}}}
 2016.03 {#{{{
-    That took 51.2564353 seconds.
-    That took 51.96196187 seconds.
+    That took 49.94158147 seconds.
+    That took 52.22464466 seconds.
 }#}}}
-
+2016.02 {#{{{
+    That took 166.3465894 seconds.
+    That took 160.870737 seconds.
+}#}}}
+2016.01 {#{{{
+    That took 161.6083336 seconds.
+    That took 160.6782715 seconds.
+}#}}}
+2015.12 {#{{{
+    That took 160.3743321 seconds.
+    That took 162.7341972 seconds.
+}#}}}
 
 There have obviously been huge improvements.
 

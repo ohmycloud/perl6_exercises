@@ -5,7 +5,7 @@ my $output_dir  = '.';
 my $output_file = 'bench_out.txt';
 my $chunksize   = 1000;
 
-class FileBuffer {# {{{
+class FileBuffer {
     has Int         $.chunksize;
     has Int         $.max_read;
     has IO::Path    $.file;
@@ -21,15 +21,13 @@ class FileBuffer {# {{{
         $!file      = $file.IO;
         $!fh        = open $!file;
         $!done      = False;
-
         $!channel   = Channel.new;
-
     }
 
     method get() {
         while $.fh.opened {
             my @lines = grep { .WHAT ~~ Str }, $.fh.get xx $.max_read;
-            while @lines.elems {
+            while @lines.elems {# {{{
                 if @lines.elems <= $.chunksize and $.fh.opened {
                     @lines.append( grep { .WHAT ~~ Str }, $.fh.get xx $.max_read );
                     $.fh.close if $.fh.eof;
@@ -73,7 +71,7 @@ class FileBuffer {# {{{
             $.channel.close;
         }
     }
-}# }}}
+}
 sub create_output_files(Int $num) {# {{{
     ### The output files have to be created non-concurrently before the 
     ### process_records() threads can open them.  The fact that this sub is 
@@ -82,16 +80,10 @@ sub create_output_files(Int $num) {# {{{
         my $fh = open "$output_dir/$n.txt", :w;
         $fh.close;
     }
-}# }}}
+}# }}}# }}}
 sub process_records(FileBuffer $fb, Int $num) {# {{{
     my $fn = "{$num}.txt";
     my $fh = open "$output_dir/$fn", :w;
-
-    ### There's a comment in simple_process.p6 that talks about using print() 
-    ### instead of say() for producing the output.
-    ###
-    ### Using say() here does not produce the same funky output that doing so 
-    ### in simple_process.p6 does, so I'm going to stay with it.
 
     for $fb.channel.list -> $rec {
         my $out = (map { fizzbuzz($_.Int) }, [$rec.split(',')]).join(',');
