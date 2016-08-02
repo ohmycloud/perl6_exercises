@@ -1,7 +1,7 @@
 
 ### This will only run when either the ONLINE_TESTING or the ALL_TESTING env 
 ### var is true.
-use Test::When <online>
+use Test::When <online>;
 
 use Test;
 use Webservice::Weather;

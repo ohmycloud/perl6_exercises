@@ -16,6 +16,7 @@ Part II {#{{{
     "how-to-make-da-software".
 }#}}}
 Part III {#{{{
+    March 29
     http://perl6.party/post/Perl-6-Hands-On-Workshop--Weatherapp--Part-3
 
     Still no module code, but he sets up his testing structure, and uses some 
@@ -28,9 +29,12 @@ Part III {#{{{
         Test::When
         Test::META
 }#}}}
+Part IV {
+    July 27, still no part 4.  Has he given up on this?
+}
 
 API {#{{{
-    My API key
+    My API key from www.openweathermap.com:
         245ab8901be060d13e97ee4a6ba6697a
 
     My login info is in keepassx.

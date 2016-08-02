@@ -14,8 +14,11 @@ that's changed.
       function that does what you'd expect.
 
 
-To run it, simply:
+I should have the MoarVM version of p6 set as "perl6".  To test that:
     $ ./bench.p6
+
+To test the JVM backend, run:
+    $ perl6-j bench.p6
 
 
 
@@ -24,10 +27,14 @@ chunk_size of 1000.
 
 System monitor shows all 8 CPUs pegged throughout all runs.
 
+Unless otherwise marked, the results below are for the MoarVM backend.
 2016.07.1 {#{{{
     That took 9.429807 seconds.
     That took 9.70532788 seconds.
     That took 9.5742182 seconds.
+
+    This is the first rakudo release I built perl6-j for.  It dies with an 
+    error while trying to run bench.p6.
 }#}}}
 2016.06 {#{{{
     That took 13.4562380 seconds.

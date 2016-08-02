@@ -1,0 +1,14 @@
+
+"use Bailador" gives you exported subs like get(), post(), etc.  See hello.p6 
+for example.
+
+But the docs say that there are newer features that require you to make your 
+app a class that inherits from Bailador::App.  See ./simple_inherit.p6 for 
+example.
+
+
+basic/ {
+    This is still meant to be a very basic app, while showing more of the 
+    features of bailador.
+}
+
