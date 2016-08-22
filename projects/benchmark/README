@@ -23,11 +23,19 @@ To test the JVM backend, run:
 
 
 The numbers below are all with a 10,000 line input file, 16 writers, and a 
-chunk_size of 1000.
+chunk_size of 1000.  Run on Gandalf unless otherwise marked.
 
 System monitor shows all 8 CPUs pegged throughout all runs.
 
 Unless otherwise marked, the results below are for the MoarVM backend.
+2016.08.1 {#{{{
+
+    Samwise:
+        That took 10.5585642 seconds.
+        That took 10.5845216 seconds.
+        That took 10.79959332 seconds.
+
+}#}}}
 2016.07.1 {#{{{
     That took 9.429807 seconds.
     That took 9.70532788 seconds.
