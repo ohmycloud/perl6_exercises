@@ -30,6 +30,11 @@ System monitor shows all 8 CPUs pegged throughout all runs.
 Unless otherwise marked, the results below are for the MoarVM backend.
 2016.08.1 {#{{{
 
+    Gandalf:
+        That took 9.66535620 seconds.
+        That took 9.66535620 seconds.
+        That took 9.6464326 seconds.
+
     Samwise:
         That took 10.5585642 seconds.
         That took 10.5845216 seconds.
