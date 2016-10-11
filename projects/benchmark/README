@@ -24,10 +24,22 @@ To test the JVM backend, run:
 
 The numbers below are all with a 10,000 line input file, 16 writers, and a 
 chunk_size of 1000.  Run on Gandalf unless otherwise marked.
+    make_file.p6 will generate the input file.
 
 System monitor shows all 8 CPUs pegged throughout all runs.
 
 Unless otherwise marked, the results below are for the MoarVM backend.
+2016.09 {#{{{
+
+    Gandalf:
+        That took 9.01635660 seconds.
+        That took 9.3431287 seconds.
+        That took 9.7628754 seconds.
+
+    I really did get the 9.0 and 9.3 on the first two runs.  But every run 
+    after that has been in the 9.7 range (even after shutting firefox down).
+
+}#}}}
 2016.08.1 {#{{{
 
     Gandalf:
