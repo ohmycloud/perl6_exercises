@@ -29,6 +29,26 @@ chunk_size of 1000.  Run on Gandalf unless otherwise marked.
 System monitor shows all 8 CPUs pegged throughout all runs.
 
 Unless otherwise marked, the results below are for the MoarVM backend.
+2016.10 {#{{{
+
+    Gandalf, MOAR:
+        That took 9.94133472 seconds.
+        That took 10.16165499 seconds.
+        That took 9.7616724 seconds.
+
+    Gandalf, JVM:
+        Failed to run:
+            ➫ perl6-j bench.p6                                                    (master|✚1)
+            Getting input file reader
+            Pre-creating output files (this step should be unnecessary)
+            Processing data into output files
+            Can not invoke object '&infix:<~>'
+              in block <unit> at bench.p6 line 126
+
+    I really did get the 9.0 and 9.3 on the first two runs.  But every run 
+    after that has been in the 9.7 range (even after shutting firefox down).
+
+}#}}}
 2016.09 {#{{{
 
     Gandalf:
